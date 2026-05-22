@@ -2043,7 +2043,7 @@ int show_info(struct ds_config *cfg, int trust_cfg_pid) {
       const char *arch = get_architecture();
       printf(C_GREEN "Host:" C_RESET " %s %s\n", host, arch);
       printf("\n" C_YELLOW "Multiple containers running:" C_RESET "\n");
-      show_containers();
+      show_containers(cfg);
       printf("\nUse '" C_GREEN "--name <NAME> info" C_RESET
              "' for detailed information.\n\n");
       return 0;
@@ -2212,7 +2212,7 @@ int show_info(struct ds_config *cfg, int trust_cfg_pid) {
 
     printf("BIND_MOUNT_COUNT=%d\n", cfg->bind_count);
     printf("ENV_VAR_COUNT=%d\n", cfg->env_var_count);
-
+    show_container_usage(cfg);
   } else {
     /* Human-readable output */
     const char *host = is_android() ? "Android" : "Linux";

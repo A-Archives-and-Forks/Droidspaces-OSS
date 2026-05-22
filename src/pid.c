@@ -418,7 +418,7 @@ int sync_pidfile(const char *src_pidfile, const char *name) {
  * Status reporting
  * ---------------------------------------------------------------------------*/
 
-int show_containers(void) {
+int show_containers(struct ds_config *cfg) {
   DIR *d = opendir(get_pids_dir());
   if (!d) {
     if (errno == ENOENT) {
@@ -435,7 +435,12 @@ int show_containers(void) {
   } *containers = NULL;
 
   int count = 0;
+  int totalcount = 0;
   int cap = 32;
+  char container_dir[1024];
+  snprintf(container_dir, sizeof(container_dir), "%s/%s", get_workspace_dir(),
+           DS_CONTAINERS_DIR);
+  totalcount = count_folders(container_dir);
   containers = malloc(cap * sizeof(struct container_info));
   if (!containers) {
     closedir(d);
@@ -499,8 +504,18 @@ int show_containers(void) {
     return 0;
   }
 
-  if (max_name_len > 60)
-    max_name_len = 60;
+  if (cfg->format_output) {
+    printf("TOTAL_CONTAINERS=%d\n", totalcount);
+    printf("RUN_CONTAINERS=%d\n", count);
+
+    for (int i = 0; i < count; i++) {
+      printf("CONT_%s=%d\n", containers[i].name, containers[i].pid);
+    }
+
+    printf("\n");
+  } else {
+    if (max_name_len > 60)
+      max_name_len = 60;
 
 /* Helper to print horizontal line */
 #define PRINT_LINE(start, mid, end)                                            \
@@ -514,20 +529,20 @@ int show_containers(void) {
     printf("%s\n", end);                                                       \
   } while (0)
 
-  printf("\n");
-  PRINT_LINE("┌", "┬", "┐");
-  printf("│ %-*s │ %-8s │\n", (int)max_name_len, "NAME", "PID");
-  PRINT_LINE("├", "┼", "┤");
+    printf("\n");
+    PRINT_LINE("┌", "┬", "┐");
+    printf("│ %-*s │ %-8s │\n", (int)max_name_len, "NAME", "PID");
+    PRINT_LINE("├", "┼", "┤");
 
-  for (int i = 0; i < count; i++) {
-    printf("│ %-*s │ %-8d │\n", (int)max_name_len, containers[i].name,
-           containers[i].pid);
-  }
+    for (int i = 0; i < count; i++) {
+      printf("│ %-*s │ %-8d │\n", (int)max_name_len, containers[i].name,
+             containers[i].pid);
+    }
 
-  PRINT_LINE("└", "┴", "┘");
-  printf("\n");
+    PRINT_LINE("└", "┴", "┘");
+    printf("\n");
 #undef PRINT_LINE
-
+  }
   free(containers);
   return 0;
 }

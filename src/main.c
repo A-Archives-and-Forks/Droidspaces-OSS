@@ -222,7 +222,7 @@ static int auto_resolve_container_name(struct ds_config *cfg) {
   if (count > 1) {
     ds_error("Multiple containers running. Please specify " C_BOLD
              "--name" C_RESET ".");
-    show_containers();
+    show_containers(cfg);
     return -1;
   }
 
@@ -1048,7 +1048,7 @@ int main(int argc, char **argv) {
   ensure_workspace();
 
   if (strcmp(cmd, "show") == 0) {
-    ret = show_containers();
+    ret = show_containers(&cfg);
     goto cleanup;
   }
 

@@ -86,6 +86,7 @@
 /* Workspace paths */
 #define DS_WORKSPACE_ANDROID "/data/local/Droidspaces"
 #define DS_WORKSPACE_LINUX "/var/lib/Droidspaces"
+#define DS_CONTAINERS_DIR "Containers"
 #define DS_PIDS_SUBDIR "Pids"
 #define DS_IMG_MOUNT_ROOT_UNIVERSAL "/mnt/Droidspaces"
 #define DS_MAX_MOUNT_TRIES 1024
@@ -440,6 +441,7 @@ void sanitize_container_name(const char *name, char *out, size_t size);
 int validate_container_name(const char *name);
 int reject_container_name(const char *name);
 int validate_bind_destination(const char *dest);
+int count_folders(const char *path);
 
 /* ---------------------------------------------------------------------------
  * config.c
@@ -692,7 +694,7 @@ pid_t find_container_init_pid(const char *uuid);
 int collect_active_uuids(char uuids[][DS_UUID_LEN + 1], int max_uuids);
 pid_t find_container_by_name(const char *name);
 int sync_pidfile(const char *src_pidfile, const char *name);
-int show_containers(void);
+int show_containers(struct ds_config *cfg);
 int scan_containers(void);
 int check_selinux_permissive_needs(void);
 void write_plain_env_file(const char *src, const char *dst);

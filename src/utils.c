@@ -1946,8 +1946,8 @@ static int ds_socketd_build_core_event_path(char *path, size_t path_size) {
   if (!path || path_size == 0)
     return -1;
 
-  int r = snprintf(path, path_size, "%.4076s/socketd-events.bin",
-                   get_logs_dir());
+  int r =
+      snprintf(path, path_size, "%.4076s/socketd-events.bin", get_logs_dir());
   return (r > 0 && (size_t)r < path_size) ? 0 : -1;
 }
 
@@ -1961,10 +1961,8 @@ static void ds_socketd_trim_core_event_file(const char *path) {
   };
 
   const size_t record_size = sizeof(struct ds_socketd_core_event_record);
-  const off_t soft_cap_bytes =
-      (off_t)(kSoftCapRecords * record_size);
-  const off_t retain_bytes =
-      (off_t)(kRetainRecords * record_size);
+  const off_t soft_cap_bytes = (off_t)(kSoftCapRecords * record_size);
+  const off_t retain_bytes = (off_t)(kRetainRecords * record_size);
 
   int fd = open(path, O_RDWR | O_CLOEXEC);
   if (fd < 0)
@@ -1997,8 +1995,8 @@ static void ds_socketd_trim_core_event_file(const char *path) {
   size_t bytes_read = 0;
 
   while (bytes_read < bytes_wanted) {
-    ssize_t n = read(fd, (uint8_t *)keep + bytes_read,
-                     bytes_wanted - bytes_read);
+    ssize_t n =
+        read(fd, (uint8_t *)keep + bytes_read, bytes_wanted - bytes_read);
     if (n < 0) {
       if (errno == EINTR)
         continue;
@@ -2059,9 +2057,7 @@ void ds_socketd_record_core_event(const char *action,
   safe_strncpy(record.actor_id, uuid, sizeof(record.actor_id));
   safe_strncpy(record.actor_name, container_name, sizeof(record.actor_name));
 
-  int fd = open(event_path,
-                O_WRONLY | O_CREAT | O_APPEND | O_CLOEXEC,
-                0644);
+  int fd = open(event_path, O_WRONLY | O_CREAT | O_APPEND | O_CLOEXEC, 0644);
   if (fd < 0)
     return;
 
@@ -2073,13 +2069,12 @@ void ds_socketd_record_core_event(const char *action,
   struct stat st;
   int should_trim = 0;
   if (fstat(fd, &st) == 0) {
-    off_t soft_cap =
-        (off_t)(128 * sizeof(struct ds_socketd_core_event_record));
+    off_t soft_cap = (off_t)(128 * sizeof(struct ds_socketd_core_event_record));
     should_trim = st.st_size > soft_cap;
   }
 
   close(fd);
-  
+
   /*
    * CONCERN(socketd-events):
    * Event compaction is best-effort and intentionally unsynchronized. The
@@ -2091,3 +2086,38 @@ void ds_socketd_record_core_event(const char *action,
     ds_socketd_trim_core_event_file(event_path);
 }
 
+/*
+ * count_folders : function to count the number of folders in the passed path
+ * and return the number of folder it can be used the get the total number of
+ * containers from the get_workspace_dir directory
+ */
+int count_folders(const char *path) {
+  DIR *dir = opendir(path);
+  struct dirent *entry;
+  struct stat st;
+  char fullpath[PATH_MAX];
+  int count = 0;
+
+  if (!dir)
+    return 0;
+
+  size_t base_len = strlen(path);
+
+  while ((entry = readdir(dir)) != NULL) {
+
+    if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+      continue;
+
+    /* Skip entries whose full path would exceed PATH_MAX */
+    if (base_len + 1 + strlen(entry->d_name) >= sizeof(fullpath))
+      continue;
+
+    snprintf(fullpath, sizeof(fullpath), "%s/%s", path, entry->d_name);
+
+    if (stat(fullpath, &st) == 0 && S_ISDIR(st.st_mode))
+      count++;
+  }
+
+  closedir(dir);
+  return count;
+}
