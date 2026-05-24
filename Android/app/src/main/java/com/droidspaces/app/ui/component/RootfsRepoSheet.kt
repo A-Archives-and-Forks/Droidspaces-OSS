@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import kotlinx.coroutines.flow.first
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -313,11 +314,15 @@ private fun RootfsAssetCard(
                         modifier = Modifier.size(24.dp),
                         tint = if (state is AssetDownloadState.Done) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                     )
+                    var nameFontSize by remember(asset.name) { mutableStateOf(16.sp) }
                     Text(
                         text = getFriendlyName(asset.name),
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = nameFontSize),
                         fontWeight = FontWeight.SemiBold,
-                        maxLines = 1
+                        maxLines = 1,
+                        softWrap = false,
+                        overflow = TextOverflow.Visible,
+                        onTextLayout = { if (it.hasVisualOverflow) nameFontSize = (nameFontSize.value - 1).sp }
                     )
                 }
 
@@ -546,9 +551,9 @@ private fun getFriendlyName(fileName: String): String {
         .substringBefore("-droidspaces-rootfs-")
     return prefix
         .replace("-base", " Base")
-        .replace("-Minimal-Systemd", " Minimal (Systemd)")
+        .replace("-Minimal-Systemd", " Minimal Systemd")
         .replace("-Minimal", " Minimal")
-        .replace("-Systemd", " (Systemd)")
+        .replace("-Systemd", " Systemd")
         .replace("-latest", " Latest")
         .replace("-v", " v")
         .replace("-and-up", " and up")
