@@ -940,6 +940,12 @@ int setup_custom_binds(struct ds_config *cfg, const char *rootfs) {
       umount2(tgt, MNT_DETACH);
       continue;
     }
+
+    /* Remount RO if requested (bind always lands RW first) */
+    if (cfg->binds[i].ro) {
+      if (mount(NULL, tgt, NULL, MS_REMOUNT | MS_BIND | MS_RDONLY, NULL) < 0)
+        ds_warn("Failed to remount %s read-only: %s", tgt, strerror(errno));
+    }
   }
 
   return 0;

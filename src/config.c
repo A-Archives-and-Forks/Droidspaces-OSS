@@ -107,7 +107,16 @@ static void parse_bind_mounts(const char *value, struct ds_config *cfg) {
     if (sep) {
       *sep = '\0';
       const char *src_raw = trim_whitespace(token);
-      const char *dest_raw = trim_whitespace(sep + 1);
+      char *rest = sep + 1;
+
+      /* Check for optional :ro suffix after dest */
+      int ro = 0;
+      char *flag_sep = strchr(rest, ':');
+      if (flag_sep) {
+        *flag_sep = '\0';
+        ro = (strcmp(trim_whitespace(flag_sep + 1), "ro") == 0) ? 1 : 0;
+      }
+      const char *dest_raw = trim_whitespace(rest);
 
       char *src_exp = ds_resolve_path_arg(src_raw);
       char *dest_exp = ds_resolve_path_arg(dest_raw);
@@ -118,7 +127,7 @@ static void parse_bind_mounts(const char *value, struct ds_config *cfg) {
       if (!validate_bind_destination(dest)) {
         ds_warn("Skipping unsafe bind destination '%s' from config.", dest);
       } else {
-        ds_config_add_bind(cfg, src, dest);
+        ds_config_add_bind(cfg, src, dest, ro);
       }
       free(src_exp);
       free(dest_exp);
@@ -127,8 +136,8 @@ static void parse_bind_mounts(const char *value, struct ds_config *cfg) {
   }
 }
 
-int ds_config_add_bind(struct ds_config *cfg, const char *src,
-                       const char *dest) {
+int ds_config_add_bind(struct ds_config *cfg, const char *src, const char *dest,
+                       int ro) {
   if (!src || !dest || src[0] == '\0' || dest[0] == '\0')
     return 0;
   /* Defensive: callers must pre-validate; this is a last-resort assert */
@@ -178,6 +187,7 @@ int ds_config_add_bind(struct ds_config *cfg, const char *src,
                sizeof(cfg->binds[cfg->bind_count].src));
   safe_strncpy(cfg->binds[cfg->bind_count].dest, dest,
                sizeof(cfg->binds[cfg->bind_count].dest));
+  cfg->binds[cfg->bind_count].ro = ro;
   cfg->bind_count++;
   return 1;
 }
@@ -710,8 +720,9 @@ static void ds_config_serialize_known(FILE *f, struct ds_config *cfg) {
     for (int i = 0; i < cfg->bind_count; i++) {
       char *abs_src = ds_resolve_path_arg(cfg->binds[i].src);
       char *abs_dest = ds_resolve_path_arg(cfg->binds[i].dest);
-      fprintf(f, "%s:%s%s", abs_src ? abs_src : cfg->binds[i].src,
+      fprintf(f, "%s:%s%s%s", abs_src ? abs_src : cfg->binds[i].src,
               abs_dest ? abs_dest : cfg->binds[i].dest,
+              cfg->binds[i].ro ? ":ro" : "",
               (i < cfg->bind_count - 1) ? "," : "");
       free(abs_src);
       free(abs_dest);

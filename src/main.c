@@ -91,7 +91,7 @@ void print_usage(void) {
       "  -u, --user=USER           Run command as USER (for 'run' command "
       "only)\n"
       "  -E, --env=PATH            Load environment variables from file\n"
-      "  -B, --bind=SRC:DEST       Bind mount host directory into container\n"
+      "  -B, --bind=SRC:DEST[:ro]  Bind mount host directory into container\n"
       "                            Supports multiple flags or "
       "comma-separation\n"
       "                            e.g. -B /data:/data -B /tmp:/tmp\n"
@@ -606,13 +606,23 @@ int main(int argc, char **argv) {
       while (token) {
         char *sep = strchr(token, ':');
         if (!sep) {
-          ds_error("Invalid bind mount format: %s (expected SRC:DEST)", token);
+          ds_error("Invalid bind mount format: %s (expected SRC:DEST[:ro])",
+                   token);
           ret = 1;
           goto cleanup;
         }
         *sep = '\0';
         const char *src = token;
-        const char *dest = sep + 1;
+        char *rest = sep + 1;
+
+        /* Parse optional :ro flag after dest */
+        int ro = 0;
+        char *flag_sep = strchr(rest, ':');
+        if (flag_sep) {
+          *flag_sep = '\0';
+          ro = (strcmp(flag_sep + 1, "ro") == 0) ? 1 : 0;
+        }
+        const char *dest = rest;
 
         if (dest[0] != '/') {
           ds_error("Bind destination must be an absolute path: %s", dest);
@@ -626,7 +636,7 @@ int main(int argc, char **argv) {
           ret = 1;
           goto cleanup;
         }
-        if (ds_config_add_bind(&cfg, src, dest) < 0) {
+        if (ds_config_add_bind(&cfg, src, dest, ro) < 0) {
           ret = 1;
           goto cleanup;
         }

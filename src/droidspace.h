@@ -227,6 +227,7 @@ struct ds_net_handshake {
 struct ds_bind_mount {
   char src[PATH_MAX];
   char dest[PATH_MAX];
+  int ro; /* 1 = remount read-only after bind */
 };
 
 struct ds_env_var {
@@ -452,8 +453,8 @@ int ds_config_load_by_name(const char *name, struct ds_config *cfg);
 int ds_config_save(const char *config_path, struct ds_config *cfg);
 int ds_config_save_by_name(const char *name, struct ds_config *cfg);
 int ds_config_validate(struct ds_config *cfg);
-int ds_config_add_bind(struct ds_config *cfg, const char *src,
-                       const char *dest);
+int ds_config_add_bind(struct ds_config *cfg, const char *src, const char *dest,
+                       int ro);
 void free_config_binds(struct ds_config *cfg);
 void free_config_env_vars(struct ds_config *cfg);
 void free_config_unknown_lines(struct ds_config *cfg);

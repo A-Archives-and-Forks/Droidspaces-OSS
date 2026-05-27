@@ -371,7 +371,7 @@ static void print_page(int page, const char *bin) {
            bin);
 
     printf("%sBind Mounts & Environment:%s\n", bold, reset);
-    printf("  --bind /host:/cont    Bind mount host path\n");
+    printf("  --bind /host:/cont[:ro]  Bind mount host path (append :ro for read-only)\n");
     printf("  --env /path/to/env.list  Load environment variables\n\n");
 
     printf("%sConfig Management:%s\n", bold, reset);
