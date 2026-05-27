@@ -345,12 +345,6 @@ int internal_boot(struct ds_config *cfg) {
     return -1;
   }
 
-  /* 12. Mask the console discovery file to prevent resolution back to host */
-  if (mount("/dev/null", "sys/class/tty/console/active", NULL, MS_BIND, NULL) <
-      0) {
-    /* File might not exist yet if sysfs is partially populated */
-  }
-
   if (domount("tmpfs", "run", "tmpfs", MS_NOSUID | MS_NODEV, "mode=755") < 0) {
     ds_error("Failed to mount tmpfs at /run: %s", strerror(errno));
     return -1;
