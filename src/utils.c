@@ -1107,10 +1107,34 @@ void rotate_log(const char *path, size_t max_size) {
 }
 
 static void write_to_log_file(const char *name, const char *component,
-                              const char *raw_msg) {
+                              const char *raw_msg, int pre_opened_fd) {
   if (!name || !name[0])
     return;
 
+  struct timespec ts;
+  clock_gettime(CLOCK_REALTIME, &ts);
+  struct tm tm;
+  localtime_r(&ts.tv_sec, &tm);
+
+  /* Pre-opened FD path: survives pivot_root / mount namespace changes.
+   * dprintf() writes directly to the fd - no dup/fdopen/fclose overhead.
+   * O_APPEND (set at open time) makes each write atomic for small messages. */
+  if (pre_opened_fd >= 0) {
+    /* In-place rotation: truncate when over 2MB.
+     * rename() is not possible since the FD follows the inode, not the path. */
+    struct stat st;
+    if (fstat(pre_opened_fd, &st) == 0 &&
+        (size_t)st.st_size >= 2 * 1024 * 1024) {
+      ftruncate(pre_opened_fd, 0);
+      lseek(pre_opened_fd, 0, SEEK_SET);
+    }
+    dprintf(pre_opened_fd, "[%04d-%02d-%02d %02d:%02d:%02d.%03ld] [%s] %s\n",
+            tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min,
+            tm.tm_sec, ts.tv_nsec / 1000000, component, raw_msg);
+    return;
+  }
+
+  /* Fallback: open by path (pre-pivot, monitor process, etc.) */
   char log_dir[PATH_MAX];
   char safe_log_name[256];
   sanitize_container_name(name, safe_log_name, sizeof(safe_log_name));
@@ -1127,10 +1151,6 @@ static void write_to_log_file(const char *name, const char *component,
   if (!f)
     return;
 
-  struct timespec ts;
-  clock_gettime(CLOCK_REALTIME, &ts);
-  struct tm tm;
-  localtime_r(&ts.tv_sec, &tm);
   fprintf(f, "[%04d-%02d-%02d %02d:%02d:%02d.%03ld] [%s] %s\n",
           tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min,
           tm.tm_sec, ts.tv_nsec / 1000000, component, raw_msg);
@@ -1147,7 +1167,8 @@ void ds_log_internal(const char *prefix, const char *color, int is_err,
 
   /* Always log to file if container name is known */
   if (ds_log_container_name[0]) {
-    write_to_log_file(ds_log_container_name, "main", raw_msg);
+    write_to_log_file(ds_log_container_name, "main", raw_msg,
+                      ds_log_container_fd);
   }
 
   /* Decide if we should print to terminal */
@@ -1185,7 +1206,8 @@ void ds_die_internal(const char *fmt, ...) {
   va_end(ap);
 
   if (ds_log_container_name[0]) {
-    write_to_log_file(ds_log_container_name, "fatal", raw_msg);
+    write_to_log_file(ds_log_container_name, "fatal", raw_msg,
+                      ds_log_container_fd);
   }
 
   fprintf(stderr, "[" C_RED "-" C_RESET "] %s\r\n", raw_msg);
@@ -1203,7 +1225,36 @@ void write_monitor_debug_log(const char *name, const char *fmt, ...) {
   vsnprintf(raw_msg, sizeof(raw_msg), fmt, ap);
   va_end(ap);
 
-  write_to_log_file(name, "monitor", raw_msg);
+  write_to_log_file(name, "monitor", raw_msg, -1);
+}
+
+void ds_open_container_log(struct ds_config *cfg) {
+  if (!cfg || !cfg->container_name[0])
+    return;
+
+  char log_dir[PATH_MAX];
+  char safe_log_name[256];
+  sanitize_container_name(cfg->container_name, safe_log_name,
+                          sizeof(safe_log_name));
+  snprintf(log_dir, sizeof(log_dir), "%.2048s/" DS_LOGS_SUBDIR "/%.256s",
+           get_workspace_dir(), safe_log_name);
+  mkdir_p(log_dir, 0755);
+
+  char log_path[PATH_MAX];
+  snprintf(log_path, sizeof(log_path), "%.4090s/log", log_dir);
+
+  rotate_log(log_path, 2 * 1024 * 1024);
+
+  int fd = open(log_path, O_WRONLY | O_CREAT | O_APPEND | O_CLOEXEC, 0644);
+  if (fd >= 0)
+    ds_log_container_fd = fd;
+}
+
+void ds_close_container_log(void) {
+  if (ds_log_container_fd >= 0) {
+    close(ds_log_container_fd);
+    ds_log_container_fd = -1;
+  }
 }
 
 void print_ds_banner(void) {
