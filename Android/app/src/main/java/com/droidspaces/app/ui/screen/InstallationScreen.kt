@@ -72,6 +72,14 @@ fun InstallationScreen(
                 com.droidspaces.app.util.SymlinkInstaller.isSymlinkEnabled()
             }
 
+            // Check if SELinux policy exists BEFORE we start nuking things
+            val sepolicyExists = withContext(Dispatchers.IO) {
+                Shell.cmd("test -f ${Constants.MAGISK_MODULE_PATH}/sepolicy.rule").exec().isSuccess
+            }
+            if (!sepolicyExists) {
+                rebootRecommended = true
+            }
+
             if (!isAtomicUpdate) {
                 // Clean Slate: Remove the old module, but NEVER the bin directory
                 // (the daemon's g_self_path fix means the old binary stays valid
