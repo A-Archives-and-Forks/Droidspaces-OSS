@@ -401,7 +401,8 @@ sudo ./droidspaces check
 Droidspaces 建立在开源社区的杰出工作之上。特别感谢以下项目的启发和贡献：
 
 *   **[LXC](https://github.com/lxc/lxc)** - 提供了现代 Linux 容器化的核心架构愿景和灵感。
-*   **[Brutal-Busybox](https://github.com/feravolt/Brutal_busybox)** - 为 Android 用户空间应用中某些操作提供了静态链接的 BusyBox 二进制文件。
+*   ~~**[Brutal-Busybox](https://github.com/feravolt/Brutal_busybox)** - 为 Android 用户空间应用中某些操作提供了静态链接的 BusyBox 二进制文件。~~
+*   **[Busybox](https://busybox.net/)** - 用于 Android 用户空间应用中执行某些操作的静态链接 BusyBox 二进制文件（[我们自定义 BusyBox 的源码](https://github.com/Droidspaces/busybox-droidspaces)）
 *   ~~**[Magisk](https://github.com/topjohnwu/Magisk)** - 提供了 `magiskpolicy` 工具，为实时 SELinux 修补提供了核心引擎。~~
 *   ~~**[KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next)**、**[MMRL](https://github.com/MMRLApp/MMRL)** 和 **[LSPatch](https://github.com/LSPosed/LSPatch)** - 为我们现代化的 UI 设计语言和 Android 用户体验提供了灵感。~~
 *   **[ReTerminal](https://github.com/RohitKushvaha01/ReTerminal)**、**[Termux](https://github.com/termux/termux-app)**、**[LXC-Manager](https://github.com/Container-On-Android/LXC-Manager)** - 为内置终端模拟器提供了终端后端支持。
