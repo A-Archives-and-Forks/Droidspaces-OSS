@@ -321,6 +321,7 @@ static void enforce_nat_safety(struct ds_config *cfg, int argc, char **argv) {
 int main(int argc, char **argv) {
   int ret = 0;
   struct ds_config cfg;
+  char raw_names[4096] = "";
   /* CRITICAL: Zero all fields to avoid garbage pointer in dynamic arrays */
   memset(&cfg, 0, sizeof(cfg));
 
@@ -407,7 +408,7 @@ int main(int argc, char **argv) {
       safe_strncpy(cfg.config_file, optarg, sizeof(cfg.config_file));
       cfg.config_file_specified = 1;
     } else if (opt == 'n') {
-      if (reject_container_name(optarg) < 0) {
+      if (parse_and_validate_names(optarg, raw_names, sizeof(raw_names)) < 0) {
         ret = 1;
         goto cleanup;
       }
@@ -515,8 +516,8 @@ int main(int argc, char **argv) {
   }
 
   /* If we have a name but haven't successfully loaded a config file yet, load
-   * by name. */
-  if (!loaded && cfg.container_name[0] != '\0') {
+   * by name. Skip for comma-separated names - ds_multi_* handles those. */
+  if (!loaded && cfg.container_name[0] != '\0' && !strchr(raw_names, ',')) {
     if (ds_config_load_by_name(cfg.container_name, &cfg) < 0) {
       /* If loading by name fails and it's a stateful command, maybe the
        * container was moved or renamed. Perform a recovery scan of running
@@ -562,7 +563,7 @@ int main(int argc, char **argv) {
       cfg.is_img_mount = 1;
       break;
     case 'n':
-      if (reject_container_name(optarg) < 0) {
+      if (parse_and_validate_names(optarg, raw_names, sizeof(raw_names)) < 0) {
         ret = 1;
         goto cleanup;
       }
@@ -1069,8 +1070,13 @@ int main(int argc, char **argv) {
     goto cleanup;
   }
 
-  /* Lifestyle commands */
+  /* start/restart: single container only */
   if (strcmp(cmd, "start") == 0) {
+    if (strchr(raw_names, ',')) {
+      ds_error("start does not support multiple containers.");
+      ret = 1;
+      goto cleanup;
+    }
     if (validate_configuration_cli(&cfg) < 0) {
       ret = 1;
       goto cleanup;
@@ -1084,43 +1090,40 @@ int main(int argc, char **argv) {
       goto cleanup;
     }
     enforce_nat_safety(&cfg, argc, argv);
-
     print_ds_banner();
     print_privileged_warning(cfg.privileged_mask);
-
-    if ((cfg.privileged_mask & DS_PRIV_NOSEC) && cfg.block_nested_ns) {
+    if ((cfg.privileged_mask & DS_PRIV_NOSEC) && cfg.block_nested_ns)
       ds_warn("--privileged=noseccomp is active: --block-nested-namespaces "
               "is now a NO-OP.");
-    }
-
     ds_cgroup_host_bootstrap(cfg.force_cgroupv1);
-    if (cfg.container_name[0] == '\0' && cfg.rootfs_path[0]) {
+    if (cfg.container_name[0] == '\0' && cfg.rootfs_path[0])
       generate_container_name(cfg.rootfs_path, cfg.container_name,
                               sizeof(cfg.container_name));
-    }
     ret = start_rootfs(&cfg);
     goto cleanup;
   }
 
   if (strcmp(cmd, "stop") == 0) {
-    ret = stop_rootfs(&cfg, 0);
+    ret = strchr(raw_names, ',') ? ds_multi_stop(raw_names)
+                                 : stop_rootfs(&cfg, 0);
     goto cleanup;
   }
 
   if (strcmp(cmd, "restart") == 0) {
+    if (strchr(raw_names, ',')) {
+      ds_error("restart does not support multiple containers.");
+      ret = 1;
+      goto cleanup;
+    }
     if (check_requirements_hw(cfg.hw_access) < 0) {
       ret = 1;
       goto cleanup;
     }
     enforce_nat_safety(&cfg, argc, argv);
-
     print_privileged_warning(cfg.privileged_mask);
-
-    if ((cfg.privileged_mask & DS_PRIV_NOSEC) && cfg.block_nested_ns) {
+    if ((cfg.privileged_mask & DS_PRIV_NOSEC) && cfg.block_nested_ns)
       ds_warn("--privileged=noseccomp is active: --block-nested-namespaces "
               "is now a NO-OP.");
-    }
-
     ds_cgroup_host_bootstrap(cfg.force_cgroupv1);
     ret = restart_rootfs(&cfg);
     goto cleanup;

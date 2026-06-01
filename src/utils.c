@@ -2183,3 +2183,43 @@ int count_folders(const char *path) {
   closedir(dir);
   return count;
 }
+
+/* Validate each comma-separated name in optarg; store raw value in out_buf. */
+int parse_and_validate_names(const char *optarg, char *out_buf,
+                             size_t out_size) {
+  char tmp[4096];
+  snprintf(tmp, sizeof(tmp), "%s", optarg);
+  char *sp, *tok = strtok_r(tmp, ",", &sp);
+  while (tok) {
+    if (reject_container_name(tok) < 0)
+      return -1;
+    tok = strtok_r(NULL, ",", &sp);
+  }
+  snprintf(out_buf, out_size, "%s", optarg);
+  return 0;
+}
+
+/* Init an iter_cfg suitable for per-container dispatch. */
+static void init_iter_cfg(struct ds_config *c, const char *prog_name) {
+  memset(c, 0, sizeof(*c));
+  c->net_ready_pipe[0] = c->net_ready_pipe[1] = -1;
+  c->net_done_pipe[0] = c->net_done_pipe[1] = -1;
+  if (prog_name)
+    safe_strncpy(c->prog_name, prog_name, sizeof(c->prog_name));
+}
+
+int ds_multi_stop(const char *raw_names) {
+  char tmp[4096];
+  snprintf(tmp, sizeof(tmp), "%s", raw_names);
+  int ret = 0;
+  char *sp, *tok = strtok_r(tmp, ",", &sp);
+  while (tok) {
+    struct ds_config c;
+    init_iter_cfg(&c, NULL);
+    safe_strncpy(c.container_name, tok, sizeof(c.container_name));
+    if (stop_rootfs(&c, 0) != 0)
+      ret = 1;
+    tok = strtok_r(NULL, ",", &sp);
+  }
+  return ret;
+}

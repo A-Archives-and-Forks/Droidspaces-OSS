@@ -441,6 +441,9 @@ void sort_bind_mounts(struct ds_config *cfg);
 void sanitize_container_name(const char *name, char *out, size_t size);
 int validate_container_name(const char *name);
 int reject_container_name(const char *name);
+int parse_and_validate_names(const char *optarg, char *out_buf,
+                             size_t out_size);
+int ds_multi_stop(const char *raw_names);
 int validate_bind_destination(const char *dest);
 int count_folders(const char *path);
 
