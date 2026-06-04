@@ -996,3 +996,66 @@ int check_virgl_needs(void) {
   closedir(cd);
   return virgl_installed ? 0 : -1;
 }
+
+/*
+ * check_pulse_needs - scan running containers to decide if the global
+ * PulseAudio daemon should stay up.
+ *
+ * Returns:
+ *   1: at least one running container has pulseaudio enabled
+ *   0: pulseaudio containers exist but none are running
+ *  -1: no containers with pulseaudio are installed
+ */
+int check_pulse_needs(void) {
+  DIR *pd = opendir(get_pids_dir());
+  if (!pd)
+    return -1;
+
+  struct dirent *ent;
+  while ((ent = readdir(pd)) != NULL) {
+    if (!is_pid_file(ent->d_name))
+      continue;
+    char name[256];
+    get_container_name_from_pidfile(ent->d_name, name, sizeof(name));
+    struct ds_config tmp = {0};
+    if (ds_config_load_by_name(name, &tmp) == 0) {
+      pid_t pid;
+      int running = tmp.pulseaudio && is_container_running(&tmp, &pid);
+      free_config_binds(&tmp);
+      free_config_env_vars(&tmp);
+      free_config_unknown_lines(&tmp);
+      if (running) {
+        closedir(pd);
+        return 1;
+      }
+    }
+  }
+  closedir(pd);
+
+  /* Phase 2: any pulseaudio container installed at all? */
+  char containers_path[PATH_MAX];
+  snprintf(containers_path, sizeof(containers_path), "%s/Containers",
+           get_workspace_dir());
+  DIR *cd = opendir(containers_path);
+  if (!cd)
+    return -1;
+
+  int pulse_installed = 0;
+  while ((ent = readdir(cd)) != NULL) {
+    if (ent->d_name[0] == '.')
+      continue;
+    struct ds_config tmp = {0};
+    if (ds_config_load_by_name(ent->d_name, &tmp) == 0 && tmp.pulseaudio) {
+      pulse_installed = 1;
+      free_config_binds(&tmp);
+      free_config_env_vars(&tmp);
+      free_config_unknown_lines(&tmp);
+      break;
+    }
+    free_config_binds(&tmp);
+    free_config_env_vars(&tmp);
+    free_config_unknown_lines(&tmp);
+  }
+  closedir(cd);
+  return pulse_installed ? 0 : -1;
+}

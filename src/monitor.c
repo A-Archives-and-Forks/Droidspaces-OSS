@@ -578,8 +578,8 @@ reboot_loop:;
     cfg->reboot_cycle = 1;
     clock_gettime(CLOCK_BOOTTIME, &cfg->start_time);
 
-    /* Mirror restart behavior: ensure X and VirGL servers are up before next
-     * boot */
+    /* Mirror restart behavior: ensure X, VirGL, and PulseAudio servers are up
+     * before next boot */
     if (is_android() && cfg->termux_x11) {
       if (ds_x11_daemon_start(cfg) == 0)
         wait_for_socket_or_death(
@@ -590,6 +590,10 @@ reboot_loop:;
       if (ds_virgl_daemon_start(cfg) == 0)
         wait_for_socket_or_death(cfg->virgl_pid, TX11_VIRGL_SOCKET, 2000,
                                  20000);
+    }
+
+    if (is_android() && cfg->pulseaudio) {
+      ds_pulse_daemon_start(cfg);
     }
 
     /* Refresh ns_inode: new container has a new PID namespace inode.

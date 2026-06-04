@@ -75,7 +75,9 @@ void print_usage(void) {
       "      --tx11-flags=\"FLAGS\"    Extra flags passed to termux-x11\n"
       "      --virgl               Configure VirGL 3D acceleration support\n"
       "      --virgl-flags=\"FLAGS\"   Extra flags passed to "
-      "virgl_test_server_android\n\n"
+      "virgl_test_server_android\n"
+      "      --pulse-audio         Configure PulseAudio sound server "
+      "support\n\n"
 
       C_BOLD "Options (Security & Boot):" C_RESET "\n"
       "  -P, --selinux-permissive  Set host SELinux to permissive mode\n"
@@ -365,6 +367,7 @@ int main(int argc, char **argv) {
       {"gpu", no_argument, 0, 263},
       {"virgl", no_argument, 0, 270},
       {"virgl-flags", required_argument, 0, 272},
+      {"pulse-audio", no_argument, 0, 273},
       {"reset", no_argument, 0, 256},
       {"format", no_argument, 0, 265},
       {"memory", required_argument, 0, 266},
@@ -607,6 +610,9 @@ int main(int argc, char **argv) {
     case 272:
       free(cfg.virgl_extra_flags);
       cfg.virgl_extra_flags = optarg[0] ? strdup(optarg) : NULL;
+      break;
+    case 273:
+      cfg.pulseaudio = 1;
       break;
     case 'I':
       cfg.disable_ipv6 = 1;

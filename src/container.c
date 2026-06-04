@@ -183,6 +183,7 @@ void cleanup_container_resources(struct ds_config *cfg, pid_t pid,
   if (is_android() && !skip_unmount) {
     ds_x11_daemon_stop(cfg);
     ds_virgl_daemon_stop(cfg);
+    ds_pulse_daemon_stop(cfg);
     if (count_running_containers(NULL, 0) == 0) {
       android_optimizations(0);
     }
@@ -418,6 +419,8 @@ int start_rootfs(struct ds_config *cfg) {
     ds_warn("--virgl is only applicable on Android. Skipping.");
   if (cfg->virgl_extra_flags && !is_android())
     ds_warn("--virgl-flags is only applicable on Android. Skipping.");
+  if (cfg->pulseaudio && !is_android())
+    ds_warn("--pulse-audio is only applicable on Android. Skipping.");
 
   /* If no hostname specified, default to container name */
   if (cfg->hostname[0] == '\0') {
@@ -481,8 +484,8 @@ int start_rootfs(struct ds_config *cfg) {
     cfg->init_type = detect_container_init(rootfs_norm);
   }
 
-  /* 2b. Android: start Termux-X11 and VirGL servers before fork so the sockets
-   * exist when bind-mounted later */
+  /* 2b. Android: start Termux-X11, VirGL, and PulseAudio servers before fork
+   * so the sockets exist when bind-mounted later */
   if (is_android() && cfg->termux_x11) {
     if (ds_x11_daemon_start(cfg) == 0)
       wait_for_socket_or_death(
@@ -492,6 +495,10 @@ int start_rootfs(struct ds_config *cfg) {
   if (is_android() && cfg->virgl) {
     if (ds_virgl_daemon_start(cfg) == 0)
       wait_for_socket_or_death(cfg->virgl_pid, TX11_VIRGL_SOCKET, 2000, 20000);
+  }
+
+  if (is_android() && cfg->pulseaudio) {
+    ds_pulse_daemon_start(cfg);
   }
 
   /* 3. Early pre-flight for volatile mode (before any host changes) */

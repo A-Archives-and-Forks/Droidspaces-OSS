@@ -85,6 +85,8 @@ void ds_env_boot_setup(struct ds_config *cfg) {
     setenv("DISPLAY", TX11_DISPLAY_STR, 1);
   if (is_android() && cfg->virgl)
     setenv("GALLIUM_DRIVER", "virpipe", 1);
+  if (is_android() && cfg->pulseaudio)
+    setenv("PULSE_SERVER", "unix:" DS_PULSE_SOCKET, 1);
 }
 
 void ds_env_save(const char *path, struct ds_config *cfg) {
@@ -118,6 +120,8 @@ void ds_env_save(const char *path, struct ds_config *cfg) {
     fprintf(f, "export DISPLAY='" TX11_DISPLAY_STR "'\n");
   if (is_android() && cfg->virgl)
     fprintf(f, "export GALLIUM_DRIVER='virpipe'\n");
+  if (is_android() && cfg->pulseaudio)
+    fprintf(f, "export PULSE_SERVER='unix:" DS_PULSE_SOCKET "'\n");
 
   fclose(f);
   chmod(path, 0755);

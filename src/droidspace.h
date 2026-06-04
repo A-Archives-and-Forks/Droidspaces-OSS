@@ -146,6 +146,13 @@
 #define TX11_VIRGL_SOCKET TX11_PREFIX "/tmp/.virgl_test"
 #define TX11_VIRGL_BIN TX11_PREFIX "/bin/virgl_test_server_android"
 
+/* PulseAudio paths (Android only) */
+#define DS_PULSE_SOCKET "/tmp/.pulse-socket"
+#define TX11_PULSE_SOCKET TX11_PREFIX "/tmp/.pulse-socket"
+#define TX11_PULSE_BIN TX11_PREFIX "/bin/pulseaudio"
+#define TX11_PACTL_BIN TX11_PREFIX "/bin/pactl"
+#define TX11_PULSE_DEFAULT_SINK "module-sles-sink"
+
 /* File Extensions */
 #define DS_EXT_PID ".pid"
 #define DS_EXT_XPID ".xpid"
@@ -331,6 +338,7 @@ struct ds_config {
   char *tx11_extra_flags; /* --tx11-flags "..." (heap, NULL if unset) */
   int virgl;              /* --virgl (Android only) */
   char *virgl_extra_flags; /* --virgl-flags "..." (heap, NULL if unset) */
+  int pulseaudio;          /* --pulse-audio (Android only) */
   int volatile_mode;       /* --volatile */
   int disable_ipv6;        /* --disable-ipv6 */
   int android_storage;     /* --enable-android-storage */
@@ -350,6 +358,7 @@ struct ds_config {
   pid_t intermediate_pid;         /* intermediate fork pid */
   pid_t x11_pid;                  /* PID of the Termux-X11 server process */
   pid_t virgl_pid;                /* PID of the VirGL server process */
+  pid_t pulse_pid;                /* PID of the PulseAudio daemon process */
   int is_img_mount;               /* 1 if rootfs was loop-mounted from .img */
   char img_mount_point[PATH_MAX]; /* where the .img was mounted */
   ds_init_type_t init_type;       /* detected container PID 1 init family */
@@ -596,6 +605,15 @@ int ds_virgl_daemon_start(struct ds_config *cfg);
 void ds_virgl_daemon_stop(struct ds_config *cfg);
 int ds_setup_virgl_socket(struct ds_config *cfg);
 int check_virgl_needs(void);
+
+/* ---------------------------------------------------------------------------
+ * pulseaudio-android.c
+ * ---------------------------------------------------------------------------*/
+
+int ds_pulse_daemon_start(struct ds_config *cfg);
+void ds_pulse_daemon_stop(struct ds_config *cfg);
+int ds_setup_pulse_socket(struct ds_config *cfg);
+int check_pulse_needs(void);
 
 /* ---------------------------------------------------------------------------
  * network.c

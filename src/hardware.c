@@ -803,5 +803,8 @@ int setup_hardware_access(struct ds_config *cfg) {
   /* 3. Setup VirGL socket (Android only) */
   ds_setup_virgl_socket(cfg);
 
+  /* 4. Setup PulseAudio socket (Android only) */
+  ds_setup_pulse_socket(cfg);
+
   return 0;
 }
