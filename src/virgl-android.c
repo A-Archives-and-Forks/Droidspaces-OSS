@@ -20,44 +20,17 @@
 #include <time.h>
 #include <unistd.h>
 
-/* Read PID from the global virgl pidfile */
-static pid_t virgl_read_pid(void) {
-  char path[PATH_MAX];
-  snprintf(path, sizeof(path), "%s/virgl.vpid", get_pids_dir());
-
-  char buf[32] = {0};
-  int fd = open(path, O_RDONLY | O_CLOEXEC);
-  if (fd < 0)
-    return -1;
-  ssize_t n = read(fd, buf, sizeof(buf) - 1);
-  close(fd);
-
-  if (n <= 0)
-    return -1;
-  pid_t pid = (pid_t)atoi(buf);
-  return (pid > 1 && kill(pid, 0) == 0) ? pid : -1;
-}
-
-/* Write PID to the global virgl pidfile */
-static void virgl_write_pid(pid_t pid) {
-  char path[PATH_MAX], buf[32];
-  snprintf(path, sizeof(path), "%s/virgl.vpid", get_pids_dir());
-  snprintf(buf, sizeof(buf), "%d", (int)pid);
-  write_file_atomic(path, buf);
-}
-
-/* Remove the global virgl pidfile */
-static void virgl_remove_pid(void) {
-  char path[PATH_MAX];
-  snprintf(path, sizeof(path), "%s/virgl.vpid", get_pids_dir());
-  unlink(path);
-}
-
 /* ---- daemon child ----------------------------------------------------- */
 
+struct virgl_args {
+  char **extra;
+  int extra_argc;
+};
+
 /* ready_fd: O_CLOEXEC write-end; EOF on execv success, byte on failure */
-static void __attribute__((noreturn)) virgl_child(int ready_fd, char **extra,
-                                                  int extra_argc) {
+static void virgl_child_wrapper(int ready_fd, void *user_data) {
+  struct virgl_args *args = (struct virgl_args *)user_data;
+
   /* Ignore hangups, keyboard interrupts, and broken pipes to make the server
    * process robust and persistent (except for SIGTERM which we use to stop it).
    */
@@ -67,16 +40,12 @@ static void __attribute__((noreturn)) virgl_child(int ready_fd, char **extra,
   signal(SIGPIPE, SIG_IGN);
 
   /* Make VirGL server unkillable */
-  FILE *oom_f = fopen("/proc/self/oom_score_adj", "w");
-  if (oom_f) {
-    fprintf(oom_f, "-1000\n");
-    fclose(oom_f);
-  }
+  ds_oom_protect();
 
   fprintf(stdout, "[VirGL] uid=%d starting server\n", (int)getuid());
   fflush(stdout);
 
-  int total = 1 + extra_argc;
+  int total = 1 + args->extra_argc;
   char **argv = malloc((size_t)(total + 1) * sizeof(char *));
   if (!argv) {
     if (write(ready_fd, "\x01", 1) < 0) { /* ignore */
@@ -84,8 +53,8 @@ static void __attribute__((noreturn)) virgl_child(int ready_fd, char **extra,
     _exit(1);
   }
   argv[0] = TX11_VIRGL_BIN;
-  for (int i = 0; i < extra_argc; i++)
-    argv[1 + i] = extra[i];
+  for (int i = 0; i < args->extra_argc; i++)
+    argv[1 + i] = args->extra[i];
   argv[total] = NULL;
 
   execv(argv[0], argv);
@@ -96,7 +65,7 @@ static void __attribute__((noreturn)) virgl_child(int ready_fd, char **extra,
   _exit(1);
 }
 
-/* ---- spawn + log relay ------------------------------------------------ */
+/* ---- spawn ------------------------------------------------------------ */
 
 static pid_t spawn_virgl(const char *extra_flags) {
   /* Parse extra flags in the parent so rejection is visible on the terminal */
@@ -111,119 +80,15 @@ static pid_t spawn_virgl(const char *extra_flags) {
     }
   }
 
-  int pipefd[2];
-  if (pipe(pipefd) < 0) {
-    ds_warn("[VirGL] pipe: %s", strerror(errno));
-    return -1;
-  }
+  struct virgl_args args = {
+      .extra = extra,
+      .extra_argc = extra_argc,
+  };
 
-  /* ready pipe: EOF = execv succeeded (O_CLOEXEC), byte = execv failed */
-  int readyfd[2];
-  if (pipe2(readyfd, O_CLOEXEC) < 0) {
-    ds_warn("[VirGL] pipe2: %s", strerror(errno));
-    close(pipefd[0]);
-    close(pipefd[1]);
-    return -1;
-  }
+  pid_t child = ds_spawn_daemon(virgl_child_wrapper, &args, "virgl.log",
+                                "VirGL", "VirGL");
 
-  pid_t child = fork();
-  if (child < 0) {
-    ds_warn("[VirGL] fork: %s", strerror(errno));
-    close(pipefd[0]);
-    close(pipefd[1]);
-    close(readyfd[0]);
-    close(readyfd[1]);
-    ds_free_split_flags(extra, extra_argc);
-    return -1;
-  }
-  if (child == 0) {
-    close(pipefd[0]);
-    close(readyfd[0]);
-    dup2(pipefd[1], STDOUT_FILENO);
-    dup2(pipefd[1], STDERR_FILENO);
-    close(pipefd[1]);
-    virgl_child(readyfd[1], extra, extra_argc);
-  }
-
-  close(pipefd[1]);
-  close(readyfd[1]);
-
-  /* EOF = exec succeeded; byte = exec failed */
-  char rdy;
-  if (read(readyfd[0], &rdy, 1) > 0) {
-    ds_error("VirGL: execv failed - server did not start");
-    waitpid(child, NULL, 0);
-    close(readyfd[0]);
-    close(pipefd[0]);
-    ds_free_split_flags(extra, extra_argc);
-    return -1;
-  }
-  close(readyfd[0]);
   ds_free_split_flags(extra, extra_argc);
-
-  pid_t relay = fork();
-  if (relay == 0) {
-    /* Ignore hangups, keyboard interrupts, broken pipes, and SIGTERM.
-     * The relay should only exit when the child process closes the pipe. */
-    signal(SIGHUP, SIG_IGN);
-    signal(SIGINT, SIG_IGN);
-    signal(SIGQUIT, SIG_IGN);
-    signal(SIGPIPE, SIG_IGN);
-    signal(SIGTERM, SIG_IGN);
-
-    /* Make log relay unkillable */
-    FILE *oom_f = fopen("/proc/self/oom_score_adj", "w");
-    if (oom_f) {
-      fprintf(oom_f, "-1000\n");
-      fclose(oom_f);
-    }
-
-    int devnull = open("/dev/null", O_RDWR);
-    if (devnull >= 0) {
-      dup2(devnull, STDIN_FILENO);
-      dup2(devnull, STDOUT_FILENO);
-      dup2(devnull, STDERR_FILENO);
-      close(devnull);
-    }
-
-    char path[PATH_MAX];
-    snprintf(path, sizeof(path), "%s/virgl.log", get_logs_dir());
-    rotate_log(path, 2 * 1024 * 1024);
-    int log_fd = open(path, O_WRONLY | O_CREAT | O_APPEND | O_CLOEXEC, 0644);
-    if (log_fd < 0) {
-      close(pipefd[0]);
-      _exit(0);
-    }
-
-    FILE *ps = fdopen(pipefd[0], "r");
-    if (!ps) {
-      close(log_fd);
-      close(pipefd[0]);
-      _exit(0);
-    }
-
-    char line[2048];
-    while (fgets(line, sizeof(line), ps)) {
-      size_t len = strlen(line);
-      while (len > 0 && (line[len - 1] == '\n' || line[len - 1] == '\r'))
-        line[--len] = '\0';
-      if (len == 0)
-        continue;
-      struct timespec ts;
-      clock_gettime(CLOCK_REALTIME, &ts);
-      struct tm tm;
-      localtime_r(&ts.tv_sec, &tm);
-      dprintf(log_fd, "[%04d-%02d-%02d %02d:%02d:%02d.%03ld] [VirGL] %s\n",
-              tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour,
-              tm.tm_min, tm.tm_sec, ts.tv_nsec / 1000000, line);
-    }
-    fclose(ps);
-    close(log_fd);
-    _exit(0);
-  }
-
-  close(pipefd[0]);
-  ds_log("VirGL: server pid=%d launched", (int)child);
   return child;
 }
 
@@ -245,7 +110,7 @@ int ds_virgl_daemon_start(struct ds_config *cfg) {
   }
 
   /* Reuse existing global server if still alive */
-  pid_t existing = virgl_read_pid();
+  pid_t existing = ds_daemon_read_pid("virgl.vpid");
   if (existing > 0) {
     ds_log("VirGL: server already running (PID %d)", (int)existing);
     cfg->virgl_pid = existing;
@@ -259,7 +124,7 @@ int ds_virgl_daemon_start(struct ds_config *cfg) {
   pid_t child = spawn_virgl(cfg->virgl_extra_flags);
   if (child > 0) {
     cfg->virgl_pid = child;
-    virgl_write_pid(child);
+    ds_daemon_write_pid("virgl.vpid", child);
     return 0;
   }
   return -1;
@@ -276,7 +141,8 @@ void ds_virgl_daemon_stop(struct ds_config *cfg) {
     return;
   }
 
-  pid_t pid = cfg->virgl_pid > 0 ? cfg->virgl_pid : virgl_read_pid();
+  pid_t pid =
+      cfg->virgl_pid > 0 ? cfg->virgl_pid : ds_daemon_read_pid("virgl.vpid");
   if (pid > 0) {
     ds_log("[VirGL] terminating VirGL server (PID %d)...", (int)pid);
     kill(pid, SIGTERM);
@@ -289,26 +155,11 @@ void ds_virgl_daemon_stop(struct ds_config *cfg) {
     cfg->virgl_pid = 0;
   }
 
-  virgl_remove_pid();
+  ds_daemon_remove_pid("virgl.vpid");
   unlink(TX11_VIRGL_SOCKET);
 }
 
 /* ---- socket bridge ---------------------------------------------------- */
-
-static int bind_virgl_socket(const char *src, const char *dst, uid_t uid) {
-  int fd = open(dst, O_WRONLY | O_CREAT | O_CLOEXEC, 0666);
-  if (fd >= 0) {
-    close(fd);
-    if (chown(dst, uid, uid) < 0) { /* ignore */
-    }
-    chmod(dst, 0666);
-  }
-  if (mount(src, dst, NULL, MS_BIND, NULL) != 0) {
-    ds_warn("VirGL: failed to bind-mount socket: %s", strerror(errno));
-    return -1;
-  }
-  return 0;
-}
 
 int ds_setup_virgl_socket(struct ds_config *cfg) {
   if (!is_android() || !cfg->virgl)
@@ -329,7 +180,7 @@ int ds_setup_virgl_socket(struct ds_config *cfg) {
 
   uid_t uid = st.st_uid;
 
-  if (bind_virgl_socket(src, DS_VIRGL_SOCKET, uid) < 0)
+  if (ds_bind_mount_socket(src, DS_VIRGL_SOCKET, uid, "VirGL") < 0)
     return 0;
 
   ds_log("VirGL: socket bind-mounted into container");

@@ -17,28 +17,9 @@
 #include <sys/mount.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
-#include <time.h>
 #include <unistd.h>
 
-/* SELinux domains to try, newest first (mirrors x11.c) */
-static const char *const pa_untrusted_domains[] = {
-    "u:r:untrusted_app",    "u:r:untrusted_app_32", "u:r:untrusted_app_30",
-    "u:r:untrusted_app_29", "u:r:untrusted_app_27", "u:r:untrusted_app_25",
-};
-
 /* ---- helpers ---------------------------------------------------------- */
-
-/*
- * Extract MLS categories from a full SELinux context string.
- * Mirrors extract_mls() in x11.c.
- */
-static const char *pa_extract_mls(const char *ctx) {
-  int colons = 0;
-  for (const char *p = ctx; *p; p++)
-    if (*p == ':' && ++colons == 3)
-      return p + 1;
-  return NULL;
-}
 
 /*
  * Resolve the Termux UID from packages.list.
@@ -47,27 +28,10 @@ static const char *pa_extract_mls(const char *ctx) {
  * grants it access to OpenSL ES / AAudio.
  */
 static int pa_resolve_termux_uid(void) {
-  FILE *f = fopen(TX11_PACKAGES, "r");
-  if (!f) {
-    ds_warn("[PulseAudio] cannot open packages.list (%s)", TX11_PACKAGES);
+  int uid = ds_resolve_termux_uid();
+  if (uid < 0)
     return -1;
-  }
 
-  char line[1024];
-  int uid = -1;
-
-  while (fgets(line, sizeof(line), f)) {
-    if (strncmp(line, "com.termux ", 11) == 0) {
-      uid = atoi(line + 11);
-      break;
-    }
-  }
-  fclose(f);
-
-  if (uid < 0) {
-    ds_warn("[PulseAudio] com.termux not found in packages.list");
-    return -1;
-  }
   if (access(TX11_PULSE_BIN, F_OK) != 0) {
     ds_warn("[PulseAudio] binary not found at %s. Is pulseaudio installed in "
             "Termux?",
@@ -77,53 +41,20 @@ static int pa_resolve_termux_uid(void) {
   return uid;
 }
 
-/* Read PID from the global pulse pidfile */
-static pid_t pulse_read_pid(void) {
-  char path[PATH_MAX];
-  snprintf(path, sizeof(path), "%s/pulse.ppid", get_pids_dir());
-
-  char buf[32] = {0};
-  int fd = open(path, O_RDONLY | O_CLOEXEC);
-  if (fd < 0)
-    return -1;
-  ssize_t n = read(fd, buf, sizeof(buf) - 1);
-  close(fd);
-
-  if (n <= 0)
-    return -1;
-  pid_t pid = (pid_t)atoi(buf);
-  return (pid > 1 && kill(pid, 0) == 0) ? pid : -1;
-}
-
-/* Write PID to the global pulse pidfile */
-static void pulse_write_pid(pid_t pid) {
-  char path[PATH_MAX], buf[32];
-  snprintf(path, sizeof(path), "%s/pulse.ppid", get_pids_dir());
-  snprintf(buf, sizeof(buf), "%d", (int)pid);
-  write_file_atomic(path, buf);
-}
-
-/* Remove the global pulse pidfile */
-static void pulse_remove_pid(void) {
-  char path[PATH_MAX];
-  snprintf(path, sizeof(path), "%s/pulse.ppid", get_pids_dir());
-  unlink(path);
-}
-
 /* ---- daemon child ----------------------------------------------------- */
+
+struct pulse_args {
+  int uid;
+};
 
 /*
  * Set up the forked child, perform the SELinux dance, and exec PulseAudio.
  * ready_fd: O_CLOEXEC write-end; EOF on execv success, byte on failure.
  * This function never returns on success.
- *
- * Why SELinux dance?  PulseAudio needs access to Android's audio HAL via
- * OpenSL ES (libOpenSLES.so) and AAudio (libaaudio.so).  Both are restricted
- * by Android's SELinux policy to untrusted_app contexts.  Running as root
- * with the default su context is denied; transitioning to untrusted_app with
- * the correct Termux MLS categories grants the necessary audio access.
  */
-static void __attribute__((noreturn)) pulse_child(int uid, int ready_fd) {
+static void pulse_child_wrapper(int ready_fd, void *user_data) {
+  struct pulse_args *args = (struct pulse_args *)user_data;
+
   /* Ignore hangups, keyboard interrupts, and broken pipes to keep the daemon
    * alive through terminal disconnects. SIGTERM is our shutdown signal. */
   signal(SIGHUP, SIG_IGN);
@@ -133,11 +64,7 @@ static void __attribute__((noreturn)) pulse_child(int uid, int ready_fd) {
 
   /* Make PulseAudio unkillable by the OOM killer.
    * Must be done while still root, before privilege drop. */
-  FILE *oom_f = fopen("/proc/self/oom_score_adj", "w");
-  if (oom_f) {
-    fprintf(oom_f, "-1000\n");
-    fclose(oom_f);
-  }
+  ds_oom_protect();
 
   /* Read Termux's SELinux MLS categories from its data directory xattr.
    * Identical to x11.c: we need the same categories so the process is
@@ -151,7 +78,7 @@ static void __attribute__((noreturn)) pulse_child(int uid, int ready_fd) {
     _exit(1);
   }
 
-  const char *mls = pa_extract_mls(ctx);
+  const char *mls = ds_extract_mls(ctx);
   if (!mls) {
     fprintf(stderr, "[PulseAudio] malformed SELinux context: %s\n", ctx);
     if (write(ready_fd, "\x01", 1) < 0) { /* ignore */
@@ -168,40 +95,17 @@ static void __attribute__((noreturn)) pulse_child(int uid, int ready_fd) {
   /* Ensure the tmp directory exists (root creates it before priv drop) */
   mkdir_p(TX11_PREFIX "/tmp", 0755);
 
-  /* Drop root -> Termux UID with supplementary Android groups.
-   * Groups match x11.c exactly: audio(1003), camera(1004), input(1015),
-   * sdcard_rw(1015 -- already listed), media_rw(1023)... */
-  gid_t groups[] = {(gid_t)uid, 1003, 1004, 1011, 1015, 1028, 3003, 9997};
-  if (setgroups(sizeof(groups) / sizeof(groups[0]), groups) < 0 ||
-      setresgid(uid, uid, uid) < 0 || setresuid(uid, uid, uid) < 0) {
+  /* Drop root -> Termux UID with supplementary Android groups. */
+  if (ds_drop_privileges(args->uid) < 0) {
     perror("[PulseAudio] privilege drop failed");
     if (write(ready_fd, "\x01", 1) < 0) { /* ignore */
     }
     _exit(1);
   }
 
-  /* SELinux dyntransition into untrusted_app with Termux's MLS categories.
-   * Try newest API level first; fall back to older domains on older kernels. */
+  /* SELinux dyntransition into untrusted_app with Termux's MLS categories. */
   char target[256] = "";
-  int fd = open("/proc/self/attr/current", O_WRONLY | O_CLOEXEC);
-  if (fd >= 0) {
-    for (size_t i = 0;
-         i < sizeof(pa_untrusted_domains) / sizeof(pa_untrusted_domains[0]);
-         i++) {
-      snprintf(target, sizeof(target), "%s:%s", pa_untrusted_domains[i], mls);
-      if (write(fd, target, strlen(target) + 1) > 0)
-        break;
-    }
-    close(fd);
-  }
-
-  /* Clear any stale exec context to prevent label leaking across execve */
-  fd = open("/proc/self/attr/exec", O_WRONLY | O_CLOEXEC);
-  if (fd >= 0) {
-    if (write(fd, "\0", 1) < 0) { /* ignore */
-    }
-    close(fd);
-  }
+  ds_selinux_dyntransition(mls, target, sizeof(target));
 
   fprintf(stdout, "[PulseAudio] ctx=%s uid=%d socket=%s\n", target,
           (int)getuid(), TX11_PULSE_SOCKET);
@@ -210,7 +114,6 @@ static void __attribute__((noreturn)) pulse_child(int uid, int ready_fd) {
   /* Launch PulseAudio in non-daemon foreground mode.
    * - module-native-protocol-unix: UNIX socket with anonymous auth
    * - module-sles-sink: Android OpenSL ES audio output (default)
-   * - module-aaudio-sink: AAudio output (commented out -- uncomment on API 26+)
    * - --exit-idle-time=-1: never exit on idle (we manage lifecycle ourselves)
    * - --daemonize=no: stay in foreground so our log relay captures all output
    */
@@ -253,10 +156,9 @@ static void run_pactl_set_default(int uid) {
     }
 
     /* Run as the same Termux UID with the same supplementary groups */
-    gid_t groups[] = {(gid_t)uid, 1003, 1004, 1011, 1015, 1028, 3003, 9997};
-    setgroups(sizeof(groups) / sizeof(groups[0]), groups);
-    setresgid(uid, uid, uid);
-    setresuid(uid, uid, uid);
+    if (ds_drop_privileges(uid) < 0) {
+      _exit(1);
+    }
 
     setenv("PULSE_SERVER", "unix:" TX11_PULSE_SOCKET, 1);
     setenv("HOME", TX11_HOME, 1);
@@ -270,125 +172,12 @@ static void run_pactl_set_default(int uid) {
   waitpid(p, NULL, 0);
 }
 
-/* ---- spawn + log relay ------------------------------------------------ */
+/* ---- spawn ------------------------------------------------------------ */
 
-/*
- * Fork the pulse child and a log-relay grandchild writing to Logs/pulse.log.
- * Returns the pulseaudio PID, or -1 on error.
- */
 static pid_t spawn_pulse(int uid) {
-  int pipefd[2];
-  if (pipe(pipefd) < 0) {
-    ds_warn("[PulseAudio] pipe: %s", strerror(errno));
-    return -1;
-  }
-
-  /* ready pipe: EOF = execv succeeded (O_CLOEXEC), byte = execv failed */
-  int readyfd[2];
-  if (pipe2(readyfd, O_CLOEXEC) < 0) {
-    ds_warn("[PulseAudio] pipe2: %s", strerror(errno));
-    close(pipefd[0]);
-    close(pipefd[1]);
-    return -1;
-  }
-
-  pid_t child = fork();
-  if (child < 0) {
-    ds_warn("[PulseAudio] fork: %s", strerror(errno));
-    close(pipefd[0]);
-    close(pipefd[1]);
-    close(readyfd[0]);
-    close(readyfd[1]);
-    return -1;
-  }
-
-  if (child == 0) {
-    close(pipefd[0]);
-    close(readyfd[0]);
-    dup2(pipefd[1], STDOUT_FILENO);
-    dup2(pipefd[1], STDERR_FILENO);
-    close(pipefd[1]);
-    pulse_child(uid, readyfd[1]);
-    /* unreachable; pulse_child never returns */
-  }
-
-  close(pipefd[1]);
-  close(readyfd[1]);
-
-  /* EOF = exec succeeded; byte = exec failed */
-  char rdy;
-  if (read(readyfd[0], &rdy, 1) > 0) {
-    ds_error("[PulseAudio] execv failed -- daemon did not start");
-    waitpid(child, NULL, 0);
-    close(readyfd[0]);
-    close(pipefd[0]);
-    return -1;
-  }
-  close(readyfd[0]);
-
-  /* Log relay: reads from pipefd[0], writes timestamped lines to pulse.log */
-  pid_t relay = fork();
-  if (relay == 0) {
-    signal(SIGHUP, SIG_IGN);
-    signal(SIGINT, SIG_IGN);
-    signal(SIGQUIT, SIG_IGN);
-    signal(SIGPIPE, SIG_IGN);
-    signal(SIGTERM, SIG_IGN);
-
-    /* Make log relay unkillable */
-    FILE *oom_f = fopen("/proc/self/oom_score_adj", "w");
-    if (oom_f) {
-      fprintf(oom_f, "-1000\n");
-      fclose(oom_f);
-    }
-
-    int devnull = open("/dev/null", O_RDWR);
-    if (devnull >= 0) {
-      dup2(devnull, STDIN_FILENO);
-      dup2(devnull, STDOUT_FILENO);
-      dup2(devnull, STDERR_FILENO);
-      close(devnull);
-    }
-
-    char path[PATH_MAX];
-    snprintf(path, sizeof(path), "%s/pulse.log", get_logs_dir());
-    rotate_log(path, 2 * 1024 * 1024);
-    int log_fd = open(path, O_WRONLY | O_CREAT | O_APPEND | O_CLOEXEC, 0644);
-    if (log_fd < 0) {
-      close(pipefd[0]);
-      _exit(0);
-    }
-
-    FILE *ps = fdopen(pipefd[0], "r");
-    if (!ps) {
-      close(log_fd);
-      close(pipefd[0]);
-      _exit(0);
-    }
-
-    char line[2048];
-    while (fgets(line, sizeof(line), ps)) {
-      size_t len = strlen(line);
-      while (len > 0 && (line[len - 1] == '\n' || line[len - 1] == '\r'))
-        line[--len] = '\0';
-      if (len == 0)
-        continue;
-      struct timespec ts;
-      clock_gettime(CLOCK_REALTIME, &ts);
-      struct tm tm;
-      localtime_r(&ts.tv_sec, &tm);
-      dprintf(log_fd, "[%04d-%02d-%02d %02d:%02d:%02d.%03ld] [PulseAudio] %s\n",
-              tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour,
-              tm.tm_min, tm.tm_sec, ts.tv_nsec / 1000000, line);
-    }
-    fclose(ps);
-    close(log_fd);
-    _exit(0);
-  }
-
-  close(pipefd[0]);
-  ds_log("[PulseAudio] daemon pid=%d launched", (int)child);
-  return child;
+  struct pulse_args args = {.uid = uid};
+  return ds_spawn_daemon(pulse_child_wrapper, &args, "pulse.log", "PulseAudio",
+                         "PulseAudio");
 }
 
 /* ---- public API ------------------------------------------------------- */
@@ -402,7 +191,7 @@ int ds_pulse_daemon_start(struct ds_config *cfg) {
   }
 
   /* Reuse existing global daemon if still alive */
-  pid_t existing = pulse_read_pid();
+  pid_t existing = ds_daemon_read_pid("pulse.ppid");
   if (existing > 0) {
     ds_log("[PulseAudio] daemon already running (PID %d)", (int)existing);
     cfg->pulse_pid = existing;
@@ -422,7 +211,7 @@ int ds_pulse_daemon_start(struct ds_config *cfg) {
     return -1;
 
   cfg->pulse_pid = child;
-  pulse_write_pid(child);
+  ds_daemon_write_pid("pulse.ppid", child);
 
   /* Wait for the UNIX socket to appear, then set the default sink.
    * We poll for up to 3 seconds (30 * 100ms); if PA hasn't created the
@@ -458,7 +247,8 @@ void ds_pulse_daemon_stop(struct ds_config *cfg) {
     return;
   }
 
-  pid_t pid = cfg->pulse_pid > 0 ? cfg->pulse_pid : pulse_read_pid();
+  pid_t pid =
+      cfg->pulse_pid > 0 ? cfg->pulse_pid : ds_daemon_read_pid("pulse.ppid");
   if (pid > 0) {
     ds_log("[PulseAudio] terminating daemon (PID %d)...", (int)pid);
     kill(pid, SIGTERM);
@@ -471,26 +261,11 @@ void ds_pulse_daemon_stop(struct ds_config *cfg) {
     cfg->pulse_pid = 0;
   }
 
-  pulse_remove_pid();
+  ds_daemon_remove_pid("pulse.ppid");
   unlink(TX11_PULSE_SOCKET);
 }
 
 /* ---- socket bridge ---------------------------------------------------- */
-
-static int bind_pulse_socket(const char *src, const char *dst, uid_t uid) {
-  int fd = open(dst, O_WRONLY | O_CREAT | O_CLOEXEC, 0666);
-  if (fd >= 0) {
-    close(fd);
-    if (chown(dst, uid, uid) < 0) { /* ignore */
-    }
-    chmod(dst, 0666);
-  }
-  if (mount(src, dst, NULL, MS_BIND, NULL) != 0) {
-    ds_warn("[PulseAudio] failed to bind-mount socket: %s", strerror(errno));
-    return -1;
-  }
-  return 0;
-}
 
 int ds_setup_pulse_socket(struct ds_config *cfg) {
   if (!is_android() || !cfg->pulseaudio)
@@ -511,7 +286,7 @@ int ds_setup_pulse_socket(struct ds_config *cfg) {
 
   uid_t uid = st.st_uid;
 
-  if (bind_pulse_socket(src, DS_PULSE_SOCKET, uid) < 0)
+  if (ds_bind_mount_socket(src, DS_PULSE_SOCKET, uid, "PulseAudio") < 0)
     return 0;
 
   ds_log("[PulseAudio] socket bind-mounted into container");

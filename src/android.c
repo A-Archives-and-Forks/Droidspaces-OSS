@@ -5,7 +5,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+#define _GNU_SOURCE
 #include "droidspace.h"
+#include <fcntl.h>
+#include <grp.h>
 
 /* ---------------------------------------------------------------------------
  * Android detection
@@ -145,4 +148,100 @@ int android_setup_storage(const char *rootfs_path) {
   }
 
   return 0;
+}
+
+/* ---------------------------------------------------------------------------
+ * SELinux + Termux privilege helpers
+ *
+ * Shared by x11.c and pulseaudio-android.c.  Android-specific.
+ * ---------------------------------------------------------------------------*/
+
+/* SELinux domains to try, newest first */
+static const char *const untrusted_domains[] = {
+    "u:r:untrusted_app",    "u:r:untrusted_app_32", "u:r:untrusted_app_30",
+    "u:r:untrusted_app_29", "u:r:untrusted_app_27", "u:r:untrusted_app_25",
+};
+
+/*
+ * Extract MLS categories from a full SELinux context string.
+ * e.g. "u:object_r:app_data_file:s0:c78,c257,c512,c768"
+ *                                    ^ returned pointer
+ */
+const char *ds_extract_mls(const char *ctx) {
+  int colons = 0;
+  for (const char *p = ctx; *p; p++)
+    if (*p == ':' && ++colons == 3)
+      return p + 1;
+  return NULL;
+}
+
+/*
+ * Transition the calling process into an untrusted_app SELinux domain
+ * with the given MLS categories.  Tries newest API-level domain first.
+ * Also clears /proc/self/attr/exec to prevent label leaking.
+ * Fills applied_ctx (if non-NULL) with the context string that succeeded.
+ */
+void ds_selinux_dyntransition(const char *mls, char *applied_ctx,
+                              size_t ctx_size) {
+  char target[256] = "";
+  int fd = open("/proc/self/attr/current", O_WRONLY | O_CLOEXEC);
+  if (fd >= 0) {
+    for (size_t i = 0;
+         i < sizeof(untrusted_domains) / sizeof(untrusted_domains[0]); i++) {
+      snprintf(target, sizeof(target), "%s:%s", untrusted_domains[i], mls);
+      if (write(fd, target, strlen(target) + 1) > 0)
+        break;
+    }
+    close(fd);
+  }
+
+  /* Clear any stale exec context to prevent label leaking across execve */
+  fd = open("/proc/self/attr/exec", O_WRONLY | O_CLOEXEC);
+  if (fd >= 0) {
+    if (write(fd, "\0", 1) < 0) { /* ignore */
+    }
+    close(fd);
+  }
+
+  if (applied_ctx && ctx_size > 0)
+    snprintf(applied_ctx, ctx_size, "%s", target);
+}
+
+/*
+ * Drop to the given UID with standard Termux Android supplementary groups.
+ * Returns 0 on success, -1 on failure.
+ */
+int ds_drop_privileges(int uid) {
+  gid_t groups[] = {(gid_t)uid, 1003, 1004, 1011, 1015, 1028, 3003, 9997};
+  if (setgroups(sizeof(groups) / sizeof(groups[0]), groups) < 0 ||
+      setresgid(uid, uid, uid) < 0 || setresuid(uid, uid, uid) < 0)
+    return -1;
+  return 0;
+}
+
+/*
+ * Resolve Termux UID from /data/system/packages.list.
+ * Returns the UID on success, -1 on failure.
+ */
+int ds_resolve_termux_uid(void) {
+  FILE *f = fopen(TX11_PACKAGES, "r");
+  if (!f) {
+    ds_warn("[Android] cannot open packages.list (%s)", TX11_PACKAGES);
+    return -1;
+  }
+
+  char line[1024];
+  int uid = -1;
+
+  while (fgets(line, sizeof(line), f)) {
+    if (strncmp(line, "com.termux ", 11) == 0) {
+      uid = atoi(line + 11);
+      break;
+    }
+  }
+  fclose(f);
+
+  if (uid < 0)
+    ds_warn("[Android] com.termux not found in packages.list");
+  return uid;
 }

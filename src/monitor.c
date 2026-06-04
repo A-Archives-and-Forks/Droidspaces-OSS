@@ -39,11 +39,7 @@ void ds_monitor_run(struct ds_config *cfg, int sync_pipe_write) {
   signal(SIGUSR2, SIG_IGN);
 
   /* Make monitor unkillable */
-  FILE *oom_f = fopen("/proc/self/oom_score_adj", "w");
-  if (oom_f) {
-    fprintf(oom_f, "-1000\n");
-    fclose(oom_f);
-  }
+  ds_oom_protect();
 
   prctl(PR_SET_NAME, "[ds-monitor]", 0, 0, 0);
 

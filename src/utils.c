@@ -2372,3 +2372,212 @@ void ds_free_split_flags(char **argv, int argc) {
     free(argv[i]);
   free(argv);
 }
+
+/* ---------------------------------------------------------------------------
+ * Daemon lifecycle helpers
+ *
+ * Shared building blocks for x11.c, virgl-android.c, pulseaudio-android.c,
+ * monitor.c, and daemon.c.  Generic (not Android-specific).
+ * ---------------------------------------------------------------------------*/
+
+/* Read a daemon PID from <pids_dir>/<filename>; returns pid or -1. */
+pid_t ds_daemon_read_pid(const char *filename) {
+  char path[PATH_MAX];
+  snprintf(path, sizeof(path), "%s/%s", get_pids_dir(), filename);
+
+  char buf[32] = {0};
+  int fd = open(path, O_RDONLY | O_CLOEXEC);
+  if (fd < 0)
+    return -1;
+  ssize_t n = read(fd, buf, sizeof(buf) - 1);
+  close(fd);
+
+  if (n <= 0)
+    return -1;
+  pid_t pid = (pid_t)atoi(buf);
+  return (pid > 1 && kill(pid, 0) == 0) ? pid : -1;
+}
+
+/* Write PID to <pids_dir>/<filename>. */
+void ds_daemon_write_pid(const char *filename, pid_t pid) {
+  char path[PATH_MAX], buf[32];
+  snprintf(path, sizeof(path), "%s/%s", get_pids_dir(), filename);
+  snprintf(buf, sizeof(buf), "%d", (int)pid);
+  write_file_atomic(path, buf);
+}
+
+/* Remove <pids_dir>/<filename>. */
+void ds_daemon_remove_pid(const char *filename) {
+  char path[PATH_MAX];
+  snprintf(path, sizeof(path), "%s/%s", get_pids_dir(), filename);
+  unlink(path);
+}
+
+/* Set oom_score_adj to -1000 (unkillable).  Best-effort, no error return. */
+void ds_oom_protect(void) {
+  FILE *f = fopen("/proc/self/oom_score_adj", "w");
+  if (f) {
+    fprintf(f, "-1000\n");
+    fclose(f);
+  }
+}
+
+/*
+ * Fork a log-relay child that reads from pipe_read_fd and writes timestamped
+ * lines to <logs_dir>/<log_file> with [tag] prefix.  The relay ignores all
+ * signals, calls ds_oom_protect(), and exits when the pipe reaches EOF.
+ * pipe_read_fd is closed in the parent after this returns.
+ */
+void ds_spawn_log_relay(int pipe_read_fd, const char *log_file,
+                        const char *tag) {
+  pid_t relay = fork();
+  if (relay == 0) {
+    /* Ignore hangups, keyboard interrupts, broken pipes, and SIGTERM.
+     * The relay should only exit when the child process closes the pipe. */
+    signal(SIGHUP, SIG_IGN);
+    signal(SIGINT, SIG_IGN);
+    signal(SIGQUIT, SIG_IGN);
+    signal(SIGPIPE, SIG_IGN);
+    signal(SIGTERM, SIG_IGN);
+
+    /* Make log relay unkillable */
+    ds_oom_protect();
+
+    int devnull = open("/dev/null", O_RDWR);
+    if (devnull >= 0) {
+      dup2(devnull, STDIN_FILENO);
+      dup2(devnull, STDOUT_FILENO);
+      dup2(devnull, STDERR_FILENO);
+      close(devnull);
+    }
+
+    char path[PATH_MAX];
+    snprintf(path, sizeof(path), "%s/%s", get_logs_dir(), log_file);
+    rotate_log(path, 2 * 1024 * 1024);
+    int log_fd = open(path, O_WRONLY | O_CREAT | O_APPEND | O_CLOEXEC, 0644);
+    if (log_fd < 0) {
+      close(pipe_read_fd);
+      _exit(0);
+    }
+
+    FILE *ps = fdopen(pipe_read_fd, "r");
+    if (!ps) {
+      close(log_fd);
+      close(pipe_read_fd);
+      _exit(0);
+    }
+
+    char line[2048];
+    while (fgets(line, sizeof(line), ps)) {
+      size_t len = strlen(line);
+      while (len > 0 && (line[len - 1] == '\n' || line[len - 1] == '\r'))
+        line[--len] = '\0';
+      if (len == 0)
+        continue;
+      struct timespec ts;
+      clock_gettime(CLOCK_REALTIME, &ts);
+      struct tm tm;
+      localtime_r(&ts.tv_sec, &tm);
+      dprintf(log_fd, "[%04d-%02d-%02d %02d:%02d:%02d.%03ld] [%s] %s\n",
+              tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour,
+              tm.tm_min, tm.tm_sec, ts.tv_nsec / 1000000, tag, line);
+    }
+    fclose(ps);
+    close(log_fd);
+    _exit(0);
+  }
+
+  close(pipe_read_fd);
+}
+
+/*
+ * Fork a daemon child, redirect stdout/stderr through a pipe, verify exec
+ * via a ready-fd, then spawn a log relay.
+ *
+ * child_fn  : called in the child process (must exec or _exit)
+ * user_data : passed through to child_fn
+ * log_file  : filename for log relay (e.g. "x11.log")
+ * tag       : log tag (e.g. "X11")
+ * label     : human-readable label for error messages (e.g. "Termux:X11")
+ *
+ * Returns child PID on success, -1 on error.
+ */
+pid_t ds_spawn_daemon(ds_child_fn child_fn, void *user_data,
+                      const char *log_file, const char *tag,
+                      const char *label) {
+  int pipefd[2];
+  if (pipe(pipefd) < 0) {
+    ds_warn("[%s] pipe: %s", tag, strerror(errno));
+    return -1;
+  }
+
+  /* ready pipe: EOF = execv succeeded (O_CLOEXEC), byte = execv failed */
+  int readyfd[2];
+  if (pipe2(readyfd, O_CLOEXEC) < 0) {
+    ds_warn("[%s] pipe2: %s", tag, strerror(errno));
+    close(pipefd[0]);
+    close(pipefd[1]);
+    return -1;
+  }
+
+  pid_t child = fork();
+  if (child < 0) {
+    ds_warn("[%s] fork: %s", tag, strerror(errno));
+    close(pipefd[0]);
+    close(pipefd[1]);
+    close(readyfd[0]);
+    close(readyfd[1]);
+    return -1;
+  }
+  if (child == 0) {
+    close(pipefd[0]);
+    close(readyfd[0]);
+    dup2(pipefd[1], STDOUT_FILENO);
+    dup2(pipefd[1], STDERR_FILENO);
+    close(pipefd[1]);
+    child_fn(readyfd[1], user_data);
+    /* unreachable if child_fn calls execv/_exit */
+    _exit(1);
+  }
+
+  close(pipefd[1]);
+  close(readyfd[1]);
+
+  /* EOF = exec succeeded; byte = exec failed */
+  char rdy;
+  if (read(readyfd[0], &rdy, 1) > 0) {
+    ds_error("%s: execv failed -- daemon did not start", label);
+    waitpid(child, NULL, 0);
+    close(readyfd[0]);
+    close(pipefd[0]);
+    return -1;
+  }
+  close(readyfd[0]);
+
+  /* Spawn the log relay (takes ownership of pipefd[0]) */
+  ds_spawn_log_relay(pipefd[0], log_file, tag);
+
+  ds_log("%s: daemon pid=%d launched", label, (int)child);
+  return child;
+}
+
+/*
+ * Create a file node at dst (if absent), chown+chmod 0666, then bind-mount
+ * src onto dst.  label is used in the warning message on failure.
+ * Returns 0 on success, -1 on failure.
+ */
+int ds_bind_mount_socket(const char *src, const char *dst, uid_t uid,
+                         const char *label) {
+  int fd = open(dst, O_WRONLY | O_CREAT | O_CLOEXEC, 0666);
+  if (fd >= 0) {
+    close(fd);
+    if (chown(dst, uid, uid) < 0) { /* ignore */
+    }
+    chmod(dst, 0666);
+  }
+  if (mount(src, dst, NULL, MS_BIND, NULL) != 0) {
+    ds_warn("[%s] failed to bind-mount socket: %s", label, strerror(errno));
+    return -1;
+  }
+  return 0;
+}

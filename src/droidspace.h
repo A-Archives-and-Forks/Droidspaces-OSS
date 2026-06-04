@@ -489,6 +489,19 @@ int ds_multi_stop(const char *raw_names);
 int validate_bind_destination(const char *dest);
 int count_folders(const char *path);
 
+/* Daemon lifecycle helpers */
+typedef void (*ds_child_fn)(int ready_fd, void *user_data);
+pid_t ds_daemon_read_pid(const char *filename);
+void ds_daemon_write_pid(const char *filename, pid_t pid);
+void ds_daemon_remove_pid(const char *filename);
+void ds_oom_protect(void);
+void ds_spawn_log_relay(int pipe_read_fd, const char *log_file,
+                        const char *tag);
+pid_t ds_spawn_daemon(ds_child_fn child_fn, void *user_data,
+                      const char *log_file, const char *tag, const char *label);
+int ds_bind_mount_socket(const char *src, const char *dst, uid_t uid,
+                         const char *label);
+
 /* ---------------------------------------------------------------------------
  * config.c
  * ---------------------------------------------------------------------------*/
@@ -523,6 +536,13 @@ int android_setup_storage(const char *rootfs_path);
 int android_seccomp_setup(int is_systemd, int block_nested_ns,
                           int privileged_mask);
 int ds_seccomp_apply_minimal(int privileged_mask);
+
+/* SELinux + Termux privilege helpers */
+const char *ds_extract_mls(const char *ctx);
+void ds_selinux_dyntransition(const char *mls, char *applied_ctx,
+                              size_t ctx_size);
+int ds_drop_privileges(int uid);
+int ds_resolve_termux_uid(void);
 
 /* ---------------------------------------------------------------------------
  * mount.c

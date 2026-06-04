@@ -712,11 +712,7 @@ static void daemonize(int foreground) {
   }
 
   /* Make daemon unkillable */
-  FILE *f = fopen("/proc/self/oom_score_adj", "w");
-  if (f) {
-    fprintf(f, "-1000\n");
-    fclose(f);
-  }
+  ds_oom_protect();
 }
 
 static void sigusr2_handler(int sig) {
