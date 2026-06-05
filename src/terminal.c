@@ -20,10 +20,10 @@ int ds_openpty(int *master, int *slave, char *name) {
   if (m < 0)
     return -1;
 
-  /* unlock slave */
+  /* best-effort: vendor 4.9 kernels may return EINVAL/EIO on newinstance
+   * devpts mounts; kernel auto-unlocks if needed */
   int unlock = 0;
-  if (ioctl(m, TIOCSPTLCK, &unlock) < 0)
-    goto err;
+  (void)ioctl(m, TIOCSPTLCK, &unlock);
 
   /* try kernel 4.13+ path-free method first */
   int s = ioctl(m, TIOCGPTPEER, O_RDWR | O_NOCTTY | O_CLOEXEC);
