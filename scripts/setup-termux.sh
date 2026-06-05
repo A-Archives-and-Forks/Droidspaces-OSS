@@ -5,12 +5,6 @@
 
 set -e
 
-# Reject if not running inside Termux
-if [ -z "$TERMUX_APP__PACKAGE_NAME" ] || [ -z "$PREFIX" ]; then
-    echo "Error: not running inside Termux." >&2
-    exit 1
-fi
-
 DEFAULT_PA="$PREFIX/etc/pulse/default.pa"
 AAUDIO_LINE="load-module module-aaudio-sink"
 ALWAYS_LINE="load-module module-always-sink"
