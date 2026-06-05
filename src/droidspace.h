@@ -493,6 +493,10 @@ typedef void (*ds_child_fn)(int ready_fd, void *user_data);
 pid_t ds_daemon_read_pid(const char *filename);
 void ds_daemon_write_pid(const char *filename, pid_t pid);
 void ds_daemon_remove_pid(const char *filename);
+pid_t ds_resolve_daemon_pid(pid_t cached, const char *pidfile);
+void ds_global_daemon_stop(int (*check_fn)(void), pid_t cached_pid,
+                           pid_t *pid_out, const char *pidfile,
+                           const char *sock_path, const char *tag);
 void ds_oom_protect(void);
 void ds_spawn_log_relay(int pipe_read_fd, const char *log_file,
                         const char *tag);

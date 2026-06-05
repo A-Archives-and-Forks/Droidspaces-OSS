@@ -327,32 +327,10 @@ int ds_pulse_daemon_start(struct ds_config *cfg) {
 }
 
 void ds_pulse_daemon_stop(struct ds_config *cfg) {
-  if (!cfg || !is_android())
+  if (!cfg)
     return;
-
-  /* Keep the daemon alive if any other running container still needs it */
-  if (check_pulse_needs() == 1) {
-    ds_log("[PulseAudio] keeping global daemon running for other active "
-           "containers");
-    return;
-  }
-
-  pid_t pid =
-      cfg->pulse_pid > 0 ? cfg->pulse_pid : ds_daemon_read_pid("pulse.ppid");
-  if (pid > 0) {
-    ds_log("[PulseAudio] terminating daemon (PID %d)...", (int)pid);
-    kill(pid, SIGTERM);
-    for (int i = 0; i < 10 && kill(pid, 0) == 0; i++)
-      usleep(100000);
-    if (kill(pid, 0) == 0) {
-      kill(pid, SIGKILL);
-      waitpid(pid, NULL, 0);
-    }
-    cfg->pulse_pid = 0;
-  }
-
-  ds_daemon_remove_pid("pulse.ppid");
-  unlink(TX11_PULSE_SOCKET);
+  ds_global_daemon_stop(check_pulse_needs, cfg->pulse_pid, &cfg->pulse_pid,
+                        "pulse.ppid", TX11_PULSE_SOCKET, "[PulseAudio]");
 }
 
 /* ---- socket bridge ---------------------------------------------------- */

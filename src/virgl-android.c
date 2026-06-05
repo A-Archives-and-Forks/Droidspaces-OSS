@@ -134,32 +134,10 @@ int ds_virgl_daemon_start(struct ds_config *cfg) {
 }
 
 void ds_virgl_daemon_stop(struct ds_config *cfg) {
-  if (!cfg || !is_android())
+  if (!cfg)
     return;
-
-  /* Keep the server alive if any other running container still needs VirGL */
-  if (check_virgl_needs() == 1) {
-    ds_log("[VirGL] keeping global VirGL server running for other active "
-           "containers");
-    return;
-  }
-
-  pid_t pid =
-      cfg->virgl_pid > 0 ? cfg->virgl_pid : ds_daemon_read_pid("virgl.vpid");
-  if (pid > 0) {
-    ds_log("[VirGL] terminating VirGL server (PID %d)...", (int)pid);
-    kill(pid, SIGTERM);
-    for (int i = 0; i < 10 && kill(pid, 0) == 0; i++)
-      usleep(100000);
-    if (kill(pid, 0) == 0) {
-      kill(pid, SIGKILL);
-      waitpid(pid, NULL, 0);
-    }
-    cfg->virgl_pid = 0;
-  }
-
-  ds_daemon_remove_pid("virgl.vpid");
-  unlink(TX11_VIRGL_SOCKET);
+  ds_global_daemon_stop(check_virgl_needs, cfg->virgl_pid, &cfg->virgl_pid,
+                        "virgl.vpid", TX11_VIRGL_SOCKET, "[VirGL]");
 }
 
 /* ---- socket bridge ---------------------------------------------------- */

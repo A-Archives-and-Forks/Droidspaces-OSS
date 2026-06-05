@@ -225,31 +225,11 @@ int ds_x11_daemon_start(struct ds_config *cfg) {
 }
 
 void ds_x11_daemon_stop(struct ds_config *cfg) {
-  if (!cfg || !is_android())
+  if (!cfg)
     return;
-
-  /* Keep the server alive if any other running container still needs X11 */
-  if (check_x11_needs() == 1) {
-    ds_log(
-        "[X11] keeping global X11 server running for other active containers");
-    return;
-  }
-
-  pid_t pid = cfg->x11_pid > 0 ? cfg->x11_pid : ds_daemon_read_pid("x11.xpid");
-  if (pid > 0) {
-    ds_log("[X11] terminating Termux-X11 server (PID %d)...", (int)pid);
-    kill(pid, SIGTERM);
-    for (int i = 0; i < 10 && kill(pid, 0) == 0; i++)
-      usleep(100000);
-    if (kill(pid, 0) == 0) {
-      kill(pid, SIGKILL);
-      waitpid(pid, NULL, 0);
-    }
-    cfg->x11_pid = 0;
-  }
-
-  ds_daemon_remove_pid("x11.xpid");
-  unlink(TX11_SOCK_DIR "/" TX11_DISPLAY_SOCK);
+  ds_global_daemon_stop(check_x11_needs, cfg->x11_pid, &cfg->x11_pid,
+                        "x11.xpid", TX11_SOCK_DIR "/" TX11_DISPLAY_SOCK,
+                        "[X11]");
 }
 
 /* ---- socket bridge ---------------------------------------------------- */

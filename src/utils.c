@@ -2423,6 +2423,51 @@ void ds_daemon_remove_pid(const char *filename) {
   unlink(path);
 }
 
+/* Resolve a cached pid or fall back to the pidfile. */
+pid_t ds_resolve_daemon_pid(pid_t cached, const char *pidfile) {
+  return cached > 0 ? cached : ds_daemon_read_pid(pidfile);
+}
+
+/*
+ * ds_global_daemon_stop - unified teardown for X11/VirGL/PulseAudio daemons.
+ *
+ * check_fn    : feature-needs checker (returns 1 if still needed)
+ * cached_pid  : cfg->x11_pid / cfg->virgl_pid / cfg->pulse_pid
+ * pid_out     : pointer to that field (zeroed on stop)
+ * pidfile     : e.g. "x11.xpid"
+ * sock_path   : socket to unlink after stop
+ * tag         : log prefix e.g. "[X11]"
+ */
+void ds_global_daemon_stop(int (*check_fn)(void), pid_t cached_pid,
+                           pid_t *pid_out, const char *pidfile,
+                           const char *sock_path, const char *tag) {
+  if (!is_android())
+    return;
+
+  if (check_fn() == 1) {
+    ds_log("%s keeping global server running for other active containers", tag);
+    return;
+  }
+
+  pid_t pid = ds_resolve_daemon_pid(cached_pid, pidfile);
+  if (pid > 0) {
+    ds_log("%s terminating (PID %d)...", tag, (int)pid);
+    kill(pid, SIGTERM);
+    for (int i = 0; i < 10 && kill(pid, 0) == 0; i++)
+      usleep(100000);
+    if (kill(pid, 0) == 0) {
+      kill(pid, SIGKILL);
+      waitpid(pid, NULL, 0);
+    }
+    if (pid_out)
+      *pid_out = 0;
+  }
+
+  ds_daemon_remove_pid(pidfile);
+  if (sock_path)
+    unlink(sock_path);
+}
+
 /* Set oom_score_adj to -1000 (unkillable).  Best-effort, no error return. */
 void ds_oom_protect(void) {
   FILE *f = fopen("/proc/self/oom_score_adj", "w");
