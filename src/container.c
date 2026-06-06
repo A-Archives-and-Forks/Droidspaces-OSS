@@ -1198,6 +1198,7 @@ int enter_rootfs(struct ds_config *cfg, const char *user) {
       char *shell_argv[] = {"su", "-l", (char *)(uintptr_t)user, NULL};
       execve("/bin/su", shell_argv, environ);
       execve("/usr/bin/su", shell_argv, environ);
+      execve("/run/wrappers/bin/su", shell_argv, environ);
 
       /* Fallback: su not available - look up the shell from /etc/passwd */
       char user_shell[PATH_MAX] = {0};
@@ -1369,6 +1370,7 @@ int run_in_rootfs(struct ds_config *cfg, int argc, char **argv,
                            "-c", cmd_buf, NULL};
         execvp("/bin/su", su_argv);
         execvp("/usr/bin/su", su_argv);
+        execvp("/run/wrappers/bin/su", su_argv);
         ds_error("Failed to exec su for user '%s': %s", as_user,
                  strerror(errno));
         _exit(EXIT_FAILURE);
