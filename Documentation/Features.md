@@ -290,6 +290,8 @@ In NAT mode, you can expose container services to the host or local network usin
 --port 2222:22/tcp --port 5000-5050:5000-5050/udp
 ```
 
+Forwarded ports are reachable from any network the host belongs to - including clients connected to the phone's own hotspot or USB tethering on Android.
+
 
 ### Real-Time Uplink Monitoring
 On Android, the connection often hops between Wi-Fi and Mobile Data. Droidspaces includes a **Route Monitor** that subscribes to kernel routing events (FIB rules, routes, links, addresses). The moment Android switches its default network (e.g., you walk out of Wi-Fi range), the monitor updates the kernel's policy routing to keep the container connected - no configuration, no restart.

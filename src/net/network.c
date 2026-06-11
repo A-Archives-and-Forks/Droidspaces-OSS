@@ -518,6 +518,17 @@ static void ds_net_setup_android_routing(ds_nl_ctx_t *ctx) {
     ds_warn("[NET] Android routing: failed to add 'to subnet' rule (%d)",
             DS_RULE_PRIO_TO_SUBNET);
 
+  /* DS_RULE_PRIO_TETHER (6095): replies from our subnet to hotspot/USB-tether
+   * clients must consult netd's local_network table (which holds every
+   * downstream interface's connected route and no default route) before the
+   * uplink table grabs them.  Installed regardless of uplink state - tether
+   * clients can reach forwarded ports even with no WAN. */
+  ret = ds_nl_add_rule4(ctx, subnet_be, prefix, 0, 0,
+                        DS_ANDROID_TABLE_LOCAL_NETWORK, DS_RULE_PRIO_TETHER);
+  if (ret < 0)
+    ds_warn("[NET] Android routing: failed to add tether-return rule (%d)",
+            DS_RULE_PRIO_TETHER);
+
   if (!active_iface[0]) {
     ds_warn("[NET] Android routing: no active uplink detected yet - "
             "route monitor will install rule when one comes up");
@@ -1550,6 +1561,7 @@ void ds_net_cleanup(struct ds_config *cfg, pid_t container_pid) {
      * cleans up completely.  del_rule4 is idempotent (ENOENT → 0). */
     int prios[] = {
         DS_RULE_PRIO_TO_SUBNET,   /* 6090 - current */
+        DS_RULE_PRIO_TETHER,      /* 6095 - current */
         DS_RULE_PRIO_FROM_SUBNET, /* 6100 - current */
         90,
         100,

@@ -243,14 +243,35 @@ struct ds_net_handshake {
  * DS_RULE_PRIO_TO_SUBNET  - "to 172.28.0.0/16 lookup main"
  *   Guarantees reply traffic to the container always resolves correctly.
  *
+ * DS_RULE_PRIO_TETHER - "from 172.28.0.0/16 lookup local_network(97)"
+ *   Returns container replies to hotspot/USB-tether clients out the tether
+ *   interface.  Reply packets of DNAT'd port-forward connections still carry
+ *   the container source address at routing time (conntrack un-DNATs in
+ *   POSTROUTING, after the route lookup), so without this rule they would
+ *   match DS_RULE_PRIO_FROM_SUBNET and leak out the WAN uplink instead of
+ *   reaching the tethered client.  netd keeps the connected route of every
+ *   downstream interface (swlan*, ap*, rndis*, ncm*, bt-pan) in the
+ *   local_network table, which has no default route - so this rule only
+ *   matches tether-bound traffic and falls through to FROM_SUBNET otherwise.
+ *   Must sit between TO_SUBNET and FROM_SUBNET.
+ *
  * DS_RULE_PRIO_FROM_SUBNET - "from 172.28.0.0/16 lookup <gw_table>"
  *   Routes container-originated traffic through the active uplink table.
  */
 #ifndef DS_RULE_PRIO_TO_SUBNET
 #define DS_RULE_PRIO_TO_SUBNET 6090
 #endif
+#ifndef DS_RULE_PRIO_TETHER
+#define DS_RULE_PRIO_TETHER 6095
+#endif
 #ifndef DS_RULE_PRIO_FROM_SUBNET
 #define DS_RULE_PRIO_FROM_SUBNET 6100
+#endif
+
+/* netd's fixed local_network routing table
+ * (RouteController::ROUTE_TABLE_LOCAL_NETWORK, constant since Android 5.x). */
+#ifndef DS_ANDROID_TABLE_LOCAL_NETWORK
+#define DS_ANDROID_TABLE_LOCAL_NETWORK 97
 #endif
 
 /* Bind mount entry */
