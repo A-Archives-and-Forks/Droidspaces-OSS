@@ -1532,9 +1532,7 @@ void ds_net_cleanup(struct ds_config *cfg, pid_t container_pid) {
       ds_log("[NET] Gateway cleanup: removed %s", veth_host);
 
       /* Refcount the delegated bridge: once the last client veth has left,
-       * tear down the gateway veth and the bridge so idle segments don't
-       * linger.  The gateway's LAN interface is re-plugged lazily the next
-       * time any client attaches to this segment (setup_gateway_veth_side). */
+       * reap the now-empty bridge so idle segments don't linger. */
       char bridge[IFNAMSIZ], gw_host[IFNAMSIZ], gw_peer[IFNAMSIZ];
       gateway_bridge_name(cfg, bridge, sizeof(bridge));
       gateway_veth_names(cfg, gw_host, sizeof(gw_host), gw_peer,
@@ -1545,10 +1543,19 @@ void ds_net_cleanup(struct ds_config *cfg, pid_t container_pid) {
                "delegated LAN",
                clients, bridge);
       } else {
-        ds_nl_del_link(ctx, gw_host);
+        /* Reap the empty bridge, but NEVER delete the gateway veth (gw_host):
+         * its peer is the gateway container's live LAN interface (e.g. eth1),
+         * and deleting either end destroys the pair - ripping the cable out of
+         * a still-running gateway.  OpenWrt's netifd will not re-init a brand
+         * new eth1 that reappears under it, so its DHCP/LAN stays dead until
+         * the gateway is rebooted.  Leaving gw_host masterless keeps eth1
+         * alive; the next client recreates the bridge and reattaches gw_host
+         * (setup_gateway_veth_side else-branch).  When the gateway container
+         * itself stops, its netns dies and gw_host vanishes with its peer,
+         * leaving zero residue. */
         ds_nl_del_link(ctx, bridge);
-        ds_log("[NET] Gateway cleanup: torn down idle delegated LAN %s "
-               "(removed %s)",
+        ds_log("[NET] Gateway cleanup: reaped idle delegated LAN bridge %s "
+               "(kept gateway veth %s)",
                bridge, gw_host);
       }
     } else {
