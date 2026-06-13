@@ -66,6 +66,23 @@ static uint32_t ds_net_hash_string(const char *s) {
   return h;
 }
 
+/* Derive a stable, locally-administered unicast MAC from the container name.
+ * The same name always yields the same address, so a gateway (e.g. OpenWrt)
+ * sees one persistent host across restarts instead of a fresh random MAC -
+ * and therefore one DHCP lease / LuCI entry - every boot. */
+static void ds_container_mac(const char *name, uint8_t mac[6]) {
+  uint32_t h1 = ds_net_hash_string(name);
+  char salted[300];
+  snprintf(salted, sizeof(salted), "ds-mac:%s", name ? name : "");
+  uint32_t h2 = ds_net_hash_string(salted);
+  mac[0] = 0x02; /* locally administered (bit1), unicast (bit0 clear) */
+  mac[1] = (uint8_t)(h1 >> 24);
+  mac[2] = (uint8_t)(h1 >> 16);
+  mac[3] = (uint8_t)(h1 >> 8);
+  mac[4] = (uint8_t)(h1);
+  mac[5] = (uint8_t)(h2);
+}
+
 static void gateway_hash_key(struct ds_config *cfg, char *buf, size_t sz) {
   const char *gw =
       (cfg && cfg->gateway_container[0]) ? cfg->gateway_container : "gateway";
@@ -1000,6 +1017,19 @@ int setup_veth_child_side_named(struct ds_config *cfg, const char *peer_name,
     ds_log("[DEBUG] Renaming %s to eth0...", peer_name);
     if (ds_nl_rename(ctx, peer_name, "eth0") < 0)
       ds_warn("[DEBUG] Failed to rename %s to eth0.", peer_name);
+  }
+
+  /* 0b. Pin eth0 to a deterministic MAC derived from the container name, so
+   * an upstream gateway sees one stable host across restarts (no LuCI/lease
+   * churn) instead of a new random MAC each boot. Set while down, pre-up. */
+  if (cfg && cfg->container_name[0]) {
+    uint8_t mac[6];
+    ds_container_mac(cfg->container_name, mac);
+    if (ds_nl_set_mac(ctx, "eth0", mac) < 0)
+      ds_warn("[NET] Child: failed to set deterministic MAC on eth0");
+    else
+      ds_log("[NET] Child: eth0 MAC pinned to %02x:%02x:%02x:%02x:%02x:%02x",
+             mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
   }
 
   /* 1. Loopback */
