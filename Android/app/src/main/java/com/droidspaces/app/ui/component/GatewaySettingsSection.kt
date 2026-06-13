@@ -1,12 +1,5 @@
 package com.droidspaces.app.ui.component
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -60,17 +53,9 @@ fun GatewaySettingsSection(
     // Error from any of the three advanced (dialog) fields, surfaced under the button.
     val advancedError = errors.iface ?: errors.bridge ?: errors.net
 
-    AnimatedVisibility(
-        visible = visible,
-        enter = expandVertically(
-            animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
-            expandFrom = Alignment.Top
-        ) + fadeIn(animationSpec = tween(durationMillis = 300)),
-        exit = shrinkVertically(
-            animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
-            shrinkTowards = Alignment.Top
-        ) + fadeOut(animationSpec = tween(durationMillis = 300))
-    ) {
+    // Instant show/hide (no expand/shrink) so switching network modes stays smooth
+    // instead of fighting the NAT section's animation in the opposite direction.
+    if (visible) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -120,13 +105,6 @@ fun GatewaySettingsSection(
                     modifier = Modifier.padding(start = 4.dp)
                 )
             }
-
-            // Divider so the following DNS field doesn't feel disconnected.
-            HorizontalDivider(
-                modifier = Modifier.padding(top = 4.dp),
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f),
-                thickness = 1.dp
-            )
         }
     }
 

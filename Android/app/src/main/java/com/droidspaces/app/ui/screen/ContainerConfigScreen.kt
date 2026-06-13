@@ -402,17 +402,9 @@ fun ContainerConfigScreen(
                 errors = gatewayErrors
             )
 
-            androidx.compose.animation.AnimatedVisibility(
-                visible = netMode == "nat",
-                enter = androidx.compose.animation.expandVertically(
-                    animationSpec = tween(durationMillis = 300, easing = androidx.compose.animation.core.FastOutSlowInEasing),
-                    expandFrom = Alignment.Top
-                ) + androidx.compose.animation.fadeIn(animationSpec = tween(durationMillis = 300)),
-                exit = androidx.compose.animation.shrinkVertically(
-                    animationSpec = tween(durationMillis = 300, easing = androidx.compose.animation.core.FastOutSlowInEasing),
-                    shrinkTowards = Alignment.Top
-                ) + androidx.compose.animation.fadeOut(animationSpec = tween(durationMillis = 300))
-            ) {
+            // Instant show/hide (no expand/shrink) so switching modes doesn't fight
+            // the gateway section's animation — see the gateway/NAT divider note.
+            if (netMode == "nat") {
                 Column(
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -540,15 +532,15 @@ fun ContainerConfigScreen(
                         portForwards = portForwards,
                         onPortForwardsChange = { portForwards = it }
                     )
-
-                    // Divider so the following DNS field doesn't feel disconnected.
-                    HorizontalDivider(
-                        modifier = Modifier.padding(top = 4.dp),
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f),
-                        thickness = 1.dp
-                    )
                 }
             }
+
+            // Static divider (outside the animated blocks so mode switches stay
+            // smooth) separating the networking sub-settings from the DNS field.
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f),
+                thickness = 1.dp
+            )
 
             // DNS Servers input
             val isDnsError = remember(dnsServers) {
