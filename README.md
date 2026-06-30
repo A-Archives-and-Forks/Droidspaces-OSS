@@ -388,6 +388,7 @@ For GPU acceleration methods, sound setup, DE auto-boot internals, and Linux des
 | Document | Description |
 |----------|-------------|
 | [Feature Deep Dives](Documentation/Features.md) | Detailed explanation of each major feature. |
+| [Networking From Zero](Documentation/Networking-From-Zero.md) | Beginner-friendly guide to every networking concept behind Droidspaces - NAT, automatic uplink detection, `--upstream` pinning, and gateway mode with OpenWRT. |
 | [Display, Audio & Desktop Guide](Documentation/Graphics-and-Audio.md) | GPU acceleration, PulseAudio sound, and desktop environment auto-boot on Android and Linux. |
 | [Cool Things You Can Do (Tailscale, Docker, etc.)](Documentation/Cool-things-you-can-do.md) | Practical recipes for running Tailscale, Docker, and other tools inside containers. |
 | [Uninstallation Guide](Documentation/Uninstallation.md) | How to remove Droidspaces from your system. |
