@@ -124,6 +124,7 @@
     <string name="uninstall_container_title">Uninstall Container?</string>
     <string name="uninstall_container_message">This will permanently delete container \"%1$s\" and all its data. This action cannot be undone.\n\nIf the container is running, it will be stopped first.</string>
     <string name="uninstall">Uninstall</string>
+    <string name="type_container_name_to_confirm">Type the container name exactly to confirm:</string>
     <string name="cancel">Cancel</string>
     <string name="view_logs">View logs</string>
     <string name="edit_container_configuration">Edit Container Configuration</string>
