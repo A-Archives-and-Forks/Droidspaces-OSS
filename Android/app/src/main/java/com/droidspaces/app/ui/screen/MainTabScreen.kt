@@ -83,7 +83,7 @@ fun MainTabScreen(
     // Handle back press - return to Home tab if not already there
     BackHandler(enabled = selectedTab != TabItem.Home) {
         scope.launch {
-            pagerState.animateScrollToPage(tabs.indexOf(TabItem.Home))
+            pagerState.scrollToPage(tabs.indexOf(TabItem.Home))
         }
     }
 
@@ -292,12 +292,12 @@ fun MainTabScreen(
                             onNavigateToInstallation = onNavigateToInstallation,
                             onNavigateToContainers = {
                                 scope.launch {
-                                    pagerState.animateScrollToPage(tabs.indexOf(TabItem.Containers))
+                                    pagerState.scrollToPage(tabs.indexOf(TabItem.Containers))
                                 }
                             },
                             onNavigateToControlPanel = {
                                 scope.launch {
-                                    pagerState.animateScrollToPage(tabs.indexOf(TabItem.ControlPanel))
+                                    pagerState.scrollToPage(tabs.indexOf(TabItem.ControlPanel))
                                 }
                             },
                             containerCount = containerCount,
@@ -346,7 +346,7 @@ fun MainTabScreen(
                     selectedTab = selectedTab,
                     onTabSelected = { tab ->
                         scope.launch {
-                            pagerState.animateScrollToPage(tabs.indexOf(tab))
+                            pagerState.scrollToPage(tabs.indexOf(tab))
                         }
                         expandedContainerName = null
                     }
