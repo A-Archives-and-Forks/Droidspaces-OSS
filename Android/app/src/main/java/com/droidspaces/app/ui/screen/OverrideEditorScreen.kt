@@ -63,9 +63,9 @@ fun OverrideEditorScreen(
             isSaving = false
             if (result.isSuccess) {
                 hasExistingOverride = true
-                snackbarHostState.showSuccess("Override saved. Restart the unit to apply the change.")
+                snackbarHostState.showSuccess(context.getString(R.string.override_saved))
             } else {
-                val message = (result.output + result.error).firstOrNull() ?: "Failed to save override"
+                val message = (result.output + result.error).firstOrNull() ?: context.getString(R.string.failed_to_save_override)
                 snackbarHostState.showError(message)
             }
         }
@@ -79,9 +79,9 @@ fun OverrideEditorScreen(
             if (result.isSuccess) {
                 text = OVERRIDE_TEMPLATE
                 hasExistingOverride = false
-                snackbarHostState.showSuccess("Override removed.")
+                snackbarHostState.showSuccess(context.getString(R.string.override_removed))
             } else {
-                val message = (result.output + result.error).firstOrNull() ?: "Failed to remove override"
+                val message = (result.output + result.error).firstOrNull() ?: context.getString(R.string.failed_to_remove_override)
                 snackbarHostState.showError(message)
             }
         }
@@ -93,7 +93,7 @@ fun OverrideEditorScreen(
                 CenterAlignedTopAppBar(
                     title = {
                         Text(
-                            "Edit Override · $unitName",
+                            context.getString(R.string.edit_override_title, unitName),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold,
                             maxLines = 1
@@ -107,11 +107,11 @@ fun OverrideEditorScreen(
                     actions = {
                         if (hasExistingOverride) {
                             IconButton(onClick = { delete() }, enabled = !isSaving) {
-                                Icon(Icons.Default.Delete, "Delete override")
+                                Icon(Icons.Default.Delete, context.getString(R.string.delete_override))
                             }
                         }
                         IconButton(onClick = { save() }, enabled = !isSaving) {
-                            Icon(Icons.Default.Save, "Save override")
+                            Icon(Icons.Default.Save, context.getString(R.string.save_override))
                         }
                     },
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Transparent)
@@ -130,7 +130,7 @@ fun OverrideEditorScreen(
                         modifier = Modifier.fillMaxSize(),
                         textStyle = MaterialTheme.typography.bodyMedium.copy(fontFamily = OverrideEditorMono),
                         shape = RoundedCornerShape(16.dp),
-                        placeholder = { Text("[Service]\nEnvironment=FOO=bar") }
+                        placeholder = { Text(context.getString(R.string.override_placeholder)) }
                     )
                 }
             }
@@ -138,6 +138,6 @@ fun OverrideEditorScreen(
     }
 
     if (isSaving) {
-        ProgressDialog(message = if (hasExistingOverride) "Saving override…" else "Applying override…")
+        ProgressDialog(message = context.getString(if (hasExistingOverride) R.string.saving_override else R.string.applying_override))
     }
 }

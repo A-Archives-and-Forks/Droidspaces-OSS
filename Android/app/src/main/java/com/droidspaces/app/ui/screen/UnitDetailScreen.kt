@@ -1,5 +1,6 @@
 package com.droidspaces.app.ui.screen
 
+import android.content.Context
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,20 +31,20 @@ private val UnitDetailMono = FontFamily(
     Font(R.font.jetbrains_mono_bold, FontWeight.Bold)
 )
 
-/** Human-friendly labels for the raw systemd property keys `inspectUnit` fetches. */
-private val PROPERTY_LABELS = linkedMapOf(
-    "Description" to "Description",
-    "LoadState" to "Load State",
-    "ActiveState" to "Active State",
-    "SubState" to "Sub State",
-    "UnitFileState" to "Enablement",
-    "FragmentPath" to "Unit File",
-    "DropInPaths" to "Drop-ins",
-    "MainPID" to "Main PID",
-    "ExecMainStartTimestamp" to "Started At",
-    "Restart" to "Restart Policy",
-    "MemoryCurrent" to "Memory",
-    "CPUUsageNSec" to "CPU Time (ns)",
+/** Human-friendly label resources for the raw systemd property keys `inspectUnit` fetches. */
+private val PROPERTY_LABEL_RES = linkedMapOf(
+    "Description" to R.string.property_description,
+    "LoadState" to R.string.property_load_state,
+    "ActiveState" to R.string.property_active_state,
+    "SubState" to R.string.property_sub_state,
+    "UnitFileState" to R.string.property_enablement,
+    "FragmentPath" to R.string.property_unit_file,
+    "DropInPaths" to R.string.property_drop_ins,
+    "MainPID" to R.string.property_main_pid,
+    "ExecMainStartTimestamp" to R.string.property_started_at,
+    "Restart" to R.string.property_restart_policy,
+    "MemoryCurrent" to R.string.property_memory,
+    "CPUUsageNSec" to R.string.property_cpu_time,
 )
 
 private sealed class UnitDetailState {
@@ -109,7 +110,7 @@ fun UnitDetailScreen(
                 when (val s = state) {
                     is UnitDetailState.Loading -> FullScreenLoading(message = context.getString(R.string.fetching_services))
                     is UnitDetailState.Error -> UnitDetailError(onRetry = { load() })
-                    is UnitDetailState.Ready -> UnitDetailContent(s.inspection)
+                    is UnitDetailState.Ready -> UnitDetailContent(s.inspection, context)
                 }
             }
         }
@@ -118,21 +119,22 @@ fun UnitDetailScreen(
 
 @Composable
 private fun UnitDetailError(onRetry: () -> Unit) {
+    val context = LocalContext.current
     Column(
         modifier = Modifier.fillMaxSize().padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text("Couldn't load unit details", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+        Text(context.getString(R.string.unit_detail_load_error_title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(8.dp))
         Text(
-            "The unit may no longer exist, or the container may be unreachable.",
+            context.getString(R.string.unit_detail_load_error_message),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(16.dp))
-        FilledTonalButton(onClick = onRetry) { Text("Retry") }
+        FilledTonalButton(onClick = onRetry) { Text(context.getString(R.string.repo_retry)) }
     }
 }
 
@@ -152,11 +154,11 @@ private fun SectionCard(title: String, content: @Composable ColumnScope.() -> Un
 }
 
 @Composable
-private fun UnitDetailContent(inspection: ContainerSystemdManager.UnitInspection) {
+private fun UnitDetailContent(inspection: ContainerSystemdManager.UnitInspection, context: Context) {
     LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(vertical = 16.dp)) {
         item {
-            SectionCard(title = "Properties") {
-                PROPERTY_LABELS.forEach { (key, label) ->
+            SectionCard(title = context.getString(R.string.properties_section)) {
+                PROPERTY_LABEL_RES.forEach { (key, labelRes) ->
                     val rawValue = inspection.properties[key]
                     val value = rawValue?.takeIf { it.isNotBlank() && it != "0" && it != "n/a" }
                     if (value != null) {
@@ -166,7 +168,7 @@ private fun UnitDetailContent(inspection: ContainerSystemdManager.UnitInspection
                             verticalAlignment = Alignment.Top
                         ) {
                             Text(
-                                label,
+                                context.getString(labelRes),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.weight(0.4f)
@@ -190,7 +192,7 @@ private fun UnitDetailContent(inspection: ContainerSystemdManager.UnitInspection
 
         if (inspection.dependencies.isNotEmpty()) {
             item {
-                SectionCard(title = "Dependencies") {
+                SectionCard(title = context.getString(R.string.dependencies_section)) {
                     inspection.dependencies.forEach { dep ->
                         Text(dep, style = MaterialTheme.typography.bodySmall.copy(fontFamily = UnitDetailMono))
                     }
@@ -199,7 +201,7 @@ private fun UnitDetailContent(inspection: ContainerSystemdManager.UnitInspection
         }
 
         item {
-            SectionCard(title = "systemctl status") {
+            SectionCard(title = context.getString(R.string.systemctl_status_section)) {
                 Surface(
                     color = MaterialTheme.colorScheme.surfaceContainerHighest,
                     shape = RoundedCornerShape(12.dp)
