@@ -14,13 +14,13 @@
     <locale android:name="it" />
     <locale android:name="ja" />
     <locale android:name="km" />
+    <locale android:name="ko" />
     <locale android:name="pag-PH" />
     <locale android:name="pt" />
     <locale android:name="pt-BR" />
     <locale android:name="ro" />
     <locale android:name="ru" />
     <locale android:name="si" />
-    <locale android:name="ko" />
     <locale android:name="ta" />
     <locale android:name="tr" />
     <locale android:name="zh-CN" />
