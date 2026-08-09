@@ -783,26 +783,40 @@ static int open_raw_socket(void) {
 /* ---------------------------------------------------------------------------
  * Public API: ds_ipt_host_rules_present
  *
- * Fork-free probe for the whole host-side connectivity rule set:
- *   filter INPUT    -i <iface> ACCEPT
- *   filter FORWARD  -i <iface> ACCEPT
- *   filter FORWARD  -o <iface> ACCEPT
+ * Fork-free probe for the whole host-side rule set:
+ *   filter INPUT       -i <iface> ACCEPT
+ *   filter FORWARD     -i <iface> ACCEPT
+ *   filter FORWARD     -o <iface> ACCEPT
  *   nat    POSTROUTING -s <cidr> ! -d <cidr> MASQUERADE
+ *   nat    PREROUTING  DNAT                     (only if expect_dnat)
+ *   mangle POSTROUTING TCPMSS
  *
  * The route monitor polls this as its "have our rules been removed?" signal,
- * so it must stay cheap: two getsockopt pairs (one per table), no iptables
- * binary.  Checking every rule rather than one canary matters because a netd
- * restart is not the only thing that removes them - firewall apps rewrite the
- * filter chains while leaving nat's MASQUERADE untouched, which a MASQUERADE-
- * only probe would never notice.
+ * so it must stay cheap: one getsockopt pair per table, no iptables binary.
+ * Checking every rule rather than one canary matters because a netd restart is
+ * not the only thing that removes them - firewall apps rewrite the filter
+ * chains while leaving nat's MASQUERADE untouched, which a MASQUERADE-only
+ * probe would never notice.
+ *
+ * Two deliberate limits, both bounded by what the entry blob exposes without
+ * parsing xt match payloads:
+ *   - The DNAT and TCPMSS checks match on target name, so they prove that
+ *     port forwarding / MSS clamping is still installed, not that every
+ *     individual --port mapping is.  A single mapping deleted on its own is
+ *     not detected; anything that removes them as a group is.
+ *   - An unreadable mangle table is not treated as failure.  MSS clamping is
+ *     an MTU guard rather than connectivity, and failing the whole probe there
+ *     would stop us reconciling the rules that do matter.
  *
  * Returns 1 when all of them are present, 0 when any is missing, and -1 when
- * the tables could not be read.  Callers must treat -1 as "unknown" and do
- * nothing: the binary fallback paths have no idempotency check, so blindly
- * reinstalling on an unreadable table would stack duplicate rules.
+ * the filter or nat table could not be read.  Callers must treat -1 as
+ * "unknown" and do nothing: the binary fallback paths have no idempotency
+ * check, so blindly reinstalling on an unreadable table would stack duplicate
+ * rules.
  * ---------------------------------------------------------------------------*/
 
-int ds_ipt_host_rules_present(const char *iface, const char *src_cidr) {
+int ds_ipt_host_rules_present(const char *iface, const char *src_cidr,
+                              int expect_dnat) {
   if (!should_use_raw_api())
     return -1;
 
@@ -826,8 +840,9 @@ int ds_ipt_host_rules_present(const char *iface, const char *src_cidr) {
                                     NULL, iface, 0, 0, "ACCEPT");
   free(base);
 
-  /* nat: MASQUERADE.  Skipped once something is already known missing - the
-   * caller reinstalls the full set either way. */
+  /* nat: MASQUERADE, plus a port-forward DNAT when --port is configured.
+   * Skipped once something is already known missing - the caller reinstalls
+   * the full set either way. */
   if (present) {
     uint32_t src_ip, src_mask;
     parse_cidr(src_cidr, &src_ip, &src_mask);
@@ -840,7 +855,23 @@ int ds_ipt_host_rules_present(const char *iface, const char *src_cidr) {
     present =
         rule_exists_in_hook(&info, ENTRIES_BLOB(base), NF_INET_POST_ROUTING,
                             NULL, NULL, src_ip, src_mask, "MASQUERADE");
+    if (present && expect_dnat)
+      present =
+          rule_exists_in_hook(&info, ENTRIES_BLOB(base), NF_INET_PRE_ROUTING,
+                              NULL, NULL, 0, 0, "DNAT");
     free(base);
+  }
+
+  /* mangle: the MSS clamp.  An unreadable mangle table leaves the verdict
+   * untouched rather than failing the probe - see the header comment. */
+  if (present) {
+    base = NULL;
+    if (get_table(fd, "mangle", &info, &base) == 0) {
+      present =
+          rule_exists_in_hook(&info, ENTRIES_BLOB(base), NF_INET_POST_ROUTING,
+                              NULL, NULL, 0, 0, "TCPMSS");
+      free(base);
+    }
   }
 
   close(fd);
@@ -1488,6 +1519,15 @@ int ds_ipt_add_portforwards(struct ds_port_forward *pfs, int count,
                             const char *container_ip) {
   if (!pfs || count <= 0 || !container_ip || container_ip[0] == '\0')
     return 0;
+
+  /* Drop anything a previous install recorded before adding it again.  These
+   * rules go in through the iptables binary, which has no idempotency check,
+   * so re-running this on a partially flushed table (netd wiped nat
+   * PREROUTING but left our POSTROUTING/FORWARD rules, say) would otherwise
+   * stack a second copy of every survivor - and removal only issues one -D
+   * per recorded rule, so the extras would leak on container stop.  No state
+   * file (first install) makes this a no-op. */
+  pf_state_remove(container_ip);
 
   /* Open the state file for this container (truncate any stale copy).
    * Every rule we successfully insert is recorded so that

@@ -783,7 +783,8 @@ int ds_nl_probe_nat_capability(char *reason, size_t rsz);
  * ---------------------------------------------------------------------------*/
 
 int ds_ipt_ensure_masquerade(const char *src_cidr);
-int ds_ipt_host_rules_present(const char *iface, const char *src_cidr);
+int ds_ipt_host_rules_present(const char *iface, const char *src_cidr,
+                              int expect_dnat);
 int ds_ipt_ensure_forward_accept(const char *iface);
 int ds_ipt_ensure_input_accept(const char *iface);
 int ds_ipt_ensure_mss_clamp(void);

@@ -1912,7 +1912,9 @@ static void do_uplink_reprobe(void) {
    * "something is definitely missing"; -1 is "tables unreadable", where a
    * blind reinstall through those binary fallbacks would stack duplicates. */
   const char *iface = host_filter_iface();
-  if (iface[0] && ds_ipt_host_rules_present(iface, DS_DEFAULT_SUBNET) == 0) {
+  if (iface[0] &&
+      ds_ipt_host_rules_present(iface, DS_DEFAULT_SUBNET,
+                                g_host_port_forward_count > 0) == 0) {
     ds_warn("[NET] Route monitor: host netfilter rules are missing "
             "(netd restart or firewall app?) - reinstalling");
     install_netfilter_rules();
