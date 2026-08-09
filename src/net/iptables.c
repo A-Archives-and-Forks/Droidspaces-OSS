@@ -781,6 +781,73 @@ static int open_raw_socket(void) {
 }
 
 /* ---------------------------------------------------------------------------
+ * Public API: ds_ipt_host_rules_present
+ *
+ * Fork-free probe for the whole host-side connectivity rule set:
+ *   filter INPUT    -i <iface> ACCEPT
+ *   filter FORWARD  -i <iface> ACCEPT
+ *   filter FORWARD  -o <iface> ACCEPT
+ *   nat    POSTROUTING -s <cidr> ! -d <cidr> MASQUERADE
+ *
+ * The route monitor polls this as its "have our rules been removed?" signal,
+ * so it must stay cheap: two getsockopt pairs (one per table), no iptables
+ * binary.  Checking every rule rather than one canary matters because a netd
+ * restart is not the only thing that removes them - firewall apps rewrite the
+ * filter chains while leaving nat's MASQUERADE untouched, which a MASQUERADE-
+ * only probe would never notice.
+ *
+ * Returns 1 when all of them are present, 0 when any is missing, and -1 when
+ * the tables could not be read.  Callers must treat -1 as "unknown" and do
+ * nothing: the binary fallback paths have no idempotency check, so blindly
+ * reinstalling on an unreadable table would stack duplicate rules.
+ * ---------------------------------------------------------------------------*/
+
+int ds_ipt_host_rules_present(const char *iface, const char *src_cidr) {
+  if (!should_use_raw_api())
+    return -1;
+
+  int fd = open_raw_socket();
+  if (fd < 0)
+    return -1;
+
+  struct ipt_getinfo info;
+  unsigned char *base = NULL;
+
+  /* filter: the three iface ACCEPT rules, in one table read. */
+  if (get_table(fd, "filter", &info, &base) < 0) {
+    close(fd);
+    return -1;
+  }
+  int present = rule_exists_in_hook(&info, ENTRIES_BLOB(base), NF_INET_LOCAL_IN,
+                                    iface, NULL, 0, 0, "ACCEPT") &&
+                rule_exists_in_hook(&info, ENTRIES_BLOB(base), NF_INET_FORWARD,
+                                    iface, NULL, 0, 0, "ACCEPT") &&
+                rule_exists_in_hook(&info, ENTRIES_BLOB(base), NF_INET_FORWARD,
+                                    NULL, iface, 0, 0, "ACCEPT");
+  free(base);
+
+  /* nat: MASQUERADE.  Skipped once something is already known missing - the
+   * caller reinstalls the full set either way. */
+  if (present) {
+    uint32_t src_ip, src_mask;
+    parse_cidr(src_cidr, &src_ip, &src_mask);
+
+    base = NULL;
+    if (get_table(fd, "nat", &info, &base) < 0) {
+      close(fd);
+      return -1;
+    }
+    present =
+        rule_exists_in_hook(&info, ENTRIES_BLOB(base), NF_INET_POST_ROUTING,
+                            NULL, NULL, src_ip, src_mask, "MASQUERADE");
+    free(base);
+  }
+
+  close(fd);
+  return present ? 1 : 0;
+}
+
+/* ---------------------------------------------------------------------------
  * Public API: ds_ipt_ensure_masquerade
  *
  * Inserts: -t nat -I POSTROUTING 1 -s <cidr> ! -d <cidr> -j MASQUERADE
@@ -1417,9 +1484,9 @@ static void pf_fmt_ports(const struct ds_port_forward *pf,
  * complex for a feature that only fires at container start.
  * ---------------------------------------------------------------------------*/
 
-int ds_ipt_add_portforwards(struct ds_config *cfg, const char *container_ip) {
-  if (!cfg || cfg->port_forward_count <= 0 || !container_ip ||
-      container_ip[0] == '\0')
+int ds_ipt_add_portforwards(struct ds_port_forward *pfs, int count,
+                            const char *container_ip) {
+  if (!pfs || count <= 0 || !container_ip || container_ip[0] == '\0')
     return 0;
 
   /* Open the state file for this container (truncate any stale copy).
@@ -1446,8 +1513,8 @@ int ds_ipt_add_portforwards(struct ds_config *cfg, const char *container_ip) {
   write_file("/proc/sys/net/ipv4/conf/all/route_localnet", "1");
   ds_net_mark_local_forward_active();
 
-  for (int i = 0; i < cfg->port_forward_count; i++) {
-    struct ds_port_forward *pf = &cfg->port_forwards[i];
+  for (int i = 0; i < count; i++) {
+    struct ds_port_forward *pf = &pfs[i];
 
     char host_port_str[16], cont_port_str[16], to_dest[80];
     pf_fmt_ports(pf, container_ip, host_port_str, cont_port_str, to_dest);
