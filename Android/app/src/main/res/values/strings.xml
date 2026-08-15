@@ -403,6 +403,7 @@
     <string name="init_system_not_available">Systemd/OpenWrt/OpenRC Not Available</string>
     <string name="init_system_not_available_desc">This container does not have systemd, OpenWrt/procd, or OpenRC installed</string>
     <string name="fetching_services">Fetching services...</string>
+    <string name="fetching_distros">Fetching distros from the rootfs repo...</string>
 
     <string name="search_services">Search services...</string>
     <string name="enabled_legend">Enabled</string>
