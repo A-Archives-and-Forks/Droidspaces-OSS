@@ -45,6 +45,7 @@ import com.droidspaces.app.util.PreferencesManager
 import com.droidspaces.app.util.FilePickerUtils
 import com.droidspaces.app.ui.component.ContainerCard
 import com.droidspaces.app.ui.component.ContainerCardActions
+import com.droidspaces.app.ui.component.DialogFooterRow
 import com.droidspaces.app.ui.component.TerminalDialog
 import com.droidspaces.app.ui.component.EmptyState
 import com.droidspaces.app.ui.component.ErrorState
@@ -462,37 +463,13 @@ private fun SparseSizeDialog(
                     )
                 )
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Surface(
-                        modifier = Modifier.weight(1f).clip(RoundedCornerShape(14.dp)).clickable(onClick = onDismiss),
-                        shape = RoundedCornerShape(14.dp),
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
-                        tonalElevation = 0.dp
-                    ) {
-                        Box(modifier = Modifier.padding(14.dp), contentAlignment = Alignment.Center) {
-                            Text(context.getString(R.string.cancel), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
-                        }
-                    }
-                    Surface(
-                        modifier = Modifier.weight(1f).clip(RoundedCornerShape(14.dp)).clickable(enabled = isValid, onClick = { size?.let { onConfirm(it) } }),
-                        shape = RoundedCornerShape(14.dp),
-                        color = if (isValid) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
-                        tonalElevation = 0.dp
-                    ) {
-                        Box(modifier = Modifier.padding(14.dp), contentAlignment = Alignment.Center) {
-                            Text(
-                                context.getString(R.string.continue_button),
-                                style = MaterialTheme.typography.labelLarge,
-                                fontWeight = FontWeight.SemiBold,
-                                color = if (isValid) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-                            )
-                        }
-                    }
-                }
+                DialogFooterRow(
+                    dismissLabel = context.getString(R.string.cancel),
+                    confirmLabel = context.getString(R.string.continue_button),
+                    onDismiss = onDismiss,
+                    onConfirm = { size?.let { onConfirm(it) } },
+                    confirmEnabled = isValid
+                )
             }
         }
     }
@@ -570,37 +547,15 @@ private fun UninstallConfirmationDialog(
                         )
                     )
                 }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Surface(
-                        modifier = Modifier.weight(1f).clip(RoundedCornerShape(14.dp)).clickable(onClick = onDismiss),
-                        shape = RoundedCornerShape(14.dp),
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
-                        tonalElevation = 0.dp
-                    ) {
-                        Box(modifier = Modifier.padding(14.dp), contentAlignment = Alignment.Center) {
-                            Text(context.getString(R.string.cancel), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
-                        }
-                    }
-                    Surface(
-                        modifier = Modifier.weight(1f).clip(RoundedCornerShape(14.dp)).clickable(enabled = isConfirmed, onClick = onConfirm),
-                        shape = RoundedCornerShape(14.dp),
-                        color = if (isConfirmed) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
-                        tonalElevation = 0.dp
-                    ) {
-                        Box(modifier = Modifier.padding(14.dp), contentAlignment = Alignment.Center) {
-                            Text(
-                                context.getString(R.string.uninstall),
-                                style = MaterialTheme.typography.labelLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = if (isConfirmed) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-                            )
-                        }
-                    }
-                }
+                DialogFooterRow(
+                    dismissLabel = context.getString(R.string.cancel),
+                    confirmLabel = context.getString(R.string.uninstall),
+                    onDismiss = onDismiss,
+                    onConfirm = onConfirm,
+                    confirmEnabled = isConfirmed,
+                    confirmColor = MaterialTheme.colorScheme.error,
+                    confirmContentColor = MaterialTheme.colorScheme.onError
+                )
             }
         }
     }
