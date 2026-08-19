@@ -2543,15 +2543,20 @@ void ds_daemon_child_preamble(void) {
 }
 
 int ds_peer_in_pidns(pid_t peer_pid) {
+  /* This is a trust boundary: unless we can positively confirm the peer shares
+   * our PID namespace, deny. A pid of 0 means the peer is not translatable into
+   * our namespace (i.e. outside it), and a failed readlink (e.g. the pid died
+   * and was reaped) means we cannot prove membership -- both must fail closed.
+   * Failing open here lets a caller recycle a dead pid to bypass the guard. */
   if (peer_pid <= 0)
-    return 1; /* unknown -> fail open */
+    return 0; /* not translatable into our ns -> deny */
 
   char path[64], self_ns[64], peer_ns[64];
   ssize_t sn = readlink("/proc/self/ns/pid", self_ns, sizeof(self_ns) - 1);
   snprintf(path, sizeof(path), "/proc/%d/ns/pid", (int)peer_pid);
   ssize_t pn = readlink(path, peer_ns, sizeof(peer_ns) - 1);
   if (sn <= 0 || pn <= 0)
-    return 1; /* cannot determine -> fail open, never wrongly deny */
+    return 0; /* cannot confirm -> deny */
 
   self_ns[sn] = '\0';
   peer_ns[pn] = '\0';
