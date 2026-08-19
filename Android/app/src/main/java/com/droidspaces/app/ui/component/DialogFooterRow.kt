@@ -37,7 +37,6 @@ fun DialogFooterRow(
     cancelBorderAlpha: Float = 0.4f,
     textFontWeight: FontWeight = FontWeight.SemiBold,
     confirmColor: Color = MaterialTheme.colorScheme.primary,
-    confirmContentColor: Color = MaterialTheme.colorScheme.onPrimary,
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),

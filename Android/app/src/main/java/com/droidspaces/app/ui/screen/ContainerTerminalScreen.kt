@@ -12,17 +12,16 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -37,7 +36,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.droidspaces.app.service.TerminalSessionService
-import com.droidspaces.app.ui.component.DialogFooterRow
 import com.droidspaces.app.ui.terminal.TerminalBackEnd
 import com.droidspaces.app.ui.terminal.TerminalScreenState
 import com.droidspaces.app.ui.terminal.virtualkeys.VirtualKeysConstants
@@ -63,7 +61,7 @@ private data class TerminalTab(
     val label: String,
 )
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ContainerTerminalScreen(
     containerName: String,
@@ -103,7 +101,6 @@ fun ContainerTerminalScreen(
     val tabs = remember { mutableStateListOf<TerminalTab>() }
     var activeTabId by remember { mutableStateOf("") }
     var showUserPicker by remember { mutableStateOf(false) }
-    var tabToClose by remember { mutableStateOf<TerminalTab?>(null) }
 
     val currentTabIndex = remember(activeTabId, tabs.size) {
         tabs.indexOfFirst { it.id == activeTabId }.coerceAtLeast(0)
@@ -211,18 +208,6 @@ fun ContainerTerminalScreen(
         )
     }
 
-    if (tabToClose != null) {
-        CloseSessionConfirmationDialog(
-            tabLabel = tabToClose!!.label,
-            onConfirm = {
-                val target = tabToClose!!
-                tabToClose = null
-                closeTab(target)
-            },
-            onDismiss = { tabToClose = null }
-        )
-    }
-
     Scaffold(
         topBar = {
             Column {
@@ -256,62 +241,52 @@ fun ContainerTerminalScreen(
                         selectedTabIndex = currentTabIndex,
                         containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
                         contentColor = MaterialTheme.colorScheme.primary,
-                        edgePadding = 12.dp,
+                        edgePadding = 0.dp,
                         divider = {},
-                        indicator = {},
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 0.dp, bottom = 6.dp)
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         tabs.forEach { tab ->
                             val isSelected = tab.id == activeTabId
-                            val innerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
-                                             else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.04f)
-                            val innerBorder = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
-                                              else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f)
-                            // Outer outline — matches Start button outer pill
-                            Surface(
-                                modifier = Modifier.padding(horizontal = 3.dp),
-                                shape = RoundedCornerShape(16.dp),
-                                color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f)),
-                                tonalElevation = 0.dp
+                            Tab(
+                                selected = isSelected,
+                                onClick = { activeTabId = tab.id },
+                                modifier = Modifier.height(40.dp)
                             ) {
-                                // Inner button — matches Start button inner surface
-                                Surface(
-                                    modifier = Modifier
-                                        .padding(3.dp)
-                                        .height(28.dp)
-                                        .clip(RoundedCornerShape(12.dp))
-                                        .combinedClickable(
-                                            onClick = { activeTabId = tab.id },
-                                            onLongClick = { tabToClose = tab }
-                                        ),
-                                    shape = RoundedCornerShape(12.dp),
-                                    color = innerColor,
-                                    border = BorderStroke(1.dp, innerBorder),
-                                    tonalElevation = 0.dp
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                    modifier = Modifier.padding(horizontal = 8.dp)
                                 ) {
+                                    Text(
+                                        tab.label,
+                                        style = MaterialTheme.typography.labelMedium,
+                                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.widthIn(max = 120.dp)
+                                    )
                                     Box(
-                                        modifier = Modifier
-                                            .fillMaxHeight()
-                                            .padding(horizontal = 12.dp),
+                                        Modifier.size(16.dp).clip(CircleShape),
                                         contentAlignment = Alignment.Center
                                     ) {
-                                        Text(
-                                            tab.label,
-                                            style = MaterialTheme.typography.labelLarge,
-                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
+                                        IconButton(
+                                            onClick = { closeTab(tab) },
+                                            modifier = Modifier.size(16.dp)
+                                        ) {
+                                            Icon(
+                                                Icons.Default.Close,
+                                                contentDescription = "Close tab",
+                                                modifier = Modifier.size(12.dp),
+                                                tint = if (isSelected) MaterialTheme.colorScheme.primary
+                                                       else MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-                    HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                    HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
                 }
             }
         }
@@ -612,59 +587,6 @@ private fun UserPickerDialog(
                         )
                     }
                 }
-            }
-        }
-    }
-}
-
-@Composable
-private fun CloseSessionConfirmationDialog(
-    tabLabel: String,
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit,
-) {
-    val context = LocalContext.current
-    val dialogShape = RoundedCornerShape(28.dp)
-
-    androidx.compose.ui.window.Dialog(
-        onDismissRequest = onDismiss,
-        properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)
-    ) {
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .wrapContentHeight(),
-            shape = dialogShape,
-            color = MaterialTheme.colorScheme.surfaceContainer,
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
-            tonalElevation = 0.dp
-        ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Text(
-                    text = "Close this session?",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-
-                Text(
-                    text = "Are you sure you want to close session \"$tabLabel\"?",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
-                )
-
-                DialogFooterRow(
-                    dismissLabel = context.getString(android.R.string.cancel),
-                    confirmLabel = context.getString(R.string.ok),
-                    onDismiss = onDismiss,
-                    onConfirm = onConfirm,
-                    confirmColor = MaterialTheme.colorScheme.error,
-                    confirmContentColor = MaterialTheme.colorScheme.onError
-                )
             }
         }
     }
