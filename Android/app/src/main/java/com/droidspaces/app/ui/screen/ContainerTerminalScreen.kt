@@ -10,8 +10,6 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -101,19 +99,6 @@ fun ContainerTerminalScreen(
     val tabs = remember { mutableStateListOf<TerminalTab>() }
     var activeTabId by remember { mutableStateOf("") }
     var showUserPicker by remember { mutableStateOf(false) }
-
-    val currentTabIndex = remember(activeTabId, tabs.size) {
-        tabs.indexOfFirst { it.id == activeTabId }.coerceAtLeast(0)
-    }
-    var previousTabIndex by remember { mutableIntStateOf(currentTabIndex) }
-    var isMovingForward by remember { mutableStateOf(true) }
-
-    LaunchedEffect(currentTabIndex) {
-        if (currentTabIndex != previousTabIndex) {
-            isMovingForward = currentTabIndex > previousTabIndex
-            previousTabIndex = currentTabIndex
-        }
-    }
 
     // Resolve hostname reactively; picker is shown only after binder+hostname are both ready
     var hostname by remember(containerName) {
@@ -211,7 +196,7 @@ fun ContainerTerminalScreen(
     Scaffold(
         topBar = {
             Column {
-                CenterAlignedTopAppBar(
+                TopAppBar(
                     title = {
                         Text(
                             containerName,
@@ -231,14 +216,14 @@ fun ContainerTerminalScreen(
                             Icon(Icons.Default.Add, contentDescription = "New tab")
                         }
                     },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.surfaceContainerLow
                     )
                 )
 
                 if (tabs.isNotEmpty()) {
                     ScrollableTabRow(
-                        selectedTabIndex = currentTabIndex,
+                        selectedTabIndex = tabs.indexOfFirst { it.id == activeTabId }.coerceAtLeast(0),
                         containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
                         contentColor = MaterialTheme.colorScheme.primary,
                         edgePadding = 0.dp,
@@ -309,7 +294,6 @@ fun ContainerTerminalScreen(
                             binder = binder!!,
                             containerName = containerName,
                             isVisible = tab.id == activeTabId,
-                            isMovingForward = isMovingForward,
                             activity = activity,
                             onSessionFinished = { closeTab(tab) },
                             modifier = Modifier.fillMaxSize()
@@ -327,7 +311,6 @@ private fun TerminalTabView(
     binder: TerminalSessionService.SessionBinder,
     containerName: String,
     isVisible: Boolean,
-    isMovingForward: Boolean,
     activity: Activity?,
     onSessionFinished: () -> Unit,
     modifier: Modifier = Modifier,
@@ -357,14 +340,8 @@ private fun TerminalTabView(
 
     AnimatedVisibility(
         visible = isVisible,
-        enter = slideInHorizontally(
-            initialOffsetX = { if (isMovingForward) (it * 0.08f).toInt() else -(it * 0.08f).toInt() },
-            animationSpec = AnimationUtils.mediumSpec()
-        ) + fadeIn(animationSpec = AnimationUtils.fastSpec()),
-        exit = slideOutHorizontally(
-            targetOffsetX = { if (isMovingForward) -(it * 0.08f).toInt() else (it * 0.08f).toInt() },
-            animationSpec = AnimationUtils.mediumSpec()
-        ) + fadeOut(animationSpec = AnimationUtils.fastSpec()),
+        enter = fadeIn(animationSpec = AnimationUtils.fastSpec()),
+        exit = fadeOut(animationSpec = AnimationUtils.fastSpec()),
         modifier = modifier
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
