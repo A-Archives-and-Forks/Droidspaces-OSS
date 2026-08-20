@@ -303,7 +303,7 @@ object ContainerSystemdManager {
 
     // Systemctl commands. Every service name is validated against the shared
     // allow-list (ServiceManagerBase) before it is interpolated into the
-    // host-root `run 'systemctl ...'` payload, see FINDINGS_APP_VULN V1.
+    // host-root `run 'systemctl ...'` payload.
     private suspend fun runSystemctl(containerName: String, action: String, serviceName: String): CommandResult {
         if (!ServiceManagerBase.isSafeServiceName(serviceName)) {
             return CommandResult(exitCode = 2, output = emptyList(), error = listOf("Invalid unit name: $serviceName"))

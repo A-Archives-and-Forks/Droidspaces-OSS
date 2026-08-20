@@ -36,7 +36,7 @@ object DroidspacesTerminalSession {
     // ValidationUtils.validateContainerName), none are shell metacharacters, so
     // a validated name is safe inside the "..." payload. A username discovered
     // from the container's /etc/passwd is NOT validated elsewhere, so it is
-    // checked here too. See FINDINGS_APP_VULN V7.
+    // checked here too.
     private val SAFE_NAME = Regex("^[a-zA-Z0-9_\\s.-]+$")
     private val SAFE_USER = Regex("^[A-Za-z0-9_.@:+-]+$")
 

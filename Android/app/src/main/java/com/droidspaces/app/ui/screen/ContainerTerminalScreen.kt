@@ -83,7 +83,7 @@ fun ContainerTerminalScreen(
         context.bindService(Intent(context, TerminalSessionService::class.java), conn, Context.BIND_AUTO_CREATE)
         onDispose {
             // Detach the UI client from any backgrounded sessions before unbinding so
-            // the service doesn't retain this Activity/TerminalView (VULN V16). The
+            // the service doesn't retain this Activity/TerminalView. The
             // screen re-attaches its own client on re-entry.
             binder?.detachAllClients()
             context.unbindService(conn)

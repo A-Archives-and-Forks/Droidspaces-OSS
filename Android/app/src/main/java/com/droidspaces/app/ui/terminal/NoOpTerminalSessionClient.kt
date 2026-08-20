@@ -14,7 +14,7 @@ import com.termux.terminal.TerminalSessionClient
  *
  * When the terminal screen is disposed, each session's client is swapped to this
  * no-op so nothing UI-scoped is retained; the screen re-attaches its own
- * [TerminalBackEnd] via `updateTerminalSessionClient` on re-entry. See VULN V16.
+ * [TerminalBackEnd] via `updateTerminalSessionClient` on re-entry.
  */
 object NoOpTerminalSessionClient : TerminalSessionClient {
     override fun onTextChanged(changedSession: TerminalSession) {}

@@ -12,7 +12,7 @@ package com.droidspaces.app.util
  * that executes in the app's real-host-root libsu shell. Because the name sits
  * inside the single-quoted `run '...'` payload, a name containing a single quote
  * (or `$`, `;`, backtick, whitespace, …) would break out of that payload and run
- * arbitrary commands as host root on a single UI tap (see FINDINGS_APP_VULN V1/V2).
+ * arbitrary commands as host root on a single UI tap.
  *
  * Every service manager MUST pass a name through [isSafeServiceName] before
  * building a command. The allow-list covers exactly the characters real

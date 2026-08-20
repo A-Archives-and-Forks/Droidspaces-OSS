@@ -49,7 +49,7 @@ object ValidationUtils {
      * The character-safety half of [validateContainerName], WITHOUT the length
      * limit. Used to drop a container whose on-disk config name carries shell
      * metacharacters before it can reach a root command, while still loading
-     * over-length-but-safe legacy names. See VULN V10.
+     * over-length-but-safe legacy names.
      */
     fun isSafeContainerName(name: String): Boolean =
         name.isNotEmpty() && name.matches(Regex("^[a-zA-Z0-9_\\s.-]+$"))
@@ -93,7 +93,7 @@ object ValidationUtils {
      * values. Each is written as a `key=value` line into the root-owned
      * container.config parsed by the privileged backend, so a newline would inject
      * an extra trusted key. `envFileContent` is intentionally excluded, it is
-     * legitimately multi-line and written to a separate `.env` file. See VULN V11.
+     * legitimately multi-line and written to a separate `.env` file.
      */
     fun validateConfigValues(config: ContainerInfo): ValidationResult {
         fun hasControl(v: String) = v.any { it.isISOControl() }

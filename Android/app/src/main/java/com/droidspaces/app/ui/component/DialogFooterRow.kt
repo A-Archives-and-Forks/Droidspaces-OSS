@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 /**
  * Shared "Cancel / Confirm" dialog footer: two equal-weight rounded [Surface]
  * buttons. Replaces the identical two-Surface footer that was copy-pasted across
- * the app's dialogs (DT-5). The confirm button dims and disables via
+ * the app's dialogs. The confirm button dims and disables via
  * [confirmEnabled]; [cancelBorderAlpha] and [textFontWeight] keep the small
  * per-dialog cosmetic differences.
  */
