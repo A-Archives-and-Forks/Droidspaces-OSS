@@ -285,6 +285,20 @@ object ContainerManager {
     }
 
     /**
+     * The rootfs path as recorded in the container's own config, which is the only
+     * authoritative copy. A container installed to a custom location cannot be derived
+     * from its name, and the backend rewrites this file on every start, so an in-memory
+     * ContainerInfo can be stale by the time an operation runs.
+     *
+     * Returns null when the config is missing or carries no rootfs_path, so callers can
+     * refuse rather than guess.
+     */
+    suspend fun readRootfsPath(name: String): String? = withContext(Dispatchers.IO) {
+        val configPath = "${getContainerDirectory(name)}/${Constants.CONTAINER_CONFIG_FILE}"
+        loadContainerConfig(configPath, name)?.rootfsPath?.takeIf { it.isNotBlank() }
+    }
+
+    /**
      * Load container configuration from config file.
      */
     private fun loadContainerConfig(configPath: String, defaultName: String): ContainerInfo? {
@@ -647,14 +661,8 @@ object ContainerManager {
             }
 
             // Step 2: Delete the rootfs if it lives outside the container directory.
-            // Re-read the path off disk rather than trusting the listing we were handed:
-            // the backend rewrites container.config on every start, so an in-memory
-            // ContainerInfo can be stale by the time someone uninstalls.
             val containerPath = getContainerDirectory(container.name)
-            val configPath = "$containerPath/${Constants.CONTAINER_CONFIG_FILE}"
-            val rootfsPath = loadContainerConfig(configPath, container.name)?.rootfsPath
-                ?.takeIf { it.isNotBlank() }
-                ?: container.rootfsPath
+            val rootfsPath = readRootfsPath(container.name) ?: container.rootfsPath
 
             if (rootfsPath.isNotBlank() && !rootfsPath.startsWith("$containerPath/")) {
                 logger.i("Step 2: Deleting rootfs at custom location...")
