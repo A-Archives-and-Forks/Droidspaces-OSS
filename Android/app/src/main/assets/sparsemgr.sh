@@ -45,9 +45,12 @@ _truncate() {
 
 # mount wrapper - passes all args through, tries system then busybox
 _mount() {
-    if mount "$@" 2>/dev/null; then
+    # BusyBox first: Android's mount is toybox, whose losetup aborts rather than
+    # truncating when a backing path exceeds 63 characters, so it cannot loop-mount
+    # an image stored on a deep custom path.
+    if [ -n "$BB" ] && "$BB" mount "$@" 2>/dev/null; then
         return 0
-    elif [ -n "$BB" ] && "$BB" mount "$@" 2>/dev/null; then
+    elif mount "$@" 2>/dev/null; then
         return 0
     fi
     error "mount: failed with args: $*"

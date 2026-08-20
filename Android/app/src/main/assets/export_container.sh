@@ -150,7 +150,10 @@ if [ "$MODE" = "sparse" ]; then
     # Fix SELinux context before mounting to avoid permission issues
     chcon u:object_r:vold_data_file:s0 "$ROOTFS_IMG" 2>/dev/null || true
 
-    if ! mount -t ext4 -o loop,ro "$ROOTFS_IMG" "$TEMP_MOUNT" 2>/dev/null; then
+    # BusyBox first, for the same reason as sparsemgr: toybox's losetup refuses a
+    # backing path over 63 characters instead of truncating the name it stores.
+    if ! { [ -n "$BUSYBOX" ] && "$BUSYBOX" mount -t ext4 -o loop,ro "$ROOTFS_IMG" "$TEMP_MOUNT" 2>/dev/null; } \
+       && ! mount -t ext4 -o loop,ro "$ROOTFS_IMG" "$TEMP_MOUNT" 2>/dev/null; then
         error "Failed to mount sparse image at $TEMP_MOUNT"
         exit 1
     fi
