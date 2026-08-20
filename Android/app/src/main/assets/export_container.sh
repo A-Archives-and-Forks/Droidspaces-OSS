@@ -26,9 +26,16 @@ cleanup() {
     if [ "$CLEANUP_DONE" -eq 1 ]; then return; fi
     CLEANUP_DONE=1
 
-    if [ -n "$TEMP_MOUNT" ] && mountpoint -q "$TEMP_MOUNT" 2>/dev/null; then
+    # BusyBox first throughout, matching the mount below: whatever attached the
+    # loop device should be what detaches it. $BUSYBOX is empty until it is
+    # resolved further down, and the guards fall through to the system tools then.
+    if [ -n "$TEMP_MOUNT" ] && { { [ -n "$BUSYBOX" ] && "$BUSYBOX" mountpoint -q "$TEMP_MOUNT" 2>/dev/null; } \
+        || mountpoint -q "$TEMP_MOUNT" 2>/dev/null; }; then
         log "Unmounting temporary mount point..."
-        umount -f "$TEMP_MOUNT" 2>/dev/null || umount -l "$TEMP_MOUNT" 2>/dev/null || true
+        { [ -n "$BUSYBOX" ] && "$BUSYBOX" umount -f "$TEMP_MOUNT" 2>/dev/null; } \
+            || { [ -n "$BUSYBOX" ] && "$BUSYBOX" umount -l "$TEMP_MOUNT" 2>/dev/null; } \
+            || umount -f "$TEMP_MOUNT" 2>/dev/null \
+            || umount -l "$TEMP_MOUNT" 2>/dev/null || true
     fi
 
     if [ -n "$TEMP_MOUNT" ] && [ -d "$TEMP_MOUNT" ]; then

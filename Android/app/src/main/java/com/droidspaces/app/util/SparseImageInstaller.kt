@@ -40,7 +40,11 @@ object SparseImageInstaller {
         try {
             // 1. Create Sparse Image
             logger.i("[SPARSE] Creating sparse image: ${sizeGB}GB")
-            val truncateCmd = "truncate -s ${sizeGB}G ${quote(imgPath)} || ${Constants.BUSYBOX_BINARY_PATH} truncate -s ${sizeGB}G ${quote(imgPath)}"
+            // BusyBox first, as with the mount below: both are a plain ftruncate and
+            // give a byte-identical sparse file, so prefer the one that is the same
+            // binary on every device.
+            val truncateCmd = "${Constants.BUSYBOX_BINARY_PATH} truncate -s ${sizeGB}G ${quote(imgPath)} || " +
+                "truncate -s ${sizeGB}G ${quote(imgPath)}"
             runRootCommand(truncateCmd, logger) ?: throw Exception("Failed to create sparse image file")
 
             // Wait for filesystem to settle

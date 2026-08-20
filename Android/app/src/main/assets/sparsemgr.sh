@@ -34,16 +34,19 @@ error() { echo "[ERROR]  $1"; }
 
 # truncate -s <size> <file>
 _truncate() {
-    if truncate -s "$1" "$2" 2>/dev/null; then
+    # BusyBox first for the same reason as _mount: one implementation that behaves
+    # the same on every device. Both are a plain ftruncate and produce a
+    # byte-identical sparse file, so there is nothing to lose by preferring ours.
+    if [ -n "$BB" ] && "$BB" truncate -s "$1" "$2" 2>/dev/null; then
         return 0
-    elif [ -n "$BB" ] && "$BB" truncate -s "$1" "$2" 2>/dev/null; then
+    elif truncate -s "$1" "$2" 2>/dev/null; then
         return 0
     fi
     error "truncate: neither system nor busybox truncate succeeded"
     return 1
 }
 
-# mount wrapper - passes all args through, tries system then busybox
+# mount wrapper - passes all args through, tries busybox then system
 _mount() {
     # BusyBox first: Android's mount is toybox, whose losetup aborts rather than
     # truncating when a backing path exceeds 63 characters, so it cannot loop-mount
@@ -59,9 +62,10 @@ _mount() {
 
 # umount wrapper
 _umount() {
-    if umount "$@" 2>/dev/null; then
+    # Same order as _mount, so whatever attached the loop device also detaches it.
+    if [ -n "$BB" ] && "$BB" umount "$@" 2>/dev/null; then
         return 0
-    elif [ -n "$BB" ] && "$BB" umount "$@" 2>/dev/null; then
+    elif umount "$@" 2>/dev/null; then
         return 0
     fi
     return 1
@@ -70,9 +74,9 @@ _umount() {
 # mountpoint check (returns 0 if mounted)
 _is_mounted() {
     local path="$1"
-    if mountpoint -q "$path" 2>/dev/null; then
+    if [ -n "$BB" ] && "$BB" mountpoint -q "$path" 2>/dev/null; then
         return 0
-    elif [ -n "$BB" ] && "$BB" mountpoint -q "$path" 2>/dev/null; then
+    elif mountpoint -q "$path" 2>/dev/null; then
         return 0
     fi
     # Fallback: parse /proc/mounts
