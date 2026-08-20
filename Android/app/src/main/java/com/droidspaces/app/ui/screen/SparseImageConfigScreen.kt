@@ -116,9 +116,9 @@ fun SparseImageConfigScreen(
                 .padding(innerPadding)
                 .consumeWindowInsets(innerPadding)
                 .imePadding()
+                .verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp)
-                .padding(top = 24.dp)
-                .verticalScroll(rememberScrollState()),
+                .padding(top = 8.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             if (showStoragePicker) {
