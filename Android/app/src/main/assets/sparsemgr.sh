@@ -140,12 +140,12 @@ _mkfs_ext4() {
     elif command -v mke2fs >/dev/null 2>&1; then
         mke2fs -t ext4 -F -L "rootfs" "$img" >/dev/null
         return $?
-    elif [ -n "$BB" ]; then
-        # Some busybox builds include mkfs.ext2/ext3/ext4
-        "$BB" mkfs.ext4 -F -L "rootfs" "$img" >/dev/null 2>/dev/null && return 0
-        "$BB" mke2fs -t ext4 -F -L "rootfs" "$img" >/dev/null 2>/dev/null && return 0
     fi
-    error "No ext4 formatting tool found (tried mkfs.ext4, mke2fs, busybox variants)"
+    # Deliberately no busybox fallback: its mke2fs rejects -t and builds bare ext2,
+    # with no has_journal, no extent and no ext_attr, so a rootfs formatted by it
+    # cannot hold SELinux labels or file capabilities. The ext4 driver would mount
+    # it anyway, turning a clear failure into a subtly broken container.
+    error "No ext4 formatting tool found (tried mkfs.ext4, mke2fs)"
     return 1
 }
 
@@ -178,7 +178,8 @@ check_migrate_requirements() {
     local has_mkfs=0
     command -v mkfs.ext4 >/dev/null 2>&1 && has_mkfs=1
     command -v mke2fs    >/dev/null 2>&1 && has_mkfs=1
-    [ -n "$BB" ] && "$BB" mkfs.ext4 --help >/dev/null 2>&1 && has_mkfs=1
+    # No busybox probe here: _mkfs_ext4 deliberately does not fall back to it, so
+    # counting it would report ok on a device where formatting then fails.
     if [ "$has_mkfs" -eq 0 ]; then
         error "mkfs.ext4 / mke2fs not found"
         fail=1
