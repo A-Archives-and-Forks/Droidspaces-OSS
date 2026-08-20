@@ -8,7 +8,7 @@ import com.termux.terminal.TerminalSessionClient
  * A stateless, application-scoped [TerminalSessionClient].
  *
  * A running [TerminalSession] keeps a reference to its client. The UI's client is a
- * [TerminalBackEnd], which strongly holds the Activity and its TerminalView — so a
+ * [TerminalBackEnd], which strongly holds the Activity and its TerminalView, so a
  * backgrounded session living in [com.droidspaces.app.service.TerminalSessionService]
  * would otherwise pin the destroyed Activity/view tree in memory.
  *

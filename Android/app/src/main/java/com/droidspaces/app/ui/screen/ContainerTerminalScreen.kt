@@ -350,7 +350,7 @@ private fun TerminalTabView(
                 factory = { ctx ->
                     TerminalView(ctx, null).apply {
                         TerminalScreenState.terminalView = WeakReference(this)
-                        setTextSize(fontSizePx)      // must run first — initializes mRenderer
+                        setTextSize(fontSizePx)      // must run first, initializes mRenderer
                         setTypeface(terminalTypeface) // JetBrains Mono; null = system default
                         keepScreenOn = true
                         isFocusableInTouchMode = true

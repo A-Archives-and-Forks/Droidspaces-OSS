@@ -4,8 +4,8 @@ package com.droidspaces.app.util
  * Shared safety choke point for the per-init-system service managers
  * ([ContainerSystemdManager], [ContainerOpenRCManager], [ContainerProcdManager]).
  *
- * Service/unit names are DISCOVERED from inside the container — which may be a
- * hostile third-party rootfs — and then interpolated into a host-level command:
+ * Service/unit names are DISCOVERED from inside the container, which may be a
+ * hostile third-party rootfs, and then interpolated into a host-level command:
  *
  *   droidspaces --name=<container> run '<init-tool> <action> <serviceName> ...'
  *
