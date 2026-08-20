@@ -96,7 +96,7 @@ fun SparseImageConfigScreen(
         },
         bottomBar = {
             PrimaryActionBottomBar(
-                label = context.getString(R.string.next_configuration),
+                label = context.getString(R.string.next_summary),
                 icon = Icons.AutoMirrored.Filled.ArrowForward,
                 onClick = {
                     if (useSparseImage) {

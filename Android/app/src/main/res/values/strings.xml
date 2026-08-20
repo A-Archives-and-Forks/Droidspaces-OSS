@@ -338,6 +338,7 @@
     <string name="configuration_title">Configuration</string>
     <string name="container_options">Container Options</string>
     <string name="next_storage">Next: Storage</string>
+    <string name="next_summary">Next: Summary</string>
     <string name="storage_title">Storage</string>
 
     <!-- Installation Screen -->
