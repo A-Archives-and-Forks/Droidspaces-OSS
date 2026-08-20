@@ -376,7 +376,6 @@
     <string name="session_running_singular">1個のセッションを実行中 · タップで復元</string>
     <string name="repo_not_found_in_repo">%1$s はリポジトリ内では見つかりませんでした</string>
     <string name="please_wait_hint">要求を処理しています。しばらくお待ちください…</string>
-    <string name="error_container_name_too_long">名前が長すぎます - 最大で17文字 (カーネルにおけるループデバイスのパスの制約)</string>
     <string name="restore">復元</string>
     <string name="notification_title">Droidspaces ターミナル</string>
     <string name="notification_action_exit">終了</string>

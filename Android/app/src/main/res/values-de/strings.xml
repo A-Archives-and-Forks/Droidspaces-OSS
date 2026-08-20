@@ -394,7 +394,6 @@
     <string name="sessions_running_plural">%1$d Sitzungen laufen · Zur Rückkehr antippen</string>
     <string name="session_running_singular">1 Sitzung läuft · Zur Rückkehr antippen</string>
     <string name="please_wait_hint">Bitte warten, während wir Ihre Anfrage bearbeiten...</string>
-    <string name="error_container_name_too_long">Name zu lang – maximal 17 Zeichen (Begrenzung des Kernel-Loop-Gerätepfads)</string>
     <string name="logs_copied">Logs in die Zwischenablage kopiert</string>
     <string name="terminal">Terminal</string>
     <string name="restore">Zurückkehren</string>

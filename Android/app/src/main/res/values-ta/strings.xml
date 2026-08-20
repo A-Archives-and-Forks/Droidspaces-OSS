@@ -443,7 +443,6 @@
     <string name="android_storage_description">ஆண்ட்ராய்டு சேமிப்பகத்தை ஏற்றவும்</string>
     <string name="install">நிறுவவும்</string>
     <string name="default_size_gb_hint">8</string>
-    <string name="error_container_name_too_long">பெயர் மிக நீளமானது - அதிகபட்சம் 17 எழுத்துகள் (கர்னல் லூப் சாதன பாதை வரம்பு)</string>
     <string name="ip_address_label">%1$s: %2$s</string>
     <string name="starting_resizing">அளவை மாற்றும் செயல்பாட்டைத் தொடங்குகிறது...</string>
     <string name="developers">டெவலப்பர்(கள்)</string>

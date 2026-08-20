@@ -357,7 +357,6 @@
     <string name="copy_logs">ចម្លងអត្ថបទកំណត់ហេតុ</string>
     <string name="error_container_name_empty">ឈ្មោះកុងតឺន័រមិនអាចទទេបានទេ</string>
     <string name="error_container_name_invalid">ឈ្មោះកុងតឺន័រអាចមានត្រឹមតែ អក្សរ, លេខ, សញ្ញាដក (-), សញ្ញាគូសក្រោម (_), សញ្ញាចុច (.) និងចន្លោះមិនឃើញ (ដកឃ្លា) តែប៉ុណ្ណោះ</string>
-    <string name="error_container_name_too_long">ឈ្មោះវែងពេក - អតិបរមា 17 តួអក្សរ (ដែនកំណត់ផ្លូវឧបករណ៍ kernel loop)</string>
     <string name="error_hostname_invalid">ឈ្មោះម៉ាស៊ីន (Hostname) អាចមានត្រឹមតែ អក្សរ, លេខ និងសញ្ញាដក (-) តែប៉ុណ្ណោះ</string>
     <string name="check_requirements">ពិនិត្យតម្រូវការ</string>
     <string name="requirements_check_title">ការពិនិត្យលក្ខខណ្ឌតម្រូវ</string>

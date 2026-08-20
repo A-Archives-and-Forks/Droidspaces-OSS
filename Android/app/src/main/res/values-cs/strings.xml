@@ -412,7 +412,6 @@
     <string name="copy_logs">Kopírovat protokoly</string>
     <string name="error_container_name_empty">Název kontejneru nesmí být prázdný</string>
     <string name="error_container_name_invalid">Název kontejneru smí obsahovat pouze písmena, číslice, spojovníky (-), podtržítka (_), tečky (.) a mezery</string>
-    <string name="error_container_name_too_long">Název je příliš dlouhý – nejvýše 17 znaků (omezení cesty smyčkového zařízení jádra)</string>
     <string name="error_hostname_invalid">Název hostitele smí obsahovat pouze písmena, číslice a spojovníky (-)</string>
     <string name="check_requirements">Zkontrolovat požadavky</string>
     <string name="requirements_check_title">Kontrola požadavků</string>

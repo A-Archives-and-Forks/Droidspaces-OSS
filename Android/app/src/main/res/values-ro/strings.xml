@@ -358,7 +358,6 @@
     <string name="sessions_running_plural">%1$d sesiuni în execuție · apasă pentru a restaura</string>
     <string name="session_running_singular">O sesiune în execuție · apasă pentru a restaura</string>
     <string name="please_wait_hint">Vă rugăm să așteptați cât timp vă procesăm cererea...</string>
-    <string name="error_container_name_too_long">Numele este prea lung - maxim 17 caractere sunt permise (limita kernel-ului pentru path-ul către dispozitivul loop)</string>
     <string name="restore">Restaurează</string>
     <string name="export_container">Exportă container-ul ca tarball</string>
     <string name="export_container_failed">Nu s-a putut exporta container-ul %1$s</string>

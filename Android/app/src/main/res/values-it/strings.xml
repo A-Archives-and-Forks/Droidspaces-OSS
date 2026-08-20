@@ -427,7 +427,6 @@
     <string name="cgroup_v1_option">Cgroup V1</string>
     <string name="deadlock_shield_option">Scudo di blocco</string>
     <string name="privileged_option">Privilegiato</string>
-    <string name="error_container_name_too_long">Nome troppo lungo - massimo 17 caratteri (limite del percorso del dispositivo loop del kernel)</string>
     <string name="custom_init_warning">Non modificare questo valore a meno che non si sappia esattamente cosa si sta facendo. L\'impostazione di un binario init errato impedirà l\'avvio del contenitore.</string>
     <string name="repo_dl_error_cannot_resume">Impossibile riprendere il download</string>
     <string name="repo_dl_error_no_space">Memoria insufficiente</string>
