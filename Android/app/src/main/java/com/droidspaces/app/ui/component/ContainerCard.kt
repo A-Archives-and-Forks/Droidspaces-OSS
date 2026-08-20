@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import com.droidspaces.app.R
 import com.droidspaces.app.util.AnimationUtils
 import com.droidspaces.app.util.ContainerInfo
+import com.droidspaces.app.util.ContainerManager
 import com.droidspaces.app.util.ContainerOSInfoManager
 import com.droidspaces.app.util.ContainerStatus
 import com.droidspaces.app.util.IconUtils
@@ -295,20 +296,28 @@ fun ContainerCard(
                         onClick = { onEdit() }
                     )
 
-                    if (!container.useSparseImage) {
-                        ActionItem(
-                            icon = painterResource(id = R.drawable.ic_disk),
-                            label = context.getString(R.string.migrate_to_sparse_image),
-                            tint = MaterialTheme.colorScheme.secondary,
-                            onClick = { onMigrate() }
-                        )
-                    } else {
-                        ActionItem(
-                            icon = painterResource(id = R.drawable.ic_disk),
-                            label = context.getString(R.string.resize_sparse_image),
-                            tint = MaterialTheme.colorScheme.secondary,
-                            onClick = { onResize() }
-                        )
+                    // sparsemgr.sh derives its paths as <baseDir>/rootfs and
+                    // <baseDir>/rootfs.img, and it is handed the container directory. For a
+                    // container whose rootfs sits on another volume that points at the wrong
+                    // place, so hide both actions until the script takes the rootfs parent.
+                    val rootfsIsInContainerDir = container.rootfsPath.substringBeforeLast('/') ==
+                        ContainerManager.getContainerDirectory(container.name)
+                    if (rootfsIsInContainerDir) {
+                        if (!container.useSparseImage) {
+                            ActionItem(
+                                icon = painterResource(id = R.drawable.ic_disk),
+                                label = context.getString(R.string.migrate_to_sparse_image),
+                                tint = MaterialTheme.colorScheme.secondary,
+                                onClick = { onMigrate() }
+                            )
+                        } else {
+                            ActionItem(
+                                icon = painterResource(id = R.drawable.ic_disk),
+                                label = context.getString(R.string.resize_sparse_image),
+                                tint = MaterialTheme.colorScheme.secondary,
+                                onClick = { onResize() }
+                            )
+                        }
                     }
 
                     ActionItem(

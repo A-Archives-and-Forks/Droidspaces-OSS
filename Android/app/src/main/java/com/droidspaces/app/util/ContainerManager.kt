@@ -161,16 +161,27 @@ object ContainerManager {
 
     /**
      * Get the rootfs path for a container (LXC-style: /rootfs subdirectory).
+     *
+     * [baseDir] relocates the bulk data to a chosen volume. The container's own directory
+     * under CONTAINERS_BASE_PATH still holds the config, .env and pidfile, so a container
+     * stays discoverable when its storage is unplugged. The <baseDir>/<name>/ level is kept
+     * so two containers can share one destination without colliding.
      */
-    fun getRootfsPath(name: String): String {
-        return "${getContainerDirectory(name)}/rootfs"
+    fun getRootfsPath(name: String, baseDir: String? = null): String {
+        return "${storageBase(baseDir, name)}/rootfs"
     }
 
     /**
-     * Get the sparse image path for a container.
+     * Get the sparse image path for a container. See [getRootfsPath] for [baseDir].
      */
-    fun getSparseImagePath(name: String): String {
-        return "${getContainerDirectory(name)}/rootfs.img"
+    fun getSparseImagePath(name: String, baseDir: String? = null): String {
+        return "${storageBase(baseDir, name)}/rootfs.img"
+    }
+
+    private fun storageBase(baseDir: String?, name: String): String {
+        val trimmed = baseDir?.trim()?.trimEnd('/')
+        return if (trimmed.isNullOrEmpty()) getContainerDirectory(name)
+        else "$trimmed/${sanitizeContainerName(name)}"
     }
 
     /**
@@ -229,6 +240,48 @@ object ContainerManager {
         }
 
         containers
+    }
+
+    /**
+     * Remove a rootfs stored outside the container directory, then the folder we made for
+     * it if nothing else is left in there.
+     *
+     * The path comes out of a config file, so this is an rm -rf whose target is not fully
+     * under our control. It therefore only ever deletes an entry named exactly "rootfs" or
+     * "rootfs.img", the two names the installer creates. A hand-edited config pointing at
+     * someone's existing image is reported and left alone rather than deleted, and a
+     * truncated or malicious value like "/" or "/data" cannot match at all.
+     *
+     * The parent is removed with a plain rmdir, which fails harmlessly when it still holds
+     * anything, so a shared destination folder never takes other containers down with it.
+     */
+    private suspend fun deleteExternalRootfs(rootfsPath: String, logger: ContainerLogger) {
+        val name = rootfsPath.substringAfterLast('/')
+        if (name != "rootfs" && name != "rootfs.img") {
+            logger.w("Rootfs at $rootfsPath is not named rootfs or rootfs.img, so it was not")
+            logger.w("created by Droidspaces. Leaving it in place, remove it by hand if you")
+            logger.w("no longer need it.")
+            return
+        }
+
+        val quoted = ContainerCommandBuilder.quote(rootfsPath)
+        val result = Shell.cmd("rm -rf $quoted 2>&1").exec()
+        (result.out + result.err).forEach { line ->
+            line.trim().takeIf { it.isNotEmpty() }?.let { logger.i(it) }
+        }
+        if (!result.isSuccess) {
+            // The volume may simply be unplugged. Say so and carry on: refusing to
+            // uninstall would leave the container listed with no way to remove it.
+            logger.w("Could not delete $rootfsPath (exit code: ${result.code}).")
+            logger.w("If its storage is disconnected, delete it by hand once reattached.")
+            return
+        }
+        logger.i("Rootfs deleted.")
+
+        val parent = rootfsPath.substringBeforeLast('/', "")
+        if (parent.isNotEmpty()) {
+            Shell.cmd("rmdir ${ContainerCommandBuilder.quote(parent)} 2>/dev/null").exec()
+        }
     }
 
     /**
@@ -593,10 +646,26 @@ object ContainerManager {
                 logger.i("")
             }
 
-            // Step 2: Delete the container directory
-            logger.i("Step 2: Deleting container directory...")
-            // Delete the parent directory (which contains rootfs and config)
+            // Step 2: Delete the rootfs if it lives outside the container directory.
+            // Re-read the path off disk rather than trusting the listing we were handed:
+            // the backend rewrites container.config on every start, so an in-memory
+            // ContainerInfo can be stale by the time someone uninstalls.
             val containerPath = getContainerDirectory(container.name)
+            val configPath = "$containerPath/${Constants.CONTAINER_CONFIG_FILE}"
+            val rootfsPath = loadContainerConfig(configPath, container.name)?.rootfsPath
+                ?.takeIf { it.isNotBlank() }
+                ?: container.rootfsPath
+
+            if (rootfsPath.isNotBlank() && !rootfsPath.startsWith("$containerPath/")) {
+                logger.i("Step 2: Deleting rootfs at custom location...")
+                logger.i("Rootfs path: $rootfsPath")
+                deleteExternalRootfs(rootfsPath, logger)
+                logger.i("")
+            }
+
+            // Step 3: Delete the container directory
+            logger.i("Step 3: Deleting container directory...")
+            // Delete the parent directory (which contains rootfs and config)
             logger.i("Container path: $containerPath")
 
             // Use rm -rf to recursively delete the entire container directory

@@ -338,6 +338,7 @@
     <string name="configuration_title">Configuration</string>
     <string name="container_options">Container Options</string>
     <string name="next_storage">Next: Storage</string>
+    <string name="storage_title">Storage</string>
 
     <!-- Installation Screen -->
     <string name="installing_container">Installing Container</string>
@@ -512,6 +513,21 @@
     <string name="size_gb">Size (GB)</string>
     <string name="enter_size_between_4_512_gb">Enter size between 4 and 512 GB</string>
     <string name="resize_same_as_current">Already %1$d GB. Enter a different size to resize.</string>
+
+    <!-- Storage location -->
+    <string name="storage_location">Storage location</string>
+    <string name="storage_location_default">Internal (default)</string>
+    <string name="storage_location_default_description">Keeps the rootfs under %1$s</string>
+    <string name="storage_location_custom">Choose a folder</string>
+    <string name="storage_location_custom_description">Put the rootfs on an SD card, USB drive or another folder</string>
+    <string name="storage_location_pick">Select storage folder</string>
+    <string name="storage_location_change_hint">Tap to choose a different folder</string>
+    <string name="storage_location_checking">Checking this location...</string>
+    <string name="storage_location_free">%1$s, %2$d GB free</string>
+    <string name="storage_location_fs_only">%1$s</string>
+    <string name="storage_location_image_forced">Sparse image required here</string>
+    <string name="sparse_image_section">Sparse image</string>
+    <string name="storage_location_needs_space">At least %1$d GB of free space is required here.</string>
 
     <!-- Container Log Viewer -->
     <string name="logs_title">Logs: %1$s</string>
