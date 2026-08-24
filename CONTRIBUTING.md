@@ -619,6 +619,9 @@ another.
   `DsTextFieldDefaults` has no error variant. Add the variant rather than a third copy.
 - `SummaryItem` exists as three private overloads in `InstallationSummaryScreen.kt`. Promote
   it to `ui/component/` before a second screen wants it.
+- `labelFontSize` on `PrimaryActionBottomBar` has one caller, `RootCheckScreen`, pushing its
+  call to action to 16sp. Either the type scale covers it or the parameter should go. Do not
+  add a second caller.
 - Several installer and checker classes still interpolate paths into shell strings with
   literal quotes or no quotes at all (`BinaryInstaller`, `ContainerInstaller`,
   `SparseImageInstaller`, `ModuleInstaller`, `SymlinkInstaller`). They are on the list. Do

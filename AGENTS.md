@@ -82,10 +82,8 @@ than invented, so following them is also the smallest diff.
 
 If a rule genuinely does not fit your case, deviate, but leave a comment at the site saying what
 the deviation buys and say it in the PR. An undocumented deviation is drift and the next
-contributor will "fix" it.
-
-[DESIGN-TODO.md](./DESIGN-TODO.md) lists the places that do not follow DESIGN.md yet. If you touch
-one of those files, fix the item you touched.
+contributor will "fix" it. DESIGN.md's "Decided exceptions" section lists the deviations that
+are decisions, do not "fix" those.
 
 ## Before you write it at all
 

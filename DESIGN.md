@@ -2,8 +2,7 @@
 
 The visual language of the Droidspaces Android app. Every value here was read out of
 `Android/app/src/main/java/com/droidspaces/app/`, not invented for this document. Where the app
-disagreed with itself, the value most of the app already uses won, and the rest went to
-[DESIGN-TODO.md](./DESIGN-TODO.md).
+disagreed with itself, the value most of the app already uses won.
 
 The C backend has no UI, so none of this applies to `src/`.
 
@@ -290,3 +289,32 @@ Sometimes it will not, and the answer is not to quietly use a different number.
 Say it in the PR, and leave a comment at the site explaining what the deviation buys, the way the
 action pill wrappers now do. An undocumented deviation is drift and the next contributor will
 "fix" it. A documented one is a decision, and it survives.
+
+## Decided exceptions
+
+Looked at, deliberately left alone. Do not re-open these without a reason the original one
+misses.
+
+- **`TerminalDialog` and `ProgressDialog` do not use `DsDialog`.** The first is three quarters
+  of the screen with its own header row, the second is not dismissible. If a third dialog ever
+  wants either shape, that is the moment to widen the shared shell.
+- **The init system status hues** (`statusColorFor()` in `ui/screen/InitServiceScreen.kt`) stay
+  a hand picked traffic light rather than theme roles. Six of the seven states can sit in the
+  legend row at once, and `primary` and `tertiary` move with dynamic colour, so running and
+  abnormal would collapse onto nearly the same colour under some palettes.
+- **The terminal virtual keys background** (`ui/screen/ContainerTerminalScreen.kt`) stays a
+  literal. It sits against the terminal's own black, which does not follow the app theme, so a
+  surface role would give a light strip under a dark terminal.
+- **The root check button's disabled colours** (`ui/screen/RootCheckScreen.kt`) stay equal to
+  its enabled colours. It is disabled only while a check is in flight, and greying it out for
+  that moment reads as a flicker.
+- **The unit detail and override editor titles** keep a smaller style than every other screen
+  title. Both display systemd unit names, which are long, so `titleLarge` would only ellipsize
+  sooner.
+- **`EmptyState` is not adopted** by `ui/screen/AutoBootPriorityScreen.kt` or the private empty
+  state in `ui/screen/InitServiceScreen.kt`: absorbing them needs roughly seven new parameters
+  for two call sites. `ui/component/ContainerUsersCard.kt` is not an empty state at all, just a
+  plain `Text` in a card body.
+- **Faint fill alphas of 0.03, 0.04 and 0.06** in the terminal dialog, the terminal screen and
+  the sparse image screen stay unshared. They are invisible in isolation, and snapping them
+  together would mean inventing a token for something nobody can see.
