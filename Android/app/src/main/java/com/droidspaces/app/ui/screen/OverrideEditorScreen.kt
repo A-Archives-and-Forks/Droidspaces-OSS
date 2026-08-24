@@ -90,8 +90,9 @@ fun OverrideEditorScreen(
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Scaffold(
             topBar = {
-                CenterAlignedTopAppBar(
+                TopAppBar(
                     title = {
+                        // Title carries a unit name, so it stays small enough to survive one line.
                         Text(
                             context.getString(R.string.edit_override_title, unitName),
                             style = MaterialTheme.typography.titleSmall,

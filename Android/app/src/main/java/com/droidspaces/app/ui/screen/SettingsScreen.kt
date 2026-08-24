@@ -127,7 +127,7 @@ fun SettingsScreen(
                     Text(
                         text = context.getString(R.string.settings),
                         style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Black
+                        fontWeight = FontWeight.Bold
                     )
                 },
                 navigationIcon = {

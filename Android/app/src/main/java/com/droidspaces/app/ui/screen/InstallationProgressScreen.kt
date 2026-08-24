@@ -102,7 +102,9 @@ fun InstallationProgressScreen(
                             InstallationState.INSTALLING -> context.getString(R.string.installing_container)
                             InstallationState.SUCCESS -> context.getString(R.string.installation_complete)
                             InstallationState.ERROR -> context.getString(R.string.installation_failed)
-                        }
+                        },
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
                     )
                 },
                 navigationIcon = {

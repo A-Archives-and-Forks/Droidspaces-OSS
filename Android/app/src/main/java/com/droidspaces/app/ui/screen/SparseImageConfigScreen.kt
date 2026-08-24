@@ -86,7 +86,7 @@ fun SparseImageConfigScreen(
         containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
-                title = { Text(context.getString(R.string.storage_title)) },
+                title = { Text(context.getString(R.string.storage_title), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = context.getString(R.string.back))

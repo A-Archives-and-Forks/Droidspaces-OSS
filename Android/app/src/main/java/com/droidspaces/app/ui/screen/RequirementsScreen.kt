@@ -81,7 +81,7 @@ fun RequirementsScreen(
                     Text(
                         text = context.getString(R.string.requirements),
                         style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.Bold
                     )
                 },
                 navigationIcon = {

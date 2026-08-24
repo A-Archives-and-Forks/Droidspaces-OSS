@@ -104,7 +104,7 @@ fun AutoBootPriorityScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(context.getString(R.string.auto_boot_priority)) },
+                title = { Text(context.getString(R.string.auto_boot_priority), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(

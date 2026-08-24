@@ -83,8 +83,10 @@ fun UnitDetailScreen(
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Scaffold(
             topBar = {
-                CenterAlignedTopAppBar(
+                TopAppBar(
                     title = {
+                        // A unit name is machine text and runs long, so this stays mono and
+                        // one step down from the titleLarge every other screen title uses.
                         Text(
                             unitName,
                             style = MaterialTheme.typography.titleMedium.copy(fontFamily = UnitDetailMono),

@@ -156,7 +156,7 @@ fun ContainerDetailsScreen(
                     Text(
                         text = container.name,
                         style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.Bold
                     )
                 },
                 navigationIcon = {
