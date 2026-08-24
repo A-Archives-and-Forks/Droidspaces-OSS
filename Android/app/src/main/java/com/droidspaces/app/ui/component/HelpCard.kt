@@ -41,7 +41,7 @@ fun HelpCard(
                 Text(
                     text = context.getString(R.string.help_card_title),
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(

@@ -345,7 +345,7 @@ private fun IdentityToken(
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     text = label.uppercase(),
-                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
+                    style = MaterialTheme.typography.labelSmall,
                     color = containerColor,
                     fontWeight = FontWeight.Black,
                     letterSpacing = 0.5.sp,
@@ -356,7 +356,7 @@ private fun IdentityToken(
             // Value Text (Middle-Center)
             Text(
                 text = value,
-                style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
+                style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,

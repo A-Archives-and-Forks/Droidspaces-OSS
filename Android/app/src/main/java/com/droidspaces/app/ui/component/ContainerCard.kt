@@ -237,7 +237,7 @@ fun ContainerCard(
                             Spacer(Modifier.width(8.dp))
                             Text(
                                 if (container.isRunning) context.getString(R.string.stop) else context.getString(R.string.start),
-                                style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold,
                                 color = if (container.isRunning) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
                             )
                         }
@@ -262,7 +262,7 @@ fun ContainerCard(
                                 Spacer(Modifier.width(8.dp))
                                 Text(
                                     context.getString(R.string.restart),
-                                    style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold,
+                                    style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.onSecondaryContainer
                                 )
                             }
