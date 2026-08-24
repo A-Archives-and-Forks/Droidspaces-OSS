@@ -59,7 +59,7 @@ fun DroidspacesStatusCard(
 
     val accentColor = when {
         isWorking -> MaterialTheme.colorScheme.primary
-        status == DroidspacesStatus.UpdateAvailable -> Color(0xFFFFB300) // Yellow (Amber) for updates
+        status == DroidspacesStatus.UpdateAvailable -> MaterialTheme.colorScheme.tertiary
         else -> MaterialTheme.colorScheme.error
     }
     val isError = !isWorking
