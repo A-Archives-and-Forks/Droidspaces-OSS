@@ -259,7 +259,7 @@ for the case where nothing here fits and you have to build something new.
 
 | Symbol | Path | Use it when |
 | --- | --- | --- |
-| `DialogFooterRow(dismissLabel, confirmLabel, onDismiss, onConfirm, ...)` | `ui/component/DialogFooterRow.kt` | Every dialog's cancel and confirm row. Ten call sites already |
+| `DialogFooterRow(dismissLabel, confirmLabel, onDismiss, onConfirm, confirmEnabled, destructive)` | `ui/component/DialogFooterRow.kt` | Every dialog's cancel and confirm row, thirteen call sites. Pass `destructive = true` for a delete or a wipe, never a colour |
 | `FilePickerDialog(onDismiss, onConfirm, title, showFiles)` | `ui/component/FilePickerDialog.kt` | Picking a host path or file |
 | `EnvironmentVariablesDialog(initialContent, onConfirm, onDismiss, ...)` | `ui/component/EnvironmentVariablesDialog.kt` | Key and value environment editor |
 | `PrivilegedModeDialog`, `HardwareAccessDialog` | `ui/component/` | Opt-in flows that need a typed confirmation phrase |

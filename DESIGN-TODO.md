@@ -58,11 +58,13 @@ Everything from the cleanup pass compiles, and the values were read back out of 
 but none of it has been seen running. Worth a look, roughly in order of how visible the change
 is:
 
-1. The six status dots in the systemd legend row, which now come from one function.
-2. The language picker and terminal user picker footers, whose confirm button changed from a
-   solid primary fill to a tinted chip.
+1. Every dialog's Cancel and Confirm row, rebuilt on the v6.4.0 footer. Worth checking the two
+   destructive dialogs (uninstall, hardware access) for the error fill and its label colour, a
+   disabled confirm, and the notification permission dialog that prompted the change.
+2. The six status dots in the systemd legend row, which now come from one function.
 3. The three bottom action bars, and the save button's three states on the edit and auto boot
    screens.
-4. The error logs dialog, which no longer has a red fill.
+4. The error logs dialog, which no longer has a red fill and whose single button is now the
+   dismiss button from the footer.
 5. The container card header, 16dp taller now that the logs button has a real touch target.
 6. AMOLED mode, after the theme cache was flattened.

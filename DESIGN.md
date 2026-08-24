@@ -191,9 +191,34 @@ Surface(
 larger inner radius makes the buttons read as sitting proud of the wrapper rather than nesting
 flush inside it. Matching the two radii flattens the effect and has been reverted twice already.
 
-Three sites use it: `ui/component/ContainerCard.kt`, `ui/screen/InitServiceScreen.kt` and
-`ui/component/DialogFooterRow.kt`. If you need a fourth, check whether `DialogFooterRow` covers
-it before writing one.
+Two sites use it: `ui/component/ContainerCard.kt` and `ui/screen/InitServiceScreen.kt`. It is for
+a row of peer actions inside a card. A dialog's confirm and cancel are not that, and have their
+own rule below.
+
+## Dialog actions
+
+Every dialog ends with `DialogFooterRow`. It is two equal-weight buttons, a quiet tonal dismiss
+and a filled confirm:
+
+| | Value |
+| --- | --- |
+| Row | `fillMaxWidth`, `spacedBy(12.dp)` |
+| Both buttons | `weight(1f).height(48.dp)` |
+| Radius | 16 |
+| Dismiss | fill `onSurface @ 0.06f`, border `1.dp outlineVariant @ 0.35f`, label `onSurfaceVariant` |
+| Confirm | fill `primary`, label `onPrimary`, no border |
+| Confirm, destructive | fill `error`, label `onError`, via `destructive = true` |
+| Confirm, disabled | fill `onSurface @ 0.12f`, label `onSurface @ 0.38f` |
+
+Equal weight and a fixed height are the point: the two buttons are always the same size, and
+neither one changes because of the other's label.
+
+**Labels are one line and ellipsize.** If a label wraps, the label is too long. Shorten the
+string, do not grow the button. "Allow" and "Not now" beat "Grant Permission" and "I Understand"
+on a control that is half a dialog wide.
+
+A dialog with a single action uses the dismiss button on its own, full width. The footer always
+draws a pair.
 
 ## Icons and touch targets
 
