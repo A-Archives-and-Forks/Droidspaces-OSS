@@ -74,7 +74,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
+import com.droidspaces.app.ui.component.DsDialog
 import com.droidspaces.app.R
 import com.droidspaces.app.ui.util.rememberClearFocus
 import com.droidspaces.app.util.BindMount
@@ -135,56 +135,43 @@ fun ContainerConfigForm(
     if (showDestDialog) {
         var destPath by remember { mutableStateOf("") }
         var roEnabled by remember { mutableStateOf(false) }
-        Dialog(
-            onDismissRequest = { showDestDialog = false },
-            properties = DialogProperties(usePlatformDefaultWidth = false)
-        ) {
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-                    .imePadding(),
-                shape = RoundedCornerShape(24.dp),
-                color = MaterialTheme.colorScheme.surfaceContainer,
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
-                tonalElevation = 0.dp
-            ) {
-                Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Text(context.getString(R.string.enter_container_path), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                    OutlinedTextField(
-                        value = destPath,
-                        onValueChange = { destPath = it },
-                        label = { Text(context.getString(R.string.container_path_placeholder)) },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = modernFieldShape,
-                        colors = modernFieldColors
-                    )
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(context.getString(R.string.read_only), style = MaterialTheme.typography.bodyMedium)
-                        Switch(checked = roEnabled, onCheckedChange = { roEnabled = it })
-                    }
-                    DialogFooterRow(
-                        dismissLabel = context.getString(R.string.cancel),
-                        confirmLabel = context.getString(R.string.ok),
-                        onDismiss = { clearFocus(); showDestDialog = false },
-                        onConfirm = {
-                            clearFocus()
-                            if (destPath.isNotBlank()) {
-                                onStateChange(state.copy(bindMounts = state.bindMounts + BindMount(tempSrcPath, destPath, roEnabled)))
-                                showDestDialog = false
-                            }
-                        },
-                        confirmEnabled = destPath.startsWith("/")
-                    )
+        DsDialog(onDismiss = { showDestDialog = false }, modifier = Modifier.imePadding()) {
+            Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Text(context.getString(R.string.enter_container_path), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                OutlinedTextField(
+                    value = destPath,
+                    onValueChange = { destPath = it },
+                    label = { Text(context.getString(R.string.container_path_placeholder)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = modernFieldShape,
+                    colors = modernFieldColors
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(context.getString(R.string.read_only), style = MaterialTheme.typography.bodyMedium)
+                    Switch(checked = roEnabled, onCheckedChange = { roEnabled = it })
                 }
+                DialogFooterRow(
+                    dismissLabel = context.getString(R.string.cancel),
+                    confirmLabel = context.getString(R.string.ok),
+                    onDismiss = { clearFocus(); showDestDialog = false },
+                    onConfirm = {
+                        clearFocus()
+                        if (destPath.isNotBlank()) {
+                            onStateChange(state.copy(bindMounts = state.bindMounts + BindMount(tempSrcPath, destPath, roEnabled)))
+                            showDestDialog = false
+                        }
+                    },
+                    confirmEnabled = destPath.startsWith("/")
+                )
             }
         }
-    }
+        }
+
 
     if (showPrivilegedDialog) {
         PrivilegedModeDialog(

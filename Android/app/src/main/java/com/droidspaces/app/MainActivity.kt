@@ -20,8 +20,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import com.droidspaces.app.ui.component.DialogFooterRow
+import com.droidspaces.app.ui.component.DsDialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -87,45 +87,37 @@ class MainActivity : AppCompatActivity() {
     @Composable
     private fun NotificationRationaleDialog() {
         if (showNotificationRationale) {
-            Dialog(onDismissRequest = { showNotificationRationale = false }) {
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(24.dp),
-                    color = MaterialTheme.colorScheme.surfaceContainer,
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
-                    tonalElevation = 0.dp
+            DsDialog(onDismiss = { showNotificationRationale = false }) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Column(
-                        modifier = Modifier.padding(24.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        Text(
-                            text = getString(R.string.notification_permission_title),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = getString(R.string.notification_permission_rationale),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        DialogFooterRow(
-                            dismissLabel = getString(R.string.not_now),
-                            confirmLabel = getString(R.string.allow),
-                            onDismiss = { showNotificationRationale = false },
-                            onConfirm = {
-                                showNotificationRationale = false
-                                if (shouldShowRequestPermissionRationale(android.Manifest.permission.POST_NOTIFICATIONS)) {
-                                    requestNotificationPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
-                                } else {
-                                    val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
-                                        putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
-                                    }
-                                    startActivity(intent)
+                    Text(
+                        text = getString(R.string.notification_permission_title),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = getString(R.string.notification_permission_rationale),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    DialogFooterRow(
+                        dismissLabel = getString(R.string.not_now),
+                        confirmLabel = getString(R.string.allow),
+                        onDismiss = { showNotificationRationale = false },
+                        onConfirm = {
+                            showNotificationRationale = false
+                            if (shouldShowRequestPermissionRationale(android.Manifest.permission.POST_NOTIFICATIONS)) {
+                                requestNotificationPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                            } else {
+                                val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                                    putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
                                 }
+                                startActivity(intent)
                             }
-                        )
-                    }
+                        }
+                    )
                 }
             }
         }

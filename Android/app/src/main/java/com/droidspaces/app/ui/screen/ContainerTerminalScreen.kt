@@ -33,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.droidspaces.app.ui.component.DsDialog
 import com.droidspaces.app.service.TerminalSessionService
 import com.droidspaces.app.ui.component.DialogFooterRow
 import com.droidspaces.app.ui.terminal.TerminalBackEnd
@@ -450,106 +451,92 @@ private fun UserPickerDialog(
 ) {
     val context = LocalContext.current
     var selected by remember { mutableStateOf(users.firstOrNull() ?: "root") }
-    val dialogShape = RoundedCornerShape(24.dp)
 
-    androidx.compose.ui.window.Dialog(
-        onDismissRequest = onDismiss,
-        properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)
-    ) {
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .wrapContentHeight(),
-            shape = dialogShape,
-            color = MaterialTheme.colorScheme.surfaceContainer,
-            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
-            tonalElevation = 0.dp
+    DsDialog(onDismiss = onDismiss, modifier = Modifier.wrapContentHeight()) {
+        Column(
+            modifier = Modifier.padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Text(
-                        text = context.getString(R.string.open_terminal),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                Text(
-                    text = context.getString(R.string.select_user_to_enter),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
                 )
+                Text(
+                    text = context.getString(R.string.open_terminal),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+            }
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = 300.dp)
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    users.forEach { user ->
-                        val isSelected = user == selected
-                        Surface(
-                            onClick = { selected = user },
-                            shape = RoundedCornerShape(16.dp),
-                            color = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.08f) 
-                                    else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.04f),
-                            border = androidx.compose.foundation.BorderStroke(
-                                1.dp, 
-                                if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
-                                else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f)
-                            ),
-                            tonalElevation = 0.dp
+            Text(
+                text = context.getString(R.string.select_user_to_enter),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+            )
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 300.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                users.forEach { user ->
+                    val isSelected = user == selected
+                    Surface(
+                        onClick = { selected = user },
+                        shape = RoundedCornerShape(16.dp),
+                        color = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.08f) 
+                                else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.04f),
+                        border = androidx.compose.foundation.BorderStroke(
+                            1.dp, 
+                            if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
+                            else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f)
+                        ),
+                        tonalElevation = 0.dp
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = user,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                                    color = if (isSelected) MaterialTheme.colorScheme.primary
-                                            else MaterialTheme.colorScheme.onSurface
+                            Text(
+                                text = user,
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                                color = if (isSelected) MaterialTheme.colorScheme.primary
+                                        else MaterialTheme.colorScheme.onSurface
+                            )
+                            RadioButton(
+                                selected = isSelected,
+                                onClick = { selected = user },
+                                colors = RadioButtonDefaults.colors(
+                                    selectedColor = MaterialTheme.colorScheme.primary,
+                                    unselectedColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)
                                 )
-                                RadioButton(
-                                    selected = isSelected,
-                                    onClick = { selected = user },
-                                    colors = RadioButtonDefaults.colors(
-                                        selectedColor = MaterialTheme.colorScheme.primary,
-                                        unselectedColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)
-                                    )
-                                )
-                            }
+                            )
                         }
                     }
                 }
-
-                DialogFooterRow(
-                    dismissLabel = context.getString(android.R.string.cancel),
-                    confirmLabel = context.getString(R.string.open),
-                    onDismiss = onDismiss,
-                    onConfirm = { onConfirm(selected) }
-                )
             }
+
+            DialogFooterRow(
+                dismissLabel = context.getString(android.R.string.cancel),
+                confirmLabel = context.getString(R.string.open),
+                onDismiss = onDismiss,
+                onConfirm = { onConfirm(selected) }
+            )
         }
     }
-}
+    }
+
 
 private val VIRTUAL_KEYS_LAYOUT = """
 [
