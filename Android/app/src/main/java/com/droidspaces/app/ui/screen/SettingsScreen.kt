@@ -40,7 +40,6 @@ import com.droidspaces.app.ui.component.DsDialog
 import com.droidspaces.app.R
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.droidspaces.app.ui.component.DialogDismissButton
 import com.droidspaces.app.ui.component.DialogFooterRow
 import com.droidspaces.app.ui.component.SectionHeader
 import com.droidspaces.app.ui.component.AccentColorPicker
@@ -558,7 +557,16 @@ private fun AboutDialog(onDismiss: () -> Unit) {
     DsDialog(
         onDismiss = onDismiss,
         modifier = Modifier.fillMaxHeight(0.85f),
-        footer = { DialogDismissButton(context.getString(R.string.ok), onDismiss) }
+        // Deviates from the full-width dismiss rule: About is an info page, not a
+        // decision, and the big button read as one. The quiet end-aligned OK it
+        // always had, still in the footer slot so it never scrolls away.
+        footer = {
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+                TextButton(onClick = onDismiss) {
+                    Text(context.getString(R.string.ok))
+                }
+            }
+        }
     ) {
             // Title
             Text(
