@@ -197,14 +197,36 @@ own rule below.
 
 ## Dialogs
 
-Every dialog is `DsDialog`: the platform width opt-out, a 24dp `Surface` on `surfaceContainer`,
-and a 1dp `outlineVariant @ 0.4f` border. Do not hand-roll the shell, and do not set a width. A
-dialog that needs a height cap, `imePadding` for a text field, or a scrolling body passes it
-through the `modifier`, which lands after the standard width. Destructive dialogs pass
-`borderColor` to outline in `error`.
+Every dialog is `DsDialog`, and it owns the layout, not just the frame:
 
-Inside is the caller's own `Column`, usually `padding(24.dp)` with `spacedBy(16.dp)`. The title
-is `titleLarge` Bold, left aligned.
+```
+Surface(fillMaxWidth, padding 24, heightIn(max = screen - 48))   bounded by LocalConfiguration
+  Column(padding 24, spacedBy 16)
+    Column(weight(1f, fill = false), scrolls)   the body: shrinks, scrolls
+    footer()                                    natural height, measured first
+```
+
+The bound comes from `LocalConfiguration`, not the window. The activity handles
+`configChanges` itself, so a dialog open through a rotation keeps its stale window
+constraints; the configuration is live, and it is what `TerminalDialog` has always sized
+from.
+
+**Actions go in the `footer` slot, never in the content.** That is the whole point of the
+component. A `Column` measures its unweighted children in order against the space that is left,
+so actions placed below a scrolling body get measured with whatever remains: fine in portrait,
+a sliver or nothing in landscape. The footer is unweighted and declared second, so it is
+measured first and always gets its full height.
+
+Callers therefore do not set a width, their own padding, or their own scroll, and never pass
+`wrapContentHeight()`, the shell already wraps. What is genuinely per-dialog rides on the
+`modifier`: `imePadding()` for a text field, and for a dialog that should stay modest, a cap on
+the whole dialog, `heightIn(max = ...)` or a `fillMaxHeight` fraction, never on an inner list.
+A shell-level cap is safe because a squeezed body scrolls instead of eating the footer.
+Destructive dialogs pass `borderColor` to outline in `error`. A body built on a `LazyColumn`
+passes `scrollableContent = false` and weights the list, `fill = false` if the dialog should
+wrap when the list is short, because a lazy list cannot live inside a scrolling parent.
+
+The title is `titleLarge` Bold, left aligned, and is the first thing in the content.
 
 ## Dialog actions
 

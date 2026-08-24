@@ -57,16 +57,23 @@ Everything from the cleanup pass compiles, and the values were read back out of 
 but none of it has been seen running. Worth a look, roughly in order of how visible the change
 is:
 
-1. Dialog widths, now that fourteen dialogs share one shell. The four that used to be `0.92f`
+1. **Rotate to landscape and open every dialog.** This is the one that matters: the actions must
+   be present, full height, equal width, with the body scrolling behind them. Do it both ways,
+   opening the dialog in landscape and rotating while it is open, since the activity handles
+   configChanges and those are different code paths. Do it with the keyboard up on the ones with
+   fields (add port forward, environment variables, repo manager, sparse resize) and on the long
+   ones (language picker, file picker, About, uninstall). A short dialog (uninstall) must stay
+   short in portrait, not stretch to the cap.
+2. Dialog widths, now that fifteen dialogs share one shell. The four that used to be `0.92f`
    and the one on `0.95f` are slightly narrower, and the notification permission dialog is
    wider. Worth opening a few in a row to check they agree.
-2. Every dialog's Cancel and Confirm row, rebuilt on the v6.4.0 footer. Worth checking the two
+3. Every dialog's Cancel and Confirm row, rebuilt on the v6.4.0 footer. Worth checking the two
    destructive dialogs (uninstall, hardware access) for the error fill and its label colour, a
    disabled confirm, and the notification permission dialog that prompted the change.
-3. The six status dots in the systemd legend row, which now come from one function.
-4. The three bottom action bars, and the save button's three states on the edit and auto boot
+4. The six status dots in the systemd legend row, which now come from one function.
+5. The three bottom action bars, and the save button's three states on the edit and auto boot
    screens.
-5. The error logs dialog, which no longer has a red fill and whose single button is now the
+6. The error logs dialog, which no longer has a red fill and whose single button is now the
    dismiss button from the footer.
-6. The container card header, 16dp taller now that the logs button has a real touch target.
-7. AMOLED mode, after the theme cache was flattened.
+7. The container card header, 16dp taller now that the logs button has a real touch target.
+8. AMOLED mode, after the theme cache was flattened.

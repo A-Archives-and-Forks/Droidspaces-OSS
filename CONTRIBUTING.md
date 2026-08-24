@@ -259,7 +259,8 @@ for the case where nothing here fits and you have to build something new.
 
 | Symbol | Path | Use it when |
 | --- | --- | --- |
-| `DsDialog(onDismiss, modifier, borderColor) { }` | `ui/component/DsDialog.kt` | Every dialog's shell. Never hand-roll `Dialog { Surface { } }`, and never set a width |
+| `DsDialog(onDismiss, modifier, borderColor, scrollableContent, footer) { }` | `ui/component/DsDialog.kt` | Every dialog. Actions go in `footer`, never in the content, or they get squeezed off a short screen. Never set a width, padding or scroll |
+| `DialogDismissButton(label, onDismiss)` | `ui/component/DialogFooterRow.kt` | The `footer` of a dialog whose only action is close |
 | `DialogFooterRow(dismissLabel, confirmLabel, onDismiss, onConfirm, confirmEnabled, destructive)` | `ui/component/DialogFooterRow.kt` | Every dialog's cancel and confirm row, thirteen call sites. Pass `destructive = true` for a delete or a wipe, never a colour |
 | `FilePickerDialog(onDismiss, onConfirm, title, showFiles)` | `ui/component/FilePickerDialog.kt` | Picking a host path or file |
 | `EnvironmentVariablesDialog(initialContent, onConfirm, onDismiss, ...)` | `ui/component/EnvironmentVariablesDialog.kt` | Key and value environment editor |
