@@ -40,6 +40,7 @@ import android.net.Uri
 import com.droidspaces.app.R
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.droidspaces.app.ui.component.SectionHeader
 import com.droidspaces.app.ui.component.AccentColorPicker
 import com.droidspaces.app.ui.component.BugReportDialog
 import com.droidspaces.app.ui.component.SwitchItem
@@ -153,12 +154,9 @@ fun SettingsScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             // Backend Reinstallation Section
-            Text(
+            SectionHeader(
                 text = context.getString(R.string.backend_section),
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 24.dp, bottom = 8.dp, top = 8.dp),
-                color = MaterialTheme.colorScheme.primary
+                modifier = Modifier.padding(start = 24.dp, bottom = 8.dp, top = 8.dp)
             )
 
             Surface(
@@ -290,12 +288,9 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             // Theme Section
-            Text(
+            SectionHeader(
                 text = context.getString(R.string.appearance_section),
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 24.dp, bottom = 8.dp, top = 8.dp),
-                color = MaterialTheme.colorScheme.primary
+                modifier = Modifier.padding(start = 24.dp, bottom = 8.dp, top = 8.dp)
             )
 
             Surface(
@@ -429,12 +424,9 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             // Debugging Section
-            Text(
+            SectionHeader(
                 text = context.getString(R.string.debugging_section),
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 24.dp, bottom = 8.dp, top = 8.dp),
-                color = MaterialTheme.colorScheme.primary
+                modifier = Modifier.padding(start = 24.dp, bottom = 8.dp, top = 8.dp)
             )
 
             Surface(
@@ -494,12 +486,9 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             // About Section
-            Text(
+            SectionHeader(
                 text = context.getString(R.string.about_section),
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 24.dp, bottom = 8.dp, top = 8.dp),
-                color = MaterialTheme.colorScheme.primary
+                modifier = Modifier.padding(start = 24.dp, bottom = 8.dp, top = 8.dp)
             )
 
             Surface(
@@ -605,12 +594,7 @@ private fun AboutDialog(onDismiss: () -> Unit) {
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Text(
-                    text = context.getString(R.string.developers),
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.primary
-                )
+                SectionHeader(text = context.getString(R.string.developers))
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(24.dp),
@@ -727,12 +711,7 @@ private fun AboutDialog(onDismiss: () -> Unit) {
                 }
 
                 // Contributors
-                Text(
-                    text = context.getString(R.string.contributors),
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.primary
-                )
+                SectionHeader(text = context.getString(R.string.contributors))
                 val contributors = remember { ContributorManager.load(context) }
                 Surface(
                     modifier = Modifier.fillMaxWidth(),

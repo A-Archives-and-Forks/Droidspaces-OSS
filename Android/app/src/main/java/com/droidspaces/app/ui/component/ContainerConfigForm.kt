@@ -227,11 +227,9 @@ fun ContainerConfigForm(
     ) {
         leadingContent()
 
-        Text(
+        SectionHeader(
             text = context.getString(R.string.cat_networking),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(top = 8.dp)
+            modifier = Modifier.padding(top = 16.dp)
         )
 
         DsDropdown(
@@ -265,11 +263,7 @@ fun ContainerConfigForm(
                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(
-                    text = context.getString(R.string.nat_settings),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
+                SectionHeader(text = context.getString(R.string.nat_settings))
 
                 Text(
                     text = context.getString(R.string.static_ip_address),
@@ -427,10 +421,8 @@ fun ContainerConfigForm(
             enabled = !ipv6IsForced
         )
 
-        Text(
+        SectionHeader(
             text = context.getString(R.string.cat_integration),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(top = 16.dp)
         )
 
@@ -489,10 +481,8 @@ fun ContainerConfigForm(
             enabled = true
         )
 
-        Text(
+        SectionHeader(
             text = context.getString(R.string.cat_security),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(top = 16.dp)
         )
 
@@ -566,10 +556,8 @@ fun ContainerConfigForm(
             onCheckedChange = { clearFocus(); onStateChange(state.copy(runAtBoot = it)) }
         )
 
-        Text(
+        SectionHeader(
             text = context.getString(R.string.cat_advanced),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(top = 16.dp)
         )
 

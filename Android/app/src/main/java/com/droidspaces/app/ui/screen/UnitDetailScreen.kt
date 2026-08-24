@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.droidspaces.app.ui.theme.JetBrainsMono
 import com.droidspaces.app.R
+import com.droidspaces.app.ui.component.SectionHeader
 import com.droidspaces.app.ui.util.FullScreenLoading
 import com.droidspaces.app.util.ContainerSystemdManager
 import kotlinx.coroutines.launch
@@ -145,7 +146,7 @@ private fun SectionCard(title: String, content: @Composable ColumnScope.() -> Un
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f))
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+            SectionHeader(title)
             content()
         }
     }

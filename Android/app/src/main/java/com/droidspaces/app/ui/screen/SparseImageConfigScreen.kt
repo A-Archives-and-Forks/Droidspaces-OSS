@@ -1,5 +1,6 @@
 package com.droidspaces.app.ui.screen
 
+import com.droidspaces.app.ui.component.SectionHeader
 import com.droidspaces.app.ui.component.DsTextFieldDefaults
 import com.droidspaces.app.ui.component.FilePickerDialog
 import com.droidspaces.app.ui.component.SettingsCard
@@ -139,7 +140,7 @@ fun SparseImageConfigScreen(
                 fontWeight = FontWeight.Bold
             )
 
-            SectionLabel(context.getString(R.string.storage_location))
+            SectionHeader(context.getString(R.string.storage_location))
 
             // Storage location. Built from SettingsCard so the two options line up with
             // each other and with every other option card in the app; a bare RadioButton
@@ -235,7 +236,7 @@ fun SparseImageConfigScreen(
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
 
-            SectionLabel(context.getString(R.string.sparse_image_section))
+            SectionHeader(context.getString(R.string.sparse_image_section))
 
             // Info card
             Surface(
@@ -468,16 +469,3 @@ private fun StorageNoticeCard(
     }
 }
 
-/**
- * Groups the cards under it, so the two halves of this screen read as separate choices.
- * Styled to match the "NAT settings" heading in ContainerConfigForm, which is the same
- * kind of divider one step earlier in the wizard.
- */
-@Composable
-private fun SectionLabel(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.primary
-    )
-}
