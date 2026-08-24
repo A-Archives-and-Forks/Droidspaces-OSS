@@ -1,5 +1,6 @@
 package com.droidspaces.app.ui.screen
 
+import com.droidspaces.app.ui.component.SaveActionBottomBar
 import com.droidspaces.app.ui.component.DsTextFieldDefaults
 
 import androidx.compose.animation.animateColorAsState
@@ -169,70 +170,17 @@ fun EditContainerScreen(
             )
         },
         bottomBar = {
-            val btnShape = RoundedCornerShape(20.dp)
             val isReadyToSave = !isSaving && !isSaved && hasChanges && hostnameError == null &&
                 (state.netMode != "gateway" || gatewayErrors.isValid) && collisionContainer == null
-            val targetBtnColor = when {
-                isSaved -> MaterialTheme.colorScheme.primaryContainer
-                isSaving || isReadyToSave -> MaterialTheme.colorScheme.primary
-                else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
-            }
-            val animatedBtnColor by animateColorAsState(
-                targetValue = targetBtnColor,
-                animationSpec = tween(durationMillis = 250),
-                label = "btn_color"
+            SaveActionBottomBar(
+                isSaved = isSaved,
+                isSaving = isSaving,
+                canSave = isReadyToSave,
+                onSave = { clearFocus(); saveChanges() },
+                saveLabel = context.getString(R.string.save_changes),
+                savingLabel = context.getString(R.string.saving),
+                savedLabel = context.getString(R.string.saved)
             )
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.surfaceContainer,
-                tonalElevation = 0.dp
-            ) {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    HorizontalDivider(
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f),
-                        thickness = 1.dp
-                    )
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(24.dp)
-                            .navigationBarsPadding()
-                            .clip(btnShape)
-                            .clickable(
-                                enabled = isReadyToSave,
-                                onClick = { clearFocus(); saveChanges() },
-                                indication = rememberRipple(bounded = true),
-                                interactionSource = remember { MutableInteractionSource() }
-                            ),
-                        shape = btnShape,
-                        color = animatedBtnColor,
-                        tonalElevation = 0.dp
-                    ) {
-                        Box(modifier = Modifier.padding(vertical = 16.dp).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                            when {
-                                isSaved -> {
-                                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                        Icon(imageVector = Icons.Default.Check, contentDescription = null, modifier = Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onPrimaryContainer)
-                                        Text(text = context.getString(R.string.saved), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onPrimaryContainer)
-                                    }
-                                }
-                                isSaving -> {
-                                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                        LoadingIndicator(modifier = Modifier.size(20.dp), color = MaterialTheme.colorScheme.onPrimary)
-                                        Text(text = context.getString(R.string.saving), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onPrimary)
-                                    }
-                                }
-                                else -> {
-                                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                        Icon(imageVector = Icons.Default.Save, contentDescription = null, modifier = Modifier.size(20.dp), tint = if (isReadyToSave) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f))
-                                        Text(text = context.getString(R.string.save_changes), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold, color = if (isReadyToSave) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f))
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
         }
     ) { innerPadding ->
         ClearFocusOnClickOutside(
