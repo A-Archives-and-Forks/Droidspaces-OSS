@@ -252,7 +252,6 @@ private fun AddUpstreamDialog(
                     onDismiss = onDismiss,
                     onConfirm = { onAdd(customIface.trim()) },
                     confirmEnabled = customIface.isNotBlank() && selectedInterfaces.size < 8,
-                    cancelBorderAlpha = 0.35f
                 )
             }
         }

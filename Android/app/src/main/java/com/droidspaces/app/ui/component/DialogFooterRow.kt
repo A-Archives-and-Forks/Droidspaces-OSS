@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
  * Shared "Cancel / Confirm" dialog footer: two equal-weight rounded [Surface]
  * buttons. Replaces the identical two-Surface footer that was copy-pasted across
  * the app's dialogs. The confirm button dims and disables via
- * [confirmEnabled]; [cancelBorderAlpha] and [textFontWeight] keep the small
+ * [confirmEnabled]; [textFontWeight] keeps the small
  * per-dialog cosmetic differences.
  */
 @Composable
@@ -34,7 +34,6 @@ fun DialogFooterRow(
     onConfirm: () -> Unit,
     modifier: Modifier = Modifier,
     confirmEnabled: Boolean = true,
-    cancelBorderAlpha: Float = 0.4f,
     textFontWeight: FontWeight = FontWeight.SemiBold,
     confirmColor: Color = MaterialTheme.colorScheme.primary,
 ) {
@@ -60,7 +59,7 @@ fun DialogFooterRow(
                     .clickable(onClick = onDismiss),
                 shape = RoundedCornerShape(16.dp),
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = cancelBorderAlpha)),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)),
                 tonalElevation = 0.dp
             ) {
                 Box(modifier = Modifier.padding(14.dp), contentAlignment = Alignment.Center) {

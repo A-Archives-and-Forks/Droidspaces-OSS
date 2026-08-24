@@ -214,7 +214,6 @@ fun EnvironmentVariablesDialog(
                     confirmLabel = confirmLabel ?: context.getString(R.string.ok),
                     onDismiss = onDismiss,
                     onConfirm = { onConfirm(serializeEnvVars(vars)) },
-                    cancelBorderAlpha = 0.35f
                 )
             }
         }

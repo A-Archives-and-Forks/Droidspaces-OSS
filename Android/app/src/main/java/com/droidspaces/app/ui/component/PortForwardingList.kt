@@ -245,7 +245,6 @@ private fun AddPortForwardDialog(
                     onDismiss = onDismiss,
                     onConfirm = { onConfirm(PortForward(hostPort.trim(), if (containerPort.isBlank()) null else containerPort.trim(), proto)) },
                     confirmEnabled = isFormValid,
-                    cancelBorderAlpha = 0.35f
                 )
             }
         }
