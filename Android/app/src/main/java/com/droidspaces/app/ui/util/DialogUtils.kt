@@ -1,5 +1,6 @@
 package com.droidspaces.app.ui.util
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -83,12 +84,14 @@ fun ErrorLogsDialog(
 ) {
     val context = LocalContext.current
     Dialog(onDismissRequest = onDismiss) {
-        Card(
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.errorContainer
-            ),
-            modifier = Modifier.fillMaxWidth()
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            // The error reads from the icon, the title and this outline. The fill
+            // stays quiet like every other dialog in the app.
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.3f)),
+            tonalElevation = 0.dp
         ) {
             Column(
                 modifier = Modifier.padding(24.dp),
@@ -102,20 +105,20 @@ fun ErrorLogsDialog(
                     Icon(
                         Icons.Default.Error,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onErrorContainer,
+                        tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier.size(24.dp)
                     )
                     Text(
                         text = context.getString(R.string.operation_failed_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onErrorContainer
+                        color = MaterialTheme.colorScheme.error
                     )
                 }
 
                 // Logs content
                 Surface(
-                    color = MaterialTheme.colorScheme.surface,
+                    color = MaterialTheme.colorScheme.surfaceContainerHigh,
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -144,16 +147,24 @@ fun ErrorLogsDialog(
                     }
                 }
 
-                // Close button
-                FilledTonalButton(
+                // Single action, so this is the confirm chip from DialogFooterRow
+                // rather than the footer itself, which always draws a pair.
+                Surface(
                     onClick = onDismiss,
-                    modifier = Modifier.align(Alignment.End),
-                    colors = ButtonDefaults.filledTonalButtonColors(
-                        containerColor = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.12f),
-                        contentColor = MaterialTheme.colorScheme.onErrorContainer
-                    )
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.error.copy(alpha = 0.15f),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.35f)),
+                    tonalElevation = 0.dp
                 ) {
-                    Text(context.getString(R.string.dismiss))
+                    Box(modifier = Modifier.padding(14.dp), contentAlignment = Alignment.Center) {
+                        Text(
+                            context.getString(R.string.dismiss),
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
                 }
             }
         }
