@@ -301,6 +301,7 @@ the language and about dialogs in `ui/screen/SettingsScreen.kt`). Do not import 
 | --- | --- | --- |
 | `StatusPill(label, color)` | `ui/component/StatusPill.kt` | Any small status chip or badge |
 | `SectionHeader(text)` | `ui/component/SectionHeader.kt` | Any heading above a group of cards. Spacing goes on the modifier |
+| `CardContentPadding`, `CardHeaderHeight` | `ui/component/CardMetrics.kt` | Any card with a title-and-pill header. Keeps the dividers aligned across tabs, do not retype the values |
 | `LoadingIndicator(size, color)` + `LoadingSize` | `ui/util/LoadingIndicator.kt` | Inline spinners. Pick a `LoadingSize`, never a raw `.size(n.dp)` |
 | `FullScreenLoading(message)` | `ui/util/LoadingIndicator.kt` | Whole screen loading state |
 | `ContainedLoadingIndicator`, `LoadingIndicatorDefaults`, `MaterialShapes` | `ui/util/LoadingIndicator.kt` | Determinate and morphing indicators, and their tokens |

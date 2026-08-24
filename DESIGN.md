@@ -137,6 +137,19 @@ wants 12 or 16.
 Screens that sit under the floating tab bar add `bottom = 120.dp` to their content padding so the
 last card clears it.
 
+### Card headers line up across tabs
+
+The status card on the home tab, the container card, the running container card and the init
+service row all put a title on the left and a status pill on the right, above a divider. A user
+switching tabs sees those dividers and pills hold the same line, and that is deliberate.
+
+It only holds while all four use the same numbers, so they come from `CardContentPadding` and
+`CardHeaderHeight` in `ui/component/CardMetrics.kt` rather than being typed out per card. The
+header is 48dp because the container card puts an icon button in it.
+
+If you add a card with this shape, take the values from there. If you change them, you are
+moving every card header in the app, which is the intended way round.
+
 ## Shape
 
 | Element | Radius |
