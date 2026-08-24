@@ -85,7 +85,6 @@
     <string name="edit_container_configuration">コンテナの構成を編集</string>
     <string name="uninstall_container_menu">コンテナをアンインストール</string>
     <string name="status_running">実行中</string>
-    <string name="status_restarting">再起動中</string>
     <string name="status_stopped">停止中</string>
     <string name="pid_label">プロセス番号(PID): %1$d</string>
     <string name="hostname_label">ホスト名: %1$s</string>

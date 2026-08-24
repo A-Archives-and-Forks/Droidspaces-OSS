@@ -111,7 +111,6 @@
     <string name="edit_container_configuration">Upravit konfiguraci kontejneru</string>
     <string name="uninstall_container_menu">Odinstalovat kontejner</string>
     <string name="status_running">SPUŠTĚNO</string>
-    <string name="status_restarting">RESTARTUJE SE</string>
     <string name="status_stopped">ZASTAVENO</string>
     <string name="pid_label">PID: %1$d</string>
     <string name="hostname_label">Název hostitele: %1$s</string>

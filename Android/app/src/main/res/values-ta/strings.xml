@@ -179,7 +179,6 @@
     <string name="source_code">மூலக் குறியீடு</string>
     <string name="notification_permission_rationale">Droidspaces ஆனது உங்கள் முனைய அமர்வுகளை பின்னணியில் இயங்க வைப்பதற்கு ஒரு நிலையான அறிவிப்பைக் காட்ட வேண்டும். இது இல்லாமல், ஆண்ட்ராய்டு (குறிப்பாக சாம்சங் சாதனங்களில்) எதிர்பாராத விதமாக டெர்மினல் சேவையை அழிக்கக்கூடும்.</string>
     <string name="uninstall_container_title">கொள்கலனை நிறுவல் நீக்கவா?</string>
-    <string name="status_restarting">மறுதொடக்கம்</string>
     <string name="invalid_number">தவறான எண்</string>
     <string name="filter_absolute_path_hint">முழுமையான பாதையை வடிகட்டவும் அல்லது தட்டச்சு செய்யவும்…</string>
     <string name="error_gateway_name_chars">எழுத்துக்கள், இலக்கங்கள், _ அல்லது - ஆகியவற்றை மட்டும் பயன்படுத்தவும்</string>

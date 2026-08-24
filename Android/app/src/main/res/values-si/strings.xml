@@ -84,7 +84,6 @@
     <string name="edit_container_configuration">කන්ටේනර් සැකසුම් වෙනස් කරන්න</string>
     <string name="uninstall_container_menu">කන්ටේනරය අස්ථාපනය කරන්න</string>
     <string name="status_running">ධාවනය වේ</string>
-    <string name="status_restarting">ප්‍රතිපණගැන්වේ</string>
     <string name="status_stopped">නවත්වා ඇත</string>
     <string name="pid_label">PID: %1$d</string>
     <string name="hostname_label">සත්කාරක නාමය: %1$s</string>
