@@ -552,7 +552,7 @@ private fun UninstallConfirmationDialog(
                         placeholder = { Text(containerName) },
                         singleLine = true,
                         isError = confirmText.isNotEmpty() && !isConfirmed,
-                        shape = RoundedCornerShape(14.dp),
+                        shape = RoundedCornerShape(16.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
                             focusedBorderColor = MaterialTheme.colorScheme.error.copy(alpha = 0.8f),

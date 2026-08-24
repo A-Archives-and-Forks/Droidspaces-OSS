@@ -35,7 +35,7 @@ fun <T> DsDropdown(
     var expanded by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
 
-    val fieldShape = RoundedCornerShape(20.dp)
+    val fieldShape = RoundedCornerShape(16.dp)
     val fieldColors = OutlinedTextFieldDefaults.colors(
         unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
         focusedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),

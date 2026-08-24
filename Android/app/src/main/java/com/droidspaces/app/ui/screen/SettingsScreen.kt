@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.BorderStroke
@@ -575,7 +576,7 @@ private fun AboutDialog(onDismiss: () -> Unit) {
                 .fillMaxWidth()
                 .fillMaxHeight(0.85f)
                 .padding(horizontal = 24.dp),
-            shape = RoundedCornerShape(20.dp),
+            shape = RoundedCornerShape(24.dp),
             color = MaterialTheme.colorScheme.surfaceContainer,
             border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f))
         ) {
@@ -786,7 +787,7 @@ private fun ContributorItem(contributor: Contributor, onClick: () -> Unit) {
             Image(
                 bitmap = bitmap,
                 contentDescription = null,
-                modifier = Modifier.size(28.dp).clip(RoundedCornerShape(14.dp))
+                modifier = Modifier.size(28.dp).clip(CircleShape)
             )
         } else {
             Icon(Icons.Default.Person, contentDescription = null,
@@ -919,10 +920,10 @@ private fun LanguagePickerDialog(
                         Surface(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clip(RoundedCornerShape(12.dp))
+                                .clip(RoundedCornerShape(16.dp))
                                 .clickable { selectedIndex = index },
                             color = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.08f) else Color.Transparent,
-                            shape = RoundedCornerShape(12.dp),
+                            shape = RoundedCornerShape(16.dp),
                             tonalElevation = 0.dp
                         ) {
                             Row(

@@ -592,7 +592,7 @@ private fun RepoSourceBanner() {
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp),
-        shape = RoundedCornerShape(14.dp),
+        shape = RoundedCornerShape(20.dp),
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
     ) {
@@ -649,7 +649,7 @@ private fun RepoManagerDialog(
     var nameError by remember { mutableStateOf("") }
     var urlError  by remember { mutableStateOf("") }
 
-    val fieldShape  = RoundedCornerShape(14.dp)
+    val fieldShape  = RoundedCornerShape(16.dp)
     val fieldColors = DsTextFieldDefaults.surfaceColors()
 
     fun tryAdd() {
@@ -711,7 +711,7 @@ private fun RepoManagerDialog(
                     ) {
                         itemsIndexed(repos, key = { _, item -> item.second }) { _, (repoName, repoUrl) ->
                             Surface(
-                                shape = RoundedCornerShape(14.dp),
+                                shape = RoundedCornerShape(16.dp),
                                 color = MaterialTheme.colorScheme.surfaceContainerHigh,
                                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f))
                             ) {
@@ -797,7 +797,7 @@ private fun RepoManagerDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
-                    shape = RoundedCornerShape(14.dp),
+                    shape = RoundedCornerShape(16.dp),
                     color = MaterialTheme.colorScheme.secondaryContainer
                 ) {
                     Row(

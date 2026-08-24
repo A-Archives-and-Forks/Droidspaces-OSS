@@ -219,7 +219,7 @@ fun FilePickerDialog(
                         textStyle = MaterialTheme.typography.bodySmall.copy(
                             fontFamily = JetBrainsMono
                         ),
-                        shape = RoundedCornerShape(14.dp),
+                        shape = RoundedCornerShape(16.dp),
                         colors = DsTextFieldDefaults.surfaceColors()
                     )
 

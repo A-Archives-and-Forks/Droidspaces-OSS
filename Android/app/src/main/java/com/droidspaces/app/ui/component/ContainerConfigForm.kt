@@ -680,7 +680,7 @@ fun ContainerConfigForm(
                         Text(text = context.getString(R.string.host_path, mount.src), style = MaterialTheme.typography.bodyMedium, overflow = TextOverflow.Ellipsis, maxLines = 1)
                         Text(text = context.getString(R.string.container_path, mount.dest), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary, overflow = TextOverflow.Ellipsis, maxLines = 1)
                         if (mount.ro) {
-                            Surface(shape = RoundedCornerShape(6.dp), color = MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.padding(top = 4.dp)) {
+                            Surface(shape = RoundedCornerShape(8.dp), color = MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.padding(top = 4.dp)) {
                                 Text(text = context.getString(R.string.read_only), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSecondaryContainer, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
                             }
                         }

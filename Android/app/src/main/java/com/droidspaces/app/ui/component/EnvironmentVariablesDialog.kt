@@ -63,7 +63,7 @@ fun EnvironmentVariablesDialog(
         )
     }
 
-    val fieldShape = RoundedCornerShape(14.dp)
+    val fieldShape = RoundedCornerShape(16.dp)
     val fieldColors = DsTextFieldDefaults.surfaceColors()
 
     Dialog(
@@ -185,7 +185,7 @@ fun EnvironmentVariablesDialog(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 // Add row button
-                val addBtnShape = RoundedCornerShape(14.dp)
+                val addBtnShape = RoundedCornerShape(16.dp)
                 Surface(
                     modifier = Modifier.fillMaxWidth().clip(addBtnShape).clickable(
                         onClick = { vars = vars + EnvVar() }
