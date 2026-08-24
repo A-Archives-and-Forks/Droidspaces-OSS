@@ -138,14 +138,20 @@ fun ContainerCard(
                         Icon(Icons.Default.Terminal, context.getString(R.string.view_logs), tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                     }
 
-                    // Premium Pill Status
                     val (statusText, statusColor) = when (container.status) {
                         ContainerStatus.RUNNING -> context.getString(R.string.status_running) to MaterialTheme.colorScheme.primary
                         ContainerStatus.RESTARTING -> context.getString(R.string.status_restarting) to MaterialTheme.colorScheme.tertiary
                         ContainerStatus.STOPPED -> context.getString(R.string.status_stopped) to MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                     }
 
-                    StatusPill(label = statusText.uppercase(), color = statusColor)
+                    // The label keeps reporting the state; the dot spins while an operation
+                    // runs. Changing the label would change the pill's width and shove the
+                    // logs button around every time a container starts or stops.
+                    StatusPill(
+                        label = statusText.uppercase(),
+                        color = statusColor,
+                        busy = isOperationRunning
+                    )
                 }
             }
             
