@@ -378,8 +378,13 @@ private fun InitServiceFilterChipsRow(
     }
 }
 
+/**
+ * The status hues. These are a deliberate traffic light rather than theme roles:
+ * six of these states can sit in the legend row at once, and primary/tertiary
+ * move with dynamic colour and the palette picker, so roles would collide.
+ */
 @Composable
-private fun statusColorFor(status: InitServiceUiStatus): Color = when (status) {
+fun statusColorFor(status: InitServiceUiStatus): Color = when (status) {
     InitServiceUiStatus.ENABLED_RUNNING -> Color(0xFF4CAF50)
     InitServiceUiStatus.ENABLED_STOPPED -> Color(0xFFFFCA28)
     InitServiceUiStatus.DISABLED_STOPPED -> Color(0xFFEF5350)
