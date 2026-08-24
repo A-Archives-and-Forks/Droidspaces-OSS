@@ -51,12 +51,12 @@ fun RunningContainerCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .animateContentSize(animationSpec = AnimationUtils.mediumSpec())
-                .padding(horizontal = 16.dp, vertical = 14.dp),
+                .padding(CardContentPadding),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             // Top row: icon, name, terminal pill
             Row(
-                modifier = Modifier.fillMaxWidth().height(32.dp),
+                modifier = Modifier.fillMaxWidth().height(CardHeaderHeight),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {

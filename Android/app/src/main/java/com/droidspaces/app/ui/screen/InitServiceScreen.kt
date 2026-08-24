@@ -44,6 +44,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.droidspaces.app.ui.component.CardContentPadding
+import com.droidspaces.app.ui.component.CardHeaderHeight
 import com.droidspaces.app.ui.theme.JetBrainsMono
 import com.droidspaces.app.R
 import com.droidspaces.app.ui.component.dsMenuBorder
@@ -420,7 +422,7 @@ private fun InitServiceCard(
     ) {
         Column {
             Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp).height(32.dp),
+                modifier = Modifier.fillMaxWidth().padding(CardContentPadding).height(CardHeaderHeight),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
