@@ -21,15 +21,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.droidspaces.app.ui.theme.JetBrainsMono
 import com.droidspaces.app.R
 import com.droidspaces.app.ui.util.FullScreenLoading
 import com.droidspaces.app.util.ContainerSystemdManager
 import kotlinx.coroutines.launch
-
-private val UnitDetailMono = FontFamily(
-    Font(R.font.jetbrains_mono_regular, FontWeight.Normal),
-    Font(R.font.jetbrains_mono_bold, FontWeight.Bold)
-)
 
 /** Human-friendly label resources for the raw systemd property keys `inspectUnit` fetches. */
 private val PROPERTY_LABEL_RES = linkedMapOf(
@@ -89,7 +85,7 @@ fun UnitDetailScreen(
                         // one step down from the titleLarge every other screen title uses.
                         Text(
                             unitName,
-                            style = MaterialTheme.typography.titleMedium.copy(fontFamily = UnitDetailMono),
+                            style = MaterialTheme.typography.titleMedium.copy(fontFamily = JetBrainsMono),
                             fontWeight = FontWeight.Bold,
                             maxLines = 1
                         )
@@ -179,7 +175,7 @@ private fun UnitDetailContent(inspection: ContainerSystemdManager.UnitInspection
                             Text(
                                 if (key == "DropInPaths") value.replace(" ", "\n") else value,
                                 style = MaterialTheme.typography.bodySmall.copy(
-                                    fontFamily = UnitDetailMono,
+                                    fontFamily = JetBrainsMono,
                                     lineHeight = 16.sp
                                 ),
                                 fontWeight = FontWeight.Medium,
@@ -196,7 +192,7 @@ private fun UnitDetailContent(inspection: ContainerSystemdManager.UnitInspection
             item {
                 SectionCard(title = context.getString(R.string.dependencies_section)) {
                     inspection.dependencies.forEach { dep ->
-                        Text(dep, style = MaterialTheme.typography.bodySmall.copy(fontFamily = UnitDetailMono))
+                        Text(dep, style = MaterialTheme.typography.bodySmall.copy(fontFamily = JetBrainsMono))
                     }
                 }
             }
@@ -210,7 +206,7 @@ private fun UnitDetailContent(inspection: ContainerSystemdManager.UnitInspection
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
                         inspection.statusText.forEach { line ->
-                            Text(line, style = MaterialTheme.typography.bodySmall.copy(fontFamily = UnitDetailMono))
+                            Text(line, style = MaterialTheme.typography.bodySmall.copy(fontFamily = JetBrainsMono))
                         }
                     }
                 }

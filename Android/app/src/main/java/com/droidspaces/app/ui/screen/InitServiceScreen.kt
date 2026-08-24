@@ -44,6 +44,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.droidspaces.app.ui.theme.JetBrainsMono
 import com.droidspaces.app.R
 import com.droidspaces.app.ui.util.*
 import com.droidspaces.app.util.AnimationUtils
@@ -108,11 +109,6 @@ data class InitServiceFilterChip(
     val dotColor: Color?,
     val emptyRes: Int,
     val predicate: (InitServiceRow) -> Boolean,
-)
-
-private val JetBrainsMono = FontFamily(
-    Font(R.font.jetbrains_mono_regular, FontWeight.Normal),
-    Font(R.font.jetbrains_mono_bold, FontWeight.Bold)
 )
 
 private sealed class InitScreenState {
@@ -428,8 +424,7 @@ private fun InitServiceCard(
                 Text(
                     text = row.name,
                     style = MaterialTheme.typography.titleMedium.copy(
-                        fontFamily = JetBrainsMono,
-                        fontSize = if (row.name.length > 25) 13.sp else 16.sp
+                        fontFamily = JetBrainsMono
                     ),
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f),
