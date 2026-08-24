@@ -205,8 +205,9 @@ change in the wrong place is a second bug.
 
 - State lives in a ViewModel, not in a stateful composable and not in a `util` singleton.
 - Lists render with `LazyColumn` and stable keys.
-- Colors come from `MaterialTheme.colorScheme`, type from `MaterialTheme.typography`, corner
-  radii from `ShapeUtils`, animation timings from `AnimationUtils`. Do not hardcode them.
+- Colors come from `MaterialTheme.colorScheme`, type from `MaterialTheme.typography`, animation
+  timings from `AnimationUtils`. Do not hardcode them. Corner radii, spacing and every other
+  visual value come from [DESIGN.md](./DESIGN.md).
 - Any value that reaches a root shell goes through `ContainerCommandBuilder.quote()` or an
   allow-list validator. No exceptions.
 
@@ -233,6 +234,9 @@ change in the wrong place is a second bug.
 Grep this list before you write anything new. If something close already exists, extend it
 rather than adding a sibling. Android paths are relative to
 `Android/app/src/main/java/com/droidspaces/app/`, C paths to the repository root.
+
+This list answers "what do I call". [DESIGN.md](./DESIGN.md) answers "what should it look like",
+for the case where nothing here fits and you have to build something new.
 
 ### Android: forms and reusable screens
 
@@ -310,7 +314,7 @@ the language and about dialogs in `ui/screen/SettingsScreen.kt`). Do not import 
 | `ThemePalette` | `ui/theme/Color.kt` | Adding an accent palette. Here and nowhere else |
 | `MaterialTheme.colorScheme.*` | | All colors. The bare `PRIMARY`, `GREEN`, `RED` values in `ui/theme/Color.kt` are legacy, do not use them in new code |
 | `MaterialTheme.typography.*`, `JetBrainsMono` | `ui/theme/Type.kt` | All text styles, and the mono font for terminal, log, and code text |
-| `ShapeUtils` | `ui/util/DialogUtils.kt` | Corner radii. `DIALOG_SHAPE`, `CARD_SHAPE`, `BUTTON_SHAPE` and friends |
+| Corner radii | [DESIGN.md](./DESIGN.md) | The shape table there. `ShapeUtils` in `ui/util/DialogUtils.kt` is unused and three of its six values contradict the app, do not adopt it |
 | `AnimationUtils` | `util/AnimationUtils.kt` | Durations, easing, and tween specs. Never a literal `tween(300)` |
 | `AccentColorPicker`, `ColorPaletteSwatch` | `ui/component/` | The palette picker in settings |
 
@@ -609,7 +613,8 @@ another.
 - There is no shared `DsDialog`. The same `Dialog { Surface { ... } }` scaffold is hand-rolled
   in roughly sixteen places. If you need a dialog, copy the shape from an existing one and
   say so in the PR, or better, extract the shared component.
-- Four local `RoundedCornerShape` dialog constants should be `ShapeUtils.DIALOG_SHAPE`.
+- Dialog radii disagree: twelve dialogs use 24dp, three use 28dp, and `AboutDialog` uses 20dp.
+  DESIGN.md settles it at 24dp. See [DESIGN-TODO.md](./DESIGN-TODO.md).
 - `ToggleCard` and `SwitchItem` are two shapes of the same switch row.
 - `ContainersScreen` has an inline copy of the typed-confirmation gate that
   `ConfirmPhraseField` already provides.
@@ -652,6 +657,10 @@ Every feature PR must include:
 
 4. **No regressions.** Run the existing behavior through your change. If something that
    worked before no longer works, fix it before opening a PR.
+
+5. **For UI changes, the DESIGN.md rules you followed.** If you deviated from one, say which and
+   why. A radius or a colour that disagrees with [DESIGN.md](./DESIGN.md) without a reason gets
+   sent back.
 
 ## Code Ownership
 

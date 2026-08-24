@@ -74,6 +74,19 @@ install_policy_rules(cfg);
 **Ten lines that work beat a hundred that do the same thing.** Delete before you add. A
 smaller diff in the right place is the goal, not a smaller diff anywhere.
 
+## UI changes
+
+Anything visual in `Android/` follows [DESIGN.md](./DESIGN.md). Colours, type, spacing, radii and
+the action pill pattern are all specified there, and they were read out of the existing app rather
+than invented, so following them is also the smallest diff.
+
+If a rule genuinely does not fit your case, deviate, but leave a comment at the site saying what
+the deviation buys and say it in the PR. An undocumented deviation is drift and the next
+contributor will "fix" it.
+
+[DESIGN-TODO.md](./DESIGN-TODO.md) lists the places that do not follow DESIGN.md yet. If you touch
+one of those files, fix the item you touched.
+
 ## Before you write it at all
 
 Work down this list and stop at the first answer that holds.
