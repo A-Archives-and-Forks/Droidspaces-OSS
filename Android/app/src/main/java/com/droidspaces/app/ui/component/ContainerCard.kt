@@ -98,7 +98,7 @@ fun ContainerCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .animateContentSize(animationSpec = AnimationUtils.mediumSpec())
-                .padding(horizontal = 16.dp, vertical = 14.dp),
+                .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Row(
@@ -342,7 +342,7 @@ private fun ActionItem(
     isBold: Boolean = false,
     onClick: () -> Unit
 ) = ActionItemLayout(label, tint, isBold, onClick) {
-    Icon(icon, null, tint = tint, modifier = Modifier.size(22.dp))
+    Icon(icon, null, tint = tint, modifier = Modifier.size(20.dp))
 }
 
 @Composable
@@ -353,7 +353,7 @@ private fun ActionItem(
     isBold: Boolean = false,
     onClick: () -> Unit
 ) = ActionItemLayout(label, tint, isBold, onClick) {
-    Icon(icon, null, tint = tint, modifier = Modifier.size(22.dp))
+    Icon(icon, null, tint = tint, modifier = Modifier.size(20.dp))
 }
 
 @Composable

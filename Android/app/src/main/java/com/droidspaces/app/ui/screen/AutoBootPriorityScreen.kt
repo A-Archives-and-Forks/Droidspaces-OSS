@@ -256,7 +256,7 @@ fun AutoBootPriorityScreen(
                     state = lazyListState,
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(bottom = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     items(items, key = { it.name }) { container ->
                     ReorderableItem(reorderableState, key = container.name) { isDragging ->

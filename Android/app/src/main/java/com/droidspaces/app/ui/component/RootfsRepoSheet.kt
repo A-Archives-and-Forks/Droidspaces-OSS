@@ -110,7 +110,7 @@ fun RootfsRepoSheet(
                     imageVector = Icons.Default.CloudDownload,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(22.dp)
+                    modifier = Modifier.size(20.dp)
                 )
                 Spacer(Modifier.width(10.dp))
                 Text(
@@ -273,7 +273,7 @@ private fun RepoListContent(
     LazyColumn(
         modifier = Modifier.fillMaxWidth(),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         items(assets, key = { it.downloadUrl }) { asset ->
             RootfsAssetCard(
@@ -382,7 +382,7 @@ private fun RootfsAssetCard(
                 Icon(
                     imageVector = Icons.Default.Person,
                     contentDescription = null,
-                    modifier = Modifier.size(13.dp),
+                    modifier = Modifier.size(16.dp),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
                 Text(
@@ -421,7 +421,7 @@ private fun RootfsAssetCard(
                         Icon(
                             imageVector = Icons.Default.Archive,
                             contentDescription = null,
-                            modifier = Modifier.size(13.dp),
+                            modifier = Modifier.size(16.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )
                         Text(
@@ -441,7 +441,7 @@ private fun RootfsAssetCard(
                             Icon(
                                 imageVector = Icons.Default.Memory,
                                 contentDescription = null,
-                                modifier = Modifier.size(13.dp),
+                                modifier = Modifier.size(16.dp),
                                 tint = MaterialTheme.colorScheme.tertiary
                             )
                             Text(
@@ -461,7 +461,7 @@ private fun RootfsAssetCard(
                             Icon(
                                 imageVector = Icons.Default.CalendarToday,
                                 contentDescription = null,
-                                modifier = Modifier.size(13.dp),
+                                modifier = Modifier.size(16.dp),
                                 tint = MaterialTheme.colorScheme.secondary
                             )
                             Text(

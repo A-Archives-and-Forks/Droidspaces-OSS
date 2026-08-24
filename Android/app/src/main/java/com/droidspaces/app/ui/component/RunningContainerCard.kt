@@ -158,7 +158,7 @@ fun RunningContainerCard(
                                 Icon(
                                     imageVector = Icons.Default.Speed,
                                     contentDescription = null,
-                                    modifier = Modifier.size(13.dp),
+                                    modifier = Modifier.size(16.dp),
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                                 Text(
@@ -177,7 +177,7 @@ fun RunningContainerCard(
                                 Icon(
                                     imageVector = Icons.Default.Memory,
                                     contentDescription = null,
-                                    modifier = Modifier.size(13.dp),
+                                    modifier = Modifier.size(16.dp),
                                     tint = MaterialTheme.colorScheme.secondary
                                 )
                                 val ramMb = osInfo?.ramUsageMb ?: 0L

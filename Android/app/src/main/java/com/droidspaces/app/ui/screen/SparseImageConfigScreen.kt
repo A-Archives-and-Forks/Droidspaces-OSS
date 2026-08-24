@@ -257,7 +257,7 @@ fun SparseImageConfigScreen(
                         Icon(
                             imageVector = Icons.Default.Info,
                             contentDescription = null,
-                            modifier = Modifier.size(22.dp),
+                            modifier = Modifier.size(20.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )
                         Text(
@@ -365,7 +365,7 @@ fun SparseImageConfigScreen(
                             Icon(
                                 imageVector = Icons.Default.Settings,
                                 contentDescription = null,
-                                modifier = Modifier.size(22.dp),
+                                modifier = Modifier.size(20.dp),
                                 tint = MaterialTheme.colorScheme.primary
                             )
                             Text(

@@ -176,7 +176,7 @@ fun ContainerDetailsScreen(
                 .fillMaxSize()
                 .padding(padding),
             contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // OS Information - Total Rewrite (Zero Shadow / Flat Design)
             item(key = "os_info_flat_grid_${container.name}") {
@@ -339,7 +339,7 @@ private fun IdentityToken(
                 Icon(
                     painter = painter,
                     contentDescription = null,
-                    modifier = Modifier.size(13.dp),
+                    modifier = Modifier.size(16.dp),
                     tint = containerColor
                 )
                 Spacer(modifier = Modifier.width(4.dp))
