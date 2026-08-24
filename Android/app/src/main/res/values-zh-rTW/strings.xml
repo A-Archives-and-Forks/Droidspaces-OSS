@@ -333,8 +333,6 @@
     <string name="select_user_to_enter">選擇要進入容器的使用者：</string>
     <string name="notification_permission_title">通知權限</string>
     <string name="notification_permission_rationale">Droidspaces 需要顯示常駐通知，以保持您的終端會話在背景運行。否則，Android 系統（尤其是三星設備）可能會意外終止終端服務。</string>
-    <string name="grant_permission">授予權限</string>
-    <string name="i_understand">我了解</string>
     <string name="migrate_to_sparse_image">遷移至稀疏映像檔</string>
     <string name="resize_sparse_image">調整稀疏映像檔的大小</string>
     <string name="export_container">以 tarball 格式匯出容器</string>

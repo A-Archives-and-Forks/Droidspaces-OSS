@@ -297,8 +297,6 @@
     <string name="select_user_to_enter">කන්ටේනරයට ඇතුළු වීමට පරිශීලකයා තෝරන්න:</string>
     <string name="notification_permission_title">Notifications සඳහා අවසරය</string>
     <string name="notification_permission_rationale">Droidspaces ටර්මිනලය පසුබිමේ ක්‍රියා කරවීම සඳහා මෙම උපාංගයෙන් notification අවසරය අත්‍යාවශ්‍ය වේ. නැතහොත්, ඇන්ඩ්‍රොයිඩ් මගින් ඔබ විවෘත කළ ටර්මිනල වසා දැමීමට ඉඩ ඇත.</string>
-    <string name="grant_permission">අවසරය ලබා දෙන්න</string>
-    <string name="i_understand">මට තේරෙනවා</string>
     <string name="migrate_to_sparse_image">Sparse image ක්‍රමයට මාරු වෙන්න</string>
     <string name="resize_sparse_image">Sparse image එකේ ප්‍රමාණය වෙනස් කරන්න</string>
     <string name="migrate_dialog_title">Sparse image ක්‍රමයට මාරු වෙන්න</string>

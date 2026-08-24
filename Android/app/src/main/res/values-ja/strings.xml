@@ -61,8 +61,6 @@
     <string name="open">開く</string>
     <string name="open_terminal">ターミナルを開く</string>
     <string name="notification_permission_title">通知権限</string>
-    <string name="grant_permission">権限を付与</string>
-    <string name="i_understand">理解しました</string>
     <string name="minimum_size_4gb">最低容量は 4 GB です</string>
     <string name="maximum_size_512gb">最高容量は 512 GB です</string>
     <string name="size_gb">容量 (GB)</string>

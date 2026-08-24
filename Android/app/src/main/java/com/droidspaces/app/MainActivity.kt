@@ -110,8 +110,8 @@ class MainActivity : AppCompatActivity() {
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         DialogFooterRow(
-                            dismissLabel = getString(R.string.i_understand),
-                            confirmLabel = getString(R.string.grant_permission),
+                            dismissLabel = getString(R.string.not_now),
+                            confirmLabel = getString(R.string.allow),
                             onDismiss = { showNotificationRationale = false },
                             onConfirm = {
                                 showNotificationRationale = false

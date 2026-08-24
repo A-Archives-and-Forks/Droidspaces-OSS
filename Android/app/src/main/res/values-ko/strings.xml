@@ -534,8 +534,6 @@
     <!-- Notification Permission -->
     <string name="notification_permission_title">알림 권한</string>
     <string name="notification_permission_rationale">Droidspaces는 백그라운드에서 터미널 세션을 계속 실행하기 위해 지속적인 알림을 표시해야 합니다. 이 권한이 없으면 Android(특히 삼성 기기)가 터미널 서비스를 예기치 않게 종료할 수 있습니다.</string>
-    <string name="grant_permission">권한 부여</string>
-    <string name="i_understand">이해했습니다</string>
 
     <!-- Terminal Session Notification -->
     <string name="notification_title">Droidspaces 터미널</string>

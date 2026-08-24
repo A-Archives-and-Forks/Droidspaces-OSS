@@ -277,8 +277,6 @@
     <string name="select_user_to_enter">Selectează utilizatorul cu care te vei conecta la container:</string>
     <string name="notification_permission_title">Permisiunea de notificări</string>
     <string name="notification_permission_rationale">Droidspaces trebuie să arate o notificare persistentă pentru a păstra sesiunile tale de linie de comandă active în fundal. Fără această notificare, Android (în special pe dispozitive Samsung) poate opri serviciul de linie de comandă neașteptat.</string>
-    <string name="grant_permission">Oferă permisiunea</string>
-    <string name="i_understand">Am înțeles</string>
     <string name="migrate_to_sparse_image">Migrează către o imagine sparse</string>
     <string name="resize_sparse_image">Redimensionează imaginea sparse</string>
     <string name="migrate_dialog_title">Migrarea la o imagine sparse</string>

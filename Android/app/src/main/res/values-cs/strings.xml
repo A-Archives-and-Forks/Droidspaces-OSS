@@ -427,8 +427,6 @@
     <string name="select_user_to_enter">Vyberte uživatele, pod kterým chcete vstoupit do kontejneru:</string>
     <string name="notification_permission_title">Oprávnění k oznámením</string>
     <string name="notification_permission_rationale">Droidspaces musí zobrazovat trvalé oznámení, aby relace terminálu zůstaly spuštěné na pozadí. Bez něj může Android (zejména na zařízeních Samsung) službu terminálu neočekávaně ukončit.</string>
-    <string name="grant_permission">Udělit oprávnění</string>
-    <string name="i_understand">Rozumím</string>
     <string name="notification_title">Terminál Droidspaces</string>
     <string name="notification_action_exit">UKONČIT</string>
     <string name="notification_wakelock_on">Zámek probuzení: ZAPNUT</string>
