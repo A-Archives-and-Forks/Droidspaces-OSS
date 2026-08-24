@@ -202,7 +202,9 @@ fun ContainerCard(
                     .fillMaxWidth()
                     .padding(horizontal = 4.dp),
                 color = MaterialTheme.colorScheme.surfaceContainerHigh, // Depth for secondary actions
-                shape = RoundedCornerShape(20.dp),
+                // The wrapper sits tighter than the 16.dp buttons inside it on purpose.
+                // Matching the two radii flattens the nested look, do not "fix" it.
+                shape = RoundedCornerShape(12.dp),
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
             ) {
                 Row(modifier = Modifier.fillMaxWidth().padding(4.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {

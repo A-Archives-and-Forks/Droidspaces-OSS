@@ -41,7 +41,9 @@ fun DialogFooterRow(
     Surface(
         modifier = modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        shape = RoundedCornerShape(20.dp),
+        // The wrapper sits tighter than the 16.dp buttons inside it on purpose.
+        // Matching the two radii flattens the nested look, do not "fix" it.
+        shape = RoundedCornerShape(12.dp),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)),
         tonalElevation = 0.dp
     ) {
