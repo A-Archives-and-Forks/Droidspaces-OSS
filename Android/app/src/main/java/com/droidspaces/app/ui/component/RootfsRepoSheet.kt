@@ -383,7 +383,7 @@ private fun RootfsAssetCard(
                     imageVector = Icons.Default.Person,
                     contentDescription = null,
                     modifier = Modifier.size(13.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.55f)
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
                 Text(
                     text = asset.author,
@@ -397,7 +397,7 @@ private fun RootfsAssetCard(
                 Text(
                     text = asset.description,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                     modifier = Modifier.padding(horizontal = 2.dp)
                 )
             }
@@ -834,7 +834,6 @@ private fun RepoManagerDialog(
                         val toAdd = repos.filter { it.second !in originalUrls }
                         onSave(toAdd, toRemove)
                     },
-                    cancelBorderAlpha = 0.35f
                 )
             }
         }

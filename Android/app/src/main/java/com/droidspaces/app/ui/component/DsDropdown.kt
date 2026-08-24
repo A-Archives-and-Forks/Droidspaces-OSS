@@ -36,12 +36,7 @@ fun <T> DsDropdown(
     val focusManager = LocalFocusManager.current
 
     val fieldShape = RoundedCornerShape(16.dp)
-    val fieldColors = OutlinedTextFieldDefaults.colors(
-        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
-        focusedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
-        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-    )
+    val fieldColors = DsTextFieldDefaults.colors()
 
     ExposedDropdownMenuBox(
         expanded = expanded && enabled,
