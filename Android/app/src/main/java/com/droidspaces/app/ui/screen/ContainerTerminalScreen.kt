@@ -336,6 +336,8 @@ private fun TerminalTabView(
     // pre-PR behavior: the Activity background shows through and the Termux
     // default background color is left untouched.
     val terminalBackground = if (terminalDarkTheme) Color.Black.toArgb() else 0
+    // Stays a literal: the keys sit against the terminal's own black, so they have to
+    // read dark even when the app itself is in the light theme.
     val virtualKeysBackground = if (terminalDarkTheme) Color(0xFF1A1A1E) else MaterialTheme.colorScheme.surfaceContainerHighest
 
     AnimatedVisibility(
