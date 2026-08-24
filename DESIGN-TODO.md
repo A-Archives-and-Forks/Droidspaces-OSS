@@ -13,10 +13,9 @@ Component level duplication is tracked in the "Known duplicates" section of
 
 ## Still open
 
-- **No shared dialog shell.** The same `Dialog { Surface(shape = 24.dp, color = surfaceContainer,
-  border = outlineVariant @ 0.4f) { Column(padding(24.dp), spacedBy(16.dp)) } }` is written out
-  in about eighteen places. Every one of them now agrees on the values, which is what made the
-  duplication visible. A `DsDialog` taking a title and a content slot would delete most of it.
+- **`TerminalDialog` and `ProgressDialog` do not use `DsDialog`.** Deliberate for now: the first
+  is three quarters of the screen with its own header row, the second is not dismissible. If a
+  third dialog ever wants either shape, that is the moment to widen the shared one.
 - **`ToggleCard` and `SwitchItem`** are two shapes of the same switch row. `SwitchItem` is used
   only by the settings screen.
 - **`SummaryItem`** exists as three private overloads in `InstallationSummaryScreen.kt`.
@@ -58,13 +57,16 @@ Everything from the cleanup pass compiles, and the values were read back out of 
 but none of it has been seen running. Worth a look, roughly in order of how visible the change
 is:
 
-1. Every dialog's Cancel and Confirm row, rebuilt on the v6.4.0 footer. Worth checking the two
+1. Dialog widths, now that fourteen dialogs share one shell. The four that used to be `0.92f`
+   and the one on `0.95f` are slightly narrower, and the notification permission dialog is
+   wider. Worth opening a few in a row to check they agree.
+2. Every dialog's Cancel and Confirm row, rebuilt on the v6.4.0 footer. Worth checking the two
    destructive dialogs (uninstall, hardware access) for the error fill and its label colour, a
    disabled confirm, and the notification permission dialog that prompted the change.
-2. The six status dots in the systemd legend row, which now come from one function.
-3. The three bottom action bars, and the save button's three states on the edit and auto boot
+3. The six status dots in the systemd legend row, which now come from one function.
+4. The three bottom action bars, and the save button's three states on the edit and auto boot
    screens.
-4. The error logs dialog, which no longer has a red fill and whose single button is now the
+5. The error logs dialog, which no longer has a red fill and whose single button is now the
    dismiss button from the footer.
-5. The container card header, 16dp taller now that the logs button has a real touch target.
-6. AMOLED mode, after the theme cache was flattened.
+6. The container card header, 16dp taller now that the logs button has a real touch target.
+7. AMOLED mode, after the theme cache was flattened.

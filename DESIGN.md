@@ -195,6 +195,17 @@ Two sites use it: `ui/component/ContainerCard.kt` and `ui/screen/InitServiceScre
 a row of peer actions inside a card. A dialog's confirm and cancel are not that, and have their
 own rule below.
 
+## Dialogs
+
+Every dialog is `DsDialog`: the platform width opt-out, a 24dp `Surface` on `surfaceContainer`,
+and a 1dp `outlineVariant @ 0.4f` border. Do not hand-roll the shell, and do not set a width. A
+dialog that needs a height cap, `imePadding` for a text field, or a scrolling body passes it
+through the `modifier`, which lands after the standard width. Destructive dialogs pass
+`borderColor` to outline in `error`.
+
+Inside is the caller's own `Column`, usually `padding(24.dp)` with `spacedBy(16.dp)`. The title
+is `titleLarge` Bold, left aligned.
+
 ## Dialog actions
 
 Every dialog ends with `DialogFooterRow`. It is two equal-weight buttons, a quiet tonal dismiss

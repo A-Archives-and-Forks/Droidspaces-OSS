@@ -259,6 +259,7 @@ for the case where nothing here fits and you have to build something new.
 
 | Symbol | Path | Use it when |
 | --- | --- | --- |
+| `DsDialog(onDismiss, modifier, borderColor) { }` | `ui/component/DsDialog.kt` | Every dialog's shell. Never hand-roll `Dialog { Surface { } }`, and never set a width |
 | `DialogFooterRow(dismissLabel, confirmLabel, onDismiss, onConfirm, confirmEnabled, destructive)` | `ui/component/DialogFooterRow.kt` | Every dialog's cancel and confirm row, thirteen call sites. Pass `destructive = true` for a delete or a wipe, never a colour |
 | `FilePickerDialog(onDismiss, onConfirm, title, showFiles)` | `ui/component/FilePickerDialog.kt` | Picking a host path or file |
 | `EnvironmentVariablesDialog(initialContent, onConfirm, onDismiss, ...)` | `ui/component/EnvironmentVariablesDialog.kt` | Key and value environment editor |
@@ -611,9 +612,6 @@ to prove something at a trust boundary means deny.
 These exist today. They are on the cleanup list. Extend the shared version, do not add
 another.
 
-- There is no shared `DsDialog`. The same `Dialog { Surface { ... } }` scaffold is hand-rolled
-  in roughly sixteen places. If you need a dialog, copy the shape from an existing one and
-  say so in the PR, or better, extract the shared component.
 - `ToggleCard` and `SwitchItem` are two shapes of the same switch row.
 - `ContainersScreen` has an inline copy of the typed-confirmation gate that
   `ConfirmPhraseField` already provides. It also inlines error-tinted field colors, because
