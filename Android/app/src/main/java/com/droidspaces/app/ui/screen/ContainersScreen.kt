@@ -567,7 +567,7 @@ private fun UninstallConfirmationDialog(
                     onDismiss = onDismiss,
                     onConfirm = onConfirm,
                     confirmEnabled = isConfirmed,
-                    confirmColor = MaterialTheme.colorScheme.error
+                    destructive = true
                 )
             }
         }

@@ -300,8 +300,7 @@ fun FilePickerDialog(
                         dismissLabel = context.getString(R.string.cancel),
                         confirmLabel = context.getString(R.string.select_folder),
                         onDismiss = onDismiss,
-                        onConfirm = { clearFocus(); onConfirm(currentPath) },
-                        textFontWeight = FontWeight.Bold
+                        onConfirm = { clearFocus(); onConfirm(currentPath) }
                     )
                 }
             }

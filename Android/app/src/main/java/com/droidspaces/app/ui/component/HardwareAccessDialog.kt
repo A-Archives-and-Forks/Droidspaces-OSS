@@ -70,7 +70,7 @@ fun HardwareAccessDialog(
                     onDismiss = onDismiss,
                     onConfirm = onConfirm,
                     confirmEnabled = isConfirmed,
-                    confirmColor = MaterialTheme.colorScheme.error
+                    destructive = true
                 )
             }
         }

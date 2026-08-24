@@ -147,22 +147,22 @@ fun ErrorLogsDialog(
                     }
                 }
 
-                // Single action, so this is the confirm chip from DialogFooterRow
-                // rather than the footer itself, which always draws a pair.
+                // One action, so this is DialogFooterRow's dismiss button on its own.
+                // The footer itself always draws a pair.
                 Surface(
                     onClick = onDismiss,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().height(48.dp),
                     shape = RoundedCornerShape(16.dp),
-                    color = MaterialTheme.colorScheme.error.copy(alpha = 0.15f),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.35f)),
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)),
                     tonalElevation = 0.dp
                 ) {
-                    Box(modifier = Modifier.padding(14.dp), contentAlignment = Alignment.Center) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(
                             context.getString(R.string.dismiss),
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.error
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
