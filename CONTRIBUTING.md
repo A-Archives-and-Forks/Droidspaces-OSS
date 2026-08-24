@@ -1,3 +1,5 @@
+English | [简体中文](./Documentation/zh-CN/CONTRIBUTING.md)
+
 # Contributing to Droidspaces
 
 ## Philosophy
