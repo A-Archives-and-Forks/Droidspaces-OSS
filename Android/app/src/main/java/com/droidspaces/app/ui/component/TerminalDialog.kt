@@ -42,8 +42,8 @@ fun TerminalDialog(
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
-    val dialogShape = RoundedCornerShape(28.dp)
-    val buttonShape = RoundedCornerShape(14.dp)
+    val dialogShape = RoundedCornerShape(24.dp)
+    val buttonShape = RoundedCornerShape(16.dp)
 
     Dialog(
         onDismissRequest = if (isBlocking) { {} } else { onDismiss },

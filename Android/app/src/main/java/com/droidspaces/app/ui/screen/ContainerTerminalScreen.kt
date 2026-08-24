@@ -449,7 +449,7 @@ private fun UserPickerDialog(
 ) {
     val context = LocalContext.current
     var selected by remember { mutableStateOf(users.firstOrNull() ?: "root") }
-    val dialogShape = RoundedCornerShape(28.dp)
+    val dialogShape = RoundedCornerShape(24.dp)
 
     androidx.compose.ui.window.Dialog(
         onDismissRequest = onDismiss,

@@ -19,18 +19,6 @@ import androidx.compose.ui.platform.LocalContext
 import com.droidspaces.app.R
 
 /**
- * Centralized shape utilities for consistent UI across the app.
- */
-object ShapeUtils {
-    val DIALOG_SHAPE = RoundedCornerShape(28.dp)
-    val CARD_SHAPE = RoundedCornerShape(16.dp)
-    val LARGE_CARD_SHAPE = RoundedCornerShape(20.dp)
-    val BUTTON_SHAPE = RoundedCornerShape(12.dp)
-    val SMALL_BUTTON_SHAPE = RoundedCornerShape(8.dp)
-    val MEDIUM_BUTTON_SHAPE = RoundedCornerShape(10.dp)
-}
-
-/**
  * Standard progress dialog with loading indicator and message.
  */
 @Composable
@@ -46,7 +34,7 @@ fun ProgressDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp),
-            shape = ShapeUtils.DIALOG_SHAPE,
+            shape = RoundedCornerShape(24.dp),
             color = MaterialTheme.colorScheme.surfaceContainer,
             border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
             tonalElevation = 0.dp
@@ -96,7 +84,7 @@ fun ErrorLogsDialog(
     val context = LocalContext.current
     Dialog(onDismissRequest = onDismiss) {
         Card(
-            shape = ShapeUtils.DIALOG_SHAPE,
+            shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.errorContainer
             ),
