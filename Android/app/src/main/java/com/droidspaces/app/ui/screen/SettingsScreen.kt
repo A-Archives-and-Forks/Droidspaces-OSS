@@ -40,6 +40,7 @@ import android.net.Uri
 import com.droidspaces.app.R
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.droidspaces.app.ui.component.DialogFooterRow
 import com.droidspaces.app.ui.component.SectionHeader
 import com.droidspaces.app.ui.component.AccentColorPicker
 import com.droidspaces.app.ui.component.BugReportDialog
@@ -929,47 +930,17 @@ private fun LanguagePickerDialog(
                     }
                 }
 
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    val btnShape = RoundedCornerShape(14.dp)
-                    // Cancel - follow standard dialog cancel style
-                    Surface(
-                        modifier = Modifier.weight(1f).height(48.dp).clip(btnShape).clickable(onClick = onDismiss),
-                        shape = btnShape,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f),
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
-                        tonalElevation = 0.dp
-                    ) {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text(
-                                context.getString(R.string.cancel),
-                                style = MaterialTheme.typography.labelLarge,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                DialogFooterRow(
+                    dismissLabel = context.getString(R.string.cancel),
+                    confirmLabel = context.getString(R.string.ok),
+                    onDismiss = onDismiss,
+                    onConfirm = {
+                        if (selectedIndex >= 0 && selectedIndex < allOptions.size) {
+                            onLanguageSelected(allOptions[selectedIndex].first)
                         }
+                        onDismiss()
                     }
-                    // OK - follow solid primary style from SparseSizeDialog
-                    Surface(
-                        modifier = Modifier.weight(1f).height(48.dp).clip(btnShape).clickable {
-                            if (selectedIndex >= 0 && selectedIndex < allOptions.size) {
-                                onLanguageSelected(allOptions[selectedIndex].first)
-                            }
-                            onDismiss()
-                        },
-                        shape = btnShape,
-                        color = MaterialTheme.colorScheme.primary,
-                        tonalElevation = 0.dp
-                    ) {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text(
-                                context.getString(R.string.ok),
-                                style = MaterialTheme.typography.labelLarge,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.onPrimary
-                            )
-                        }
-                    }
-                }
+                )
             }
         }
     }

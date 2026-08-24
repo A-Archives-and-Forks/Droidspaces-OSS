@@ -34,6 +34,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.droidspaces.app.service.TerminalSessionService
+import com.droidspaces.app.ui.component.DialogFooterRow
 import com.droidspaces.app.ui.terminal.TerminalBackEnd
 import com.droidspaces.app.ui.terminal.TerminalScreenState
 import com.droidspaces.app.ui.terminal.virtualkeys.VirtualKeysConstants
@@ -539,33 +540,12 @@ private fun UserPickerDialog(
                     }
                 }
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    TextButton(
-                        onClick = onDismiss,
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text(
-                            text = context.getString(android.R.string.cancel),
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Button(
-                        onClick = { onConfirm(selected) },
-                        shape = RoundedCornerShape(16.dp),
-                        elevation = ButtonDefaults.buttonElevation(0.dp, 0.dp, 0.dp)
-                    ) {
-                        Text(
-                            text = context.getString(R.string.open),
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
+                DialogFooterRow(
+                    dismissLabel = context.getString(android.R.string.cancel),
+                    confirmLabel = context.getString(R.string.open),
+                    onDismiss = onDismiss,
+                    onConfirm = { onConfirm(selected) }
+                )
             }
         }
     }
