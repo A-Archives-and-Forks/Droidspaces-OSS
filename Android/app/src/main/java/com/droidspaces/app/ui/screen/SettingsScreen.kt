@@ -40,6 +40,7 @@ import com.droidspaces.app.ui.component.DsDialog
 import com.droidspaces.app.R
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.droidspaces.app.ui.component.DialogDismissButton
 import com.droidspaces.app.ui.component.DialogFooterRow
 import com.droidspaces.app.ui.component.SectionHeader
 import com.droidspaces.app.ui.component.AccentColorPicker
@@ -553,14 +554,12 @@ fun SettingsScreen(
 @Composable
 private fun AboutDialog(onDismiss: () -> Unit) {
     val context = LocalContext.current
-    val scrollState = rememberScrollState()
 
-    DsDialog(onDismiss = onDismiss, modifier = Modifier.fillMaxHeight(0.85f)) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 24.dp, start = 24.dp, end = 24.dp, bottom = 8.dp)
-        ) {
+    DsDialog(
+        onDismiss = onDismiss,
+        modifier = Modifier.fillMaxHeight(0.85f),
+        footer = { DialogDismissButton(context.getString(R.string.ok), onDismiss) }
+    ) {
             // Title
             Text(
                 text = context.getString(R.string.app_name),
@@ -569,13 +568,7 @@ private fun AboutDialog(onDismiss: () -> Unit) {
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
-            // Scrollable content
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .verticalScroll(scrollState),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text(
                 text = context.getString(R.string.about_description),
                 style = MaterialTheme.typography.bodyMedium,
@@ -723,14 +716,6 @@ private fun AboutDialog(onDismiss: () -> Unit) {
             }
             }
 
-            // OK Button
-            TextButton(
-                onClick = onDismiss,
-                modifier = Modifier.align(Alignment.End)
-            ) {
-                Text(context.getString(R.string.ok))
-            }
-        }
     }
     }
 
@@ -853,56 +838,10 @@ private fun LanguagePickerDialog(
         mutableIntStateOf(allOptions.indexOfFirst { (code, _) -> code == currentLanguage }.takeIf { it >= 0 } ?: 0)
     }
 
-    DsDialog(onDismiss = onDismiss, modifier = Modifier.wrapContentHeight()) {
-        Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Text(
-                text = context.getString(R.string.language),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 400.dp)
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                allOptions.forEachIndexed { index, (_, displayName) ->
-                    val isSelected = selectedIndex == index
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(16.dp))
-                            .clickable { selectedIndex = index },
-                        color = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.08f) else Color.Transparent,
-                        shape = RoundedCornerShape(16.dp),
-                        tonalElevation = 0.dp
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            RadioButton(
-                                selected = isSelected,
-                                onClick = { selectedIndex = index },
-                                colors = RadioButtonDefaults.colors(
-                                    selectedColor = MaterialTheme.colorScheme.primary,
-                                    unselectedColor = MaterialTheme.colorScheme.outline
-                                )
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = displayName,
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                    }
-                }
-            }
-
+    DsDialog(
+        onDismiss = onDismiss,
+        modifier = Modifier.heightIn(max = 560.dp),
+        footer = {
             DialogFooterRow(
                 dismissLabel = context.getString(R.string.cancel),
                 confirmLabel = context.getString(R.string.ok),
@@ -915,6 +854,52 @@ private fun LanguagePickerDialog(
                 }
             )
         }
+    ) {
+        Text(
+            text = context.getString(R.string.language),
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
+
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            allOptions.forEachIndexed { index, (_, displayName) ->
+                val isSelected = selectedIndex == index
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(16.dp))
+                        .clickable { selectedIndex = index },
+                    color = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.08f) else Color.Transparent,
+                    shape = RoundedCornerShape(16.dp),
+                    tonalElevation = 0.dp
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = isSelected,
+                            onClick = { selectedIndex = index },
+                            colors = RadioButtonDefaults.colors(
+                                selectedColor = MaterialTheme.colorScheme.primary,
+                                unselectedColor = MaterialTheme.colorScheme.outline
+                            )
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = displayName,
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+            }
+        }
+    
     }
     }
 

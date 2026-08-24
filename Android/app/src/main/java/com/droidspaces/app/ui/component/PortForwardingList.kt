@@ -174,61 +174,9 @@ private fun AddPortForwardDialog(
 
     val isFormValid = hostPort.isNotBlank() && hostError == null && containerError == null && widthError == null && overlapError == null
 
-    DsDialog(onDismiss = onDismiss, modifier = Modifier.wrapContentHeight()) {
-        Column(
-            modifier = Modifier.padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Text(
-                text = context.getString(R.string.add_port_forward),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-
-            Column(
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.verticalScroll(rememberScrollState())
-            ) {
-                Text(
-                    text = context.getString(R.string.port_forward_examples),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                )
-
-                OutlinedTextField(
-                    value = hostPort,
-                    onValueChange = { if (it.isEmpty() || it.all { c -> c.isDigit() || c == '-' }) hostPort = it },
-                    label = { Text(context.getString(R.string.host_port_hint)) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    isError = hostError != null || widthError != null || overlapError != null,
-                    supportingText = { Text(hostError ?: widthError ?: overlapError ?: "") },
-                    shape = RoundedCornerShape(16.dp),
-                    colors = DsTextFieldDefaults.surfaceColors()
-                )
-
-                OutlinedTextField(
-                    value = containerPort,
-                    onValueChange = { if (it.isEmpty() || it.all { c -> c.isDigit() || c == '-' }) containerPort = it },
-                    label = { Text(context.getString(R.string.container_port_hint)) },
-                    placeholder = { Text(context.getString(R.string.leave_blank_for_symmetric)) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    isError = containerError != null || widthError != null || overlapError != null,
-                    supportingText = { Text(containerError ?: widthError ?: overlapError ?: context.getString(R.string.optional_symmetric_hint)) },
-                    shape = RoundedCornerShape(16.dp),
-                    colors = DsTextFieldDefaults.surfaceColors()
-                )
-
-                DsDropdown(
-                    label = context.getString(R.string.protocol),
-                    selected = proto,
-                    options = listOf("tcp", "udp"),
-                    displayName = { it.uppercase() },
-                    onSelect = { proto = it }
-                )
-            }
-
+    DsDialog(
+        onDismiss = onDismiss,
+        footer = {
             DialogFooterRow(
                 dismissLabel = context.getString(R.string.cancel),
                 confirmLabel = context.getString(R.string.add),
@@ -237,5 +185,53 @@ private fun AddPortForwardDialog(
                 confirmEnabled = isFormValid,
             )
         }
+    ) {
+        Text(
+            text = context.getString(R.string.add_port_forward),
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
+
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text(
+                text = context.getString(R.string.port_forward_examples),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+            )
+
+            OutlinedTextField(
+                value = hostPort,
+                onValueChange = { if (it.isEmpty() || it.all { c -> c.isDigit() || c == '-' }) hostPort = it },
+                label = { Text(context.getString(R.string.host_port_hint)) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                isError = hostError != null || widthError != null || overlapError != null,
+                supportingText = { Text(hostError ?: widthError ?: overlapError ?: "") },
+                shape = RoundedCornerShape(16.dp),
+                colors = DsTextFieldDefaults.surfaceColors()
+            )
+
+            OutlinedTextField(
+                value = containerPort,
+                onValueChange = { if (it.isEmpty() || it.all { c -> c.isDigit() || c == '-' }) containerPort = it },
+                label = { Text(context.getString(R.string.container_port_hint)) },
+                placeholder = { Text(context.getString(R.string.leave_blank_for_symmetric)) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                isError = containerError != null || widthError != null || overlapError != null,
+                supportingText = { Text(containerError ?: widthError ?: overlapError ?: context.getString(R.string.optional_symmetric_hint)) },
+                shape = RoundedCornerShape(16.dp),
+                colors = DsTextFieldDefaults.surfaceColors()
+            )
+
+            DsDropdown(
+                label = context.getString(R.string.protocol),
+                selected = proto,
+                options = listOf("tcp", "udp"),
+                displayName = { it.uppercase() },
+                onSelect = { proto = it }
+            )
+        }
+    
     }
 }

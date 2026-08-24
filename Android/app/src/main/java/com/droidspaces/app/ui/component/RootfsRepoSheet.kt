@@ -667,11 +667,25 @@ private fun RepoManagerDialog(
         }
     }
 
-    DsDialog(onDismiss = onDismiss, modifier = Modifier.imePadding()) {
-        Column(modifier = Modifier
-            .fillMaxWidth()
-            .padding(24.dp)
-        ) {
+    DsDialog(
+        onDismiss = onDismiss,
+        modifier = Modifier.imePadding(),
+        scrollableContent = false,
+        footer = {
+            DialogFooterRow(
+                dismissLabel = context.getString(R.string.cancel),
+                confirmLabel = context.getString(R.string.ok),
+                onDismiss = onDismiss,
+                onConfirm = {
+                    val currentUrls = repos.map { it.second }.toSet()
+                    val toRemove = originalUrls.filter { it !in currentUrls }
+                    val toAdd = repos.filter { it.second !in originalUrls }
+                    onSave(toAdd, toRemove)
+                },
+            )
+        }
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
             // Header
             Text(
                 text = context.getString(R.string.repo_manage_custom),
@@ -691,10 +705,12 @@ private fun RepoManagerDialog(
 
             // Existing repo list
             if (repos.isNotEmpty()) {
+                // fill = false so the dialog wraps a short repo list instead of
+                // pinning itself at the shell's full height bound
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(max = 200.dp),
+                        .weight(1f, fill = false),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     itemsIndexed(repos, key = { _, item -> item.second }) { _, (repoName, repoUrl) ->
@@ -812,17 +828,6 @@ private fun RepoManagerDialog(
             Spacer(Modifier.height(16.dp))
 
             // Single footer row: Close / Save
-            DialogFooterRow(
-                dismissLabel = context.getString(R.string.cancel),
-                confirmLabel = context.getString(R.string.ok),
-                onDismiss = onDismiss,
-                onConfirm = {
-                    val currentUrls = repos.map { it.second }.toSet()
-                    val toRemove = originalUrls.filter { it !in currentUrls }
-                    val toAdd = repos.filter { it.second !in originalUrls }
-                    onSave(toAdd, toRemove)
-                },
-            )
         }
     }
     }

@@ -144,16 +144,25 @@ fun FilePickerDialog(
         }
     }
 
-    DsDialog(onDismiss = onDismiss, modifier = Modifier.fillMaxHeight(0.75f)) {
-        val clearFocus = rememberClearFocus()
+    val clearFocus = rememberClearFocus()
+
+    DsDialog(
+        onDismiss = onDismiss,
+        modifier = Modifier.fillMaxHeight(0.75f),
+        scrollableContent = false,
+        footer = {
+            DialogFooterRow(
+                dismissLabel = context.getString(R.string.cancel),
+                confirmLabel = context.getString(R.string.select_folder),
+                onDismiss = onDismiss,
+                onConfirm = { clearFocus(); onConfirm(currentPath) }
+            )
+        }
+    ) {
         ClearFocusOnClickOutside(
             modifier = Modifier.fillMaxSize()
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(24.dp)
-            ) {
+            Column(modifier = Modifier.fillMaxSize()) {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.headlineSmall,
@@ -282,13 +291,6 @@ fun FilePickerDialog(
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
-
-                DialogFooterRow(
-                    dismissLabel = context.getString(R.string.cancel),
-                    confirmLabel = context.getString(R.string.select_folder),
-                    onDismiss = onDismiss,
-                    onConfirm = { clearFocus(); onConfirm(currentPath) }
-                )
             }
         }
     }

@@ -150,47 +150,10 @@ private fun GatewayConfigureDialog(
     )
     val advancedValid = errs.iface == null && errs.net == null && errs.bridge == null
 
-    DsDialog(onDismiss = onDismiss, modifier = Modifier.imePadding()) {
-        Column(
-            modifier = Modifier
-                .padding(24.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Text(
-                context.getString(R.string.gateway_configure_title),
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleLarge
-            )
-
-            // 1. Interface in Gateway (most important).
-            ExplainedField(
-                title = context.getString(R.string.gateway_iface),
-                explanation = context.getString(R.string.gateway_iface_explain),
-                value = iface,
-                onChange = { iface = it },
-                hint = context.getString(R.string.gateway_iface_hint),
-                error = errs.iface
-            )
-            // 2. LAN Name.
-            ExplainedField(
-                title = context.getString(R.string.gateway_net),
-                explanation = context.getString(R.string.gateway_net_explain),
-                value = net,
-                onChange = { net = it },
-                hint = context.getString(R.string.gateway_net_hint),
-                error = errs.net
-            )
-            // 3. Host Bridge.
-            ExplainedField(
-                title = context.getString(R.string.gateway_bridge),
-                explanation = context.getString(R.string.gateway_bridge_explain),
-                value = bridge,
-                onChange = { bridge = it },
-                hint = context.getString(R.string.gateway_bridge_hint),
-                error = errs.bridge
-            )
-
+    DsDialog(
+        onDismiss = onDismiss,
+        modifier = Modifier.imePadding(),
+        footer = {
             DialogFooterRow(
                 dismissLabel = context.getString(R.string.cancel),
                 confirmLabel = context.getString(R.string.ok),
@@ -199,6 +162,41 @@ private fun GatewayConfigureDialog(
                 confirmEnabled = advancedValid
             )
         }
+    ) {
+        Text(
+            context.getString(R.string.gateway_configure_title),
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.titleLarge
+        )
+
+        // 1. Interface in Gateway (most important).
+        ExplainedField(
+            title = context.getString(R.string.gateway_iface),
+            explanation = context.getString(R.string.gateway_iface_explain),
+            value = iface,
+            onChange = { iface = it },
+            hint = context.getString(R.string.gateway_iface_hint),
+            error = errs.iface
+        )
+        // 2. LAN Name.
+        ExplainedField(
+            title = context.getString(R.string.gateway_net),
+            explanation = context.getString(R.string.gateway_net_explain),
+            value = net,
+            onChange = { net = it },
+            hint = context.getString(R.string.gateway_net_hint),
+            error = errs.net
+        )
+        // 3. Host Bridge.
+        ExplainedField(
+            title = context.getString(R.string.gateway_bridge),
+            explanation = context.getString(R.string.gateway_bridge_explain),
+            value = bridge,
+            onChange = { bridge = it },
+            hint = context.getString(R.string.gateway_bridge_hint),
+            error = errs.bridge
+        )
+    
     }
     }
 

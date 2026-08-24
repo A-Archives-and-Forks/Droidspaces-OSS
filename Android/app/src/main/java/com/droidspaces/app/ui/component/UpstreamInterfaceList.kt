@@ -164,11 +164,19 @@ private fun AddUpstreamDialog(
         label = "refresh_rotation"
     )
 
-    DsDialog(onDismiss = onDismiss, modifier = Modifier.wrapContentHeight()) {
-        Column(
-            modifier = Modifier.padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
+    DsDialog(
+        onDismiss = onDismiss,
+        modifier = Modifier.heightIn(max = 420.dp),
+        footer = {
+            DialogFooterRow(
+                dismissLabel = context.getString(R.string.cancel),
+                confirmLabel = context.getString(R.string.add),
+                onDismiss = onDismiss,
+                onConfirm = { onAdd(customIface.trim()) },
+                confirmEnabled = customIface.isNotBlank() && selectedInterfaces.size < 8,
+            )
+        }
+    ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -204,9 +212,9 @@ private fun AddUpstreamDialog(
 
             if (availableUpstreams.isNotEmpty()) {
                 Text(context.getString(R.string.available_system_interfaces), style = MaterialTheme.typography.labelMedium)
-                Box(modifier = Modifier.fillMaxWidth().heightIn(max = 200.dp)) {
+                Box(modifier = Modifier.fillMaxWidth()) {
                     FlowRow(
-                        modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
+                        modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
@@ -235,14 +243,5 @@ private fun AddUpstreamDialog(
                 shape = RoundedCornerShape(16.dp),
                 colors = DsTextFieldDefaults.colors()
             )
-
-            DialogFooterRow(
-                dismissLabel = context.getString(R.string.cancel),
-                confirmLabel = context.getString(R.string.add),
-                onDismiss = onDismiss,
-                onConfirm = { onAdd(customIface.trim()) },
-                confirmEnabled = customIface.isNotBlank() && selectedInterfaces.size < 8,
-            )
-        }
     }
 }

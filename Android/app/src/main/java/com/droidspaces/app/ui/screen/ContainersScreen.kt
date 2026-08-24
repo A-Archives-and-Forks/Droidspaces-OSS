@@ -435,8 +435,19 @@ private fun SparseSizeDialog(
     val isSameSize = currentSize != null && size == currentSize
     val isValid = !isOutOfRange && !isSameSize
 
-    DsDialog(onDismiss = onDismiss, modifier = Modifier.imePadding()) {
-        Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+    DsDialog(
+        onDismiss = onDismiss,
+        modifier = Modifier.imePadding(),
+        footer = {
+            DialogFooterRow(
+                dismissLabel = context.getString(R.string.cancel),
+                confirmLabel = context.getString(R.string.continue_button),
+                onDismiss = onDismiss,
+                onConfirm = { size?.let { onConfirm(it) } },
+                confirmEnabled = isValid
+            )
+        }
+    ) {
             Text(title, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleLarge)
             Text(message, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
 
@@ -463,15 +474,6 @@ private fun SparseSizeDialog(
                     keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
                 )
             )
-
-            DialogFooterRow(
-                dismissLabel = context.getString(R.string.cancel),
-                confirmLabel = context.getString(R.string.continue_button),
-                onDismiss = onDismiss,
-                onConfirm = { size?.let { onConfirm(it) } },
-                confirmEnabled = isValid
-            )
-        }
     }
     }
 
@@ -486,8 +488,20 @@ private fun UninstallConfirmationDialog(
     var confirmText by remember { mutableStateOf("") }
     val isConfirmed = confirmText == containerName
 
-    DsDialog(onDismiss = onDismiss, borderColor = MaterialTheme.colorScheme.error.copy(alpha = 0.3f)) {
-        Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+    DsDialog(
+        onDismiss = onDismiss,
+        borderColor = MaterialTheme.colorScheme.error.copy(alpha = 0.3f),
+        footer = {
+            DialogFooterRow(
+                dismissLabel = context.getString(R.string.cancel),
+                confirmLabel = context.getString(R.string.uninstall),
+                onDismiss = onDismiss,
+                onConfirm = onConfirm,
+                confirmEnabled = isConfirmed,
+                destructive = true
+            )
+        }
+    ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -535,15 +549,6 @@ private fun UninstallConfirmationDialog(
                     )
                 )
             }
-            DialogFooterRow(
-                dismissLabel = context.getString(R.string.cancel),
-                confirmLabel = context.getString(R.string.uninstall),
-                onDismiss = onDismiss,
-                onConfirm = onConfirm,
-                confirmEnabled = isConfirmed,
-                destructive = true
-            )
-        }
     }
     }
 

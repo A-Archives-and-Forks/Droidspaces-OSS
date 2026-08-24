@@ -87,21 +87,9 @@ class MainActivity : AppCompatActivity() {
     @Composable
     private fun NotificationRationaleDialog() {
         if (showNotificationRationale) {
-            DsDialog(onDismiss = { showNotificationRationale = false }) {
-                Column(
-                    modifier = Modifier.padding(24.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Text(
-                        text = getString(R.string.notification_permission_title),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = getString(R.string.notification_permission_rationale),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+            DsDialog(
+                onDismiss = { showNotificationRationale = false },
+                footer = {
                     DialogFooterRow(
                         dismissLabel = getString(R.string.not_now),
                         confirmLabel = getString(R.string.allow),
@@ -119,6 +107,17 @@ class MainActivity : AppCompatActivity() {
                         }
                     )
                 }
+            ) {
+                Text(
+                    text = getString(R.string.notification_permission_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = getString(R.string.notification_permission_rationale),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }

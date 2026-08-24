@@ -88,6 +88,32 @@ fun DialogFooterRow(
     }
 }
 
+/**
+ * A dialog whose only action is "close" uses this: the dismiss button on its
+ * own, full width. [DialogFooterRow] always draws a pair.
+ */
+@Composable
+fun DialogDismissButton(
+    label: String,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val shape = RoundedCornerShape(16.dp)
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .clip(shape)
+            .clickable(onClick = onDismiss),
+        shape = shape,
+        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)),
+        tonalElevation = 0.dp
+    ) {
+        FooterLabel(label, MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
 @Composable
 private fun FooterLabel(text: String, color: androidx.compose.ui.graphics.Color) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

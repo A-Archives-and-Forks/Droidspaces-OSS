@@ -452,11 +452,18 @@ private fun UserPickerDialog(
     val context = LocalContext.current
     var selected by remember { mutableStateOf(users.firstOrNull() ?: "root") }
 
-    DsDialog(onDismiss = onDismiss, modifier = Modifier.wrapContentHeight()) {
-        Column(
-            modifier = Modifier.padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
+    DsDialog(
+        onDismiss = onDismiss,
+        modifier = Modifier.heightIn(max = 460.dp),
+        footer = {
+            DialogFooterRow(
+                dismissLabel = context.getString(android.R.string.cancel),
+                confirmLabel = context.getString(R.string.open),
+                onDismiss = onDismiss,
+                onConfirm = { onConfirm(selected) }
+            )
+        }
+    ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -482,10 +489,7 @@ private fun UserPickerDialog(
             )
 
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 300.dp)
-                    .verticalScroll(rememberScrollState()),
+                modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 users.forEach { user ->
@@ -526,14 +530,6 @@ private fun UserPickerDialog(
                     }
                 }
             }
-
-            DialogFooterRow(
-                dismissLabel = context.getString(android.R.string.cancel),
-                confirmLabel = context.getString(R.string.open),
-                onDismiss = onDismiss,
-                onConfirm = { onConfirm(selected) }
-            )
-        }
     }
     }
 

@@ -18,6 +18,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.platform.LocalContext
 import com.droidspaces.app.R
+import com.droidspaces.app.ui.component.DsDialog
+import com.droidspaces.app.ui.component.DialogDismissButton
 
 /**
  * Standard progress dialog with loading indicator and message.
@@ -34,7 +36,7 @@ fun ProgressDialog(
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp),
+                .padding(horizontal = 24.dp, vertical = 24.dp),
             shape = RoundedCornerShape(24.dp),
             color = MaterialTheme.colorScheme.surfaceContainer,
             border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
@@ -83,20 +85,13 @@ fun ErrorLogsDialog(
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
-    Dialog(onDismissRequest = onDismiss) {
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(24.dp),
-            color = MaterialTheme.colorScheme.surfaceContainer,
-            // The error reads from the icon, the title and this outline. The fill
-            // stays quiet like every other dialog in the app.
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.3f)),
-            tonalElevation = 0.dp
-        ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
+    // The error reads from the icon, the title and the outline. The fill stays
+    // quiet like every other dialog in the app.
+    DsDialog(
+        onDismiss = onDismiss,
+        borderColor = MaterialTheme.colorScheme.error.copy(alpha = 0.3f),
+        footer = { DialogDismissButton(context.getString(R.string.dismiss), onDismiss) }
+    ) {
                 // Header with icon
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -120,15 +115,9 @@ fun ErrorLogsDialog(
                 Surface(
                     color = MaterialTheme.colorScheme.surfaceContainerHigh,
                     shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = 280.dp)
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .verticalScroll(rememberScrollState())
-                            .padding(16.dp)
-                    ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
                         if (logs.isEmpty()) {
                             Text(
                                 text = context.getString(R.string.no_output_available),
@@ -147,27 +136,6 @@ fun ErrorLogsDialog(
                     }
                 }
 
-                // One action, so this is DialogFooterRow's dismiss button on its own.
-                // The footer itself always draws a pair.
-                Surface(
-                    onClick = onDismiss,
-                    modifier = Modifier.fillMaxWidth().height(48.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)),
-                    tonalElevation = 0.dp
-                ) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(
-                            context.getString(R.string.dismiss),
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            }
-        }
     }
 }
 

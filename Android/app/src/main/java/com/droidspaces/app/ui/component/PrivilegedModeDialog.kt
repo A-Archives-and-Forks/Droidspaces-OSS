@@ -70,85 +70,9 @@ fun PrivilegedModeDialog(
 
     val allOff = !nomask && !nocaps && !noseccomp && !shared && !unfiltered && !full
 
-    DsDialog(onDismiss = onDismiss, modifier = Modifier.wrapContentHeight()) {
-        Column(
-            modifier = Modifier
-                .padding(24.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Text(
-                text = context.getString(R.string.privileged_mode),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-
-            DangerousWarningCard(
-                title = context.getString(R.string.privileged_warning_title),
-                text = context.getString(R.string.privileged_disclaimer)
-            )
-
-            // Granular Toggles using modern look
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                ToggleCard(
-                    title = "full",
-                    description = context.getString(R.string.privileged_full_desc),
-                    checked = full,
-                    onCheckedChange = { full = it }
-                )
-
-                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
-
-                ToggleCard(
-                    title = "nomask",
-                    description = context.getString(R.string.privileged_nomask_desc),
-                    checked = nomask,
-                    onCheckedChange = { nomask = it },
-                    enabled = !full
-                )
-
-                ToggleCard(
-                    title = "nocaps",
-                    description = context.getString(R.string.privileged_nocaps_desc),
-                    checked = nocaps,
-                    onCheckedChange = { nocaps = it },
-                    enabled = !full
-                )
-
-                ToggleCard(
-                    title = "noseccomp",
-                    description = context.getString(R.string.privileged_noseccomp_desc),
-                    checked = noseccomp,
-                    onCheckedChange = { noseccomp = it },
-                    enabled = !full
-                )
-
-                ToggleCard(
-                    title = "shared",
-                    description = context.getString(R.string.privileged_shared_desc),
-                    checked = shared,
-                    onCheckedChange = { shared = it },
-                    enabled = !full
-                )
-
-                ToggleCard(
-                    title = "unfiltered-dev",
-                    description = context.getString(R.string.privileged_unfiltered_desc),
-                    checked = unfiltered,
-                    onCheckedChange = { unfiltered = it },
-                    enabled = !full
-                )
-            }
-
-            // Confirmation Gate (not needed when clearing all flags)
-            if (!allOff) {
-                ConfirmPhraseField(
-                    value = confirmText,
-                    onValueChange = { confirmText = it },
-                    isError = confirmText.isNotEmpty() && !isConfirmed
-                )
-            }
-
+    DsDialog(
+        onDismiss = onDismiss,
+        footer = {
             DialogFooterRow(
                 dismissLabel = context.getString(R.string.cancel),
                 confirmLabel = context.getString(R.string.ok),
@@ -172,5 +96,78 @@ fun PrivilegedModeDialog(
                 destructive = !allOff
             )
         }
+    ) {
+        Text(
+            text = context.getString(R.string.privileged_mode),
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
+
+        DangerousWarningCard(
+            title = context.getString(R.string.privileged_warning_title),
+            text = context.getString(R.string.privileged_disclaimer)
+        )
+
+        // Granular Toggles using modern look
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            ToggleCard(
+                title = "full",
+                description = context.getString(R.string.privileged_full_desc),
+                checked = full,
+                onCheckedChange = { full = it }
+            )
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+
+            ToggleCard(
+                title = "nomask",
+                description = context.getString(R.string.privileged_nomask_desc),
+                checked = nomask,
+                onCheckedChange = { nomask = it },
+                enabled = !full
+            )
+
+            ToggleCard(
+                title = "nocaps",
+                description = context.getString(R.string.privileged_nocaps_desc),
+                checked = nocaps,
+                onCheckedChange = { nocaps = it },
+                enabled = !full
+            )
+
+            ToggleCard(
+                title = "noseccomp",
+                description = context.getString(R.string.privileged_noseccomp_desc),
+                checked = noseccomp,
+                onCheckedChange = { noseccomp = it },
+                enabled = !full
+            )
+
+            ToggleCard(
+                title = "shared",
+                description = context.getString(R.string.privileged_shared_desc),
+                checked = shared,
+                onCheckedChange = { shared = it },
+                enabled = !full
+            )
+
+            ToggleCard(
+                title = "unfiltered-dev",
+                description = context.getString(R.string.privileged_unfiltered_desc),
+                checked = unfiltered,
+                onCheckedChange = { unfiltered = it },
+                enabled = !full
+            )
+        }
+
+        // Confirmation Gate (not needed when clearing all flags)
+        if (!allOff) {
+            ConfirmPhraseField(
+                value = confirmText,
+                onValueChange = { confirmText = it },
+                isError = confirmText.isNotEmpty() && !isConfirmed
+            )
+        }
+    
     }
 }

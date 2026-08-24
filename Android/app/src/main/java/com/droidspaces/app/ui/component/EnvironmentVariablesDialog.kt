@@ -66,8 +66,20 @@ fun EnvironmentVariablesDialog(
     val fieldShape = RoundedCornerShape(16.dp)
     val fieldColors = DsTextFieldDefaults.surfaceColors()
 
-    DsDialog(onDismiss = onDismiss, modifier = Modifier.fillMaxHeight(0.78f).imePadding()) {
-        Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
+    DsDialog(
+        onDismiss = onDismiss,
+        modifier = Modifier.fillMaxHeight(0.78f).imePadding(),
+        scrollableContent = false,
+        footer = {
+            DialogFooterRow(
+                dismissLabel = context.getString(R.string.cancel),
+                confirmLabel = confirmLabel ?: context.getString(R.string.ok),
+                onDismiss = onDismiss,
+                onConfirm = { onConfirm(serializeEnvVars(vars)) },
+            )
+        }
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
             // Header
             Text(
                 context.getString(R.string.environment_variables),
@@ -196,12 +208,6 @@ fun EnvironmentVariablesDialog(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Action buttons
-            DialogFooterRow(
-                dismissLabel = context.getString(R.string.cancel),
-                confirmLabel = confirmLabel ?: context.getString(R.string.ok),
-                onDismiss = onDismiss,
-                onConfirm = { onConfirm(serializeEnvVars(vars)) },
-            )
         }
     }
     }

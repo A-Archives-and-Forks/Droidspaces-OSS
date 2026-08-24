@@ -135,26 +135,10 @@ fun ContainerConfigForm(
     if (showDestDialog) {
         var destPath by remember { mutableStateOf("") }
         var roEnabled by remember { mutableStateOf(false) }
-        DsDialog(onDismiss = { showDestDialog = false }, modifier = Modifier.imePadding()) {
-            Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text(context.getString(R.string.enter_container_path), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                OutlinedTextField(
-                    value = destPath,
-                    onValueChange = { destPath = it },
-                    label = { Text(context.getString(R.string.container_path_placeholder)) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = modernFieldShape,
-                    colors = modernFieldColors
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(context.getString(R.string.read_only), style = MaterialTheme.typography.bodyMedium)
-                    Switch(checked = roEnabled, onCheckedChange = { roEnabled = it })
-                }
+        DsDialog(
+            onDismiss = { showDestDialog = false },
+            modifier = Modifier.imePadding(),
+            footer = {
                 DialogFooterRow(
                     dismissLabel = context.getString(R.string.cancel),
                     confirmLabel = context.getString(R.string.ok),
@@ -169,6 +153,26 @@ fun ContainerConfigForm(
                     confirmEnabled = destPath.startsWith("/")
                 )
             }
+        ) {
+            Text(context.getString(R.string.enter_container_path), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            OutlinedTextField(
+                value = destPath,
+                onValueChange = { destPath = it },
+                label = { Text(context.getString(R.string.container_path_placeholder)) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                shape = modernFieldShape,
+                colors = modernFieldColors
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(context.getString(R.string.read_only), style = MaterialTheme.typography.bodyMedium)
+                Switch(checked = roEnabled, onCheckedChange = { roEnabled = it })
+            }
+        
         }
         }
 
