@@ -251,6 +251,7 @@ for the case where nothing here fits and you have to build something new.
 | `PortForwardingList(portForwards, onPortForwardsChange)` | `ui/component/PortForwardingList.kt` | Editable port forward list, add dialog included |
 | `UpstreamInterfaceList(upstreamInterfaces, onInterfacesChange)` | `ui/component/UpstreamInterfaceList.kt` | Editable upstream interface chips |
 | `DsDropdown(label, selected, options, displayName, onSelect, ...)` | `ui/component/DsDropdown.kt` | Any select field. Never hand-roll `ExposedDropdownMenuBox` |
+| `DsMenuTheme { }` + `Modifier.dsMenuBorder()` | `ui/component/DsMenuTheme.kt` | Any `DropdownMenu` that needs the opaque menu surface. `DsDropdown` already applies it |
 | `DsTextFieldDefaults.colors()` / `.surfaceColors()` | `ui/component/DsTextFieldDefaults.kt` | Every `OutlinedTextField`. `colors()` on screens, `surfaceColors()` inside dialogs |
 | `FocusUtils`, `rememberClearFocus()`, `ClearFocusOnClickOutside` | `ui/util/FocusUtils.kt` | IME actions and dismissing the keyboard on outside taps |
 
@@ -276,7 +277,8 @@ the language and about dialogs in `ui/screen/SettingsScreen.kt`). Do not import 
 
 | Symbol | Path | Use it when |
 | --- | --- | --- |
-| `PrimaryActionBottomBar(label, icon, onClick, ...)` | `ui/component/PrimaryActionBottomBar.kt` | Any wizard or full screen "Next", "Install", "Continue" bar. Six screens use it |
+| `PrimaryActionBottomBar(label, icon, onClick, ...)` | `ui/component/PrimaryActionBottomBar.kt` | Any wizard or full screen "Next", "Install", "Continue" bar. Seven screens use it. The overload taking a `content` slot is for buttons that swap their contents |
+| `SaveActionBottomBar(isSaved, isSaving, canSave, onSave, ...)` | `ui/component/SaveActionBottomBar.kt` | A save bar with the save, saving and saved states |
 | `PullToRefreshWrapper(onRefresh) { ... }` | `ui/component/PullToRefreshWrapper.kt` | Any pull to refresh list or tab body |
 | `showSuccess/showError/showInfo(snackbarHostState, message)` | `ui/util/SnackbarUtils.kt` | All snackbars. Never call `showSnackbar` directly |
 
@@ -298,6 +300,7 @@ the language and about dialogs in `ui/screen/SettingsScreen.kt`). Do not import 
 | Symbol | Path | Use it when |
 | --- | --- | --- |
 | `StatusPill(label, color)` | `ui/component/StatusPill.kt` | Any small status chip or badge |
+| `SectionHeader(text)` | `ui/component/SectionHeader.kt` | Any heading above a group of cards. Spacing goes on the modifier |
 | `LoadingIndicator(size, color)` + `LoadingSize` | `ui/util/LoadingIndicator.kt` | Inline spinners. Pick a `LoadingSize`, never a raw `.size(n.dp)` |
 | `FullScreenLoading(message)` | `ui/util/LoadingIndicator.kt` | Whole screen loading state |
 | `ContainedLoadingIndicator`, `LoadingIndicatorDefaults`, `MaterialShapes` | `ui/util/LoadingIndicator.kt` | Determinate and morphing indicators, and their tokens |
@@ -312,9 +315,9 @@ the language and about dialogs in `ui/screen/SettingsScreen.kt`). Do not import 
 | `DroidspacesTheme(darkTheme, dynamicColor, amoledMode, themePalette)` | `ui/theme/Theme.kt` | The single theme root, applied in `MainActivity` |
 | `rememberThemeState()` + `ThemeState` | `ui/theme/ThemeStateHolder.kt` | Reading live theme preferences |
 | `ThemePalette` | `ui/theme/Color.kt` | Adding an accent palette. Here and nowhere else |
-| `MaterialTheme.colorScheme.*` | | All colors. The bare `PRIMARY`, `GREEN`, `RED` values in `ui/theme/Color.kt` are legacy, do not use them in new code |
+| `MaterialTheme.colorScheme.*` | | All colors. `ui/theme/Color.kt` holds only `AMOLED_BLACK` and the palettes now |
 | `MaterialTheme.typography.*`, `JetBrainsMono` | `ui/theme/Type.kt` | All text styles, and the mono font for terminal, log, and code text |
-| Corner radii | [DESIGN.md](./DESIGN.md) | The shape table there. `ShapeUtils` in `ui/util/DialogUtils.kt` is unused and three of its six values contradict the app, do not adopt it |
+| Corner radii, spacing, type roles | [DESIGN.md](./DESIGN.md) | Every visual value. There is no shape token object, the numbers live in DESIGN.md |
 | `AnimationUtils` | `util/AnimationUtils.kt` | Durations, easing, and tween specs. Never a literal `tween(300)` |
 | `AccentColorPicker`, `ColorPaletteSwatch` | `ui/component/` | The palette picker in settings |
 
@@ -607,17 +610,13 @@ to prove something at a trust boundary means deny.
 These exist today. They are on the cleanup list. Extend the shared version, do not add
 another.
 
-- `JetBrainsMono` is declared four times: the canonical one in `ui/theme/Type.kt`, plus
-  private copies in `InitServiceScreen.kt`, `UnitDetailScreen.kt`, and `OverrideEditorScreen.kt`.
-  Import the theme one.
 - There is no shared `DsDialog`. The same `Dialog { Surface { ... } }` scaffold is hand-rolled
   in roughly sixteen places. If you need a dialog, copy the shape from an existing one and
   say so in the PR, or better, extract the shared component.
-- Dialog radii disagree: twelve dialogs use 24dp, three use 28dp, and `AboutDialog` uses 20dp.
-  DESIGN.md settles it at 24dp. See [DESIGN-TODO.md](./DESIGN-TODO.md).
 - `ToggleCard` and `SwitchItem` are two shapes of the same switch row.
 - `ContainersScreen` has an inline copy of the typed-confirmation gate that
-  `ConfirmPhraseField` already provides.
+  `ConfirmPhraseField` already provides. It also inlines error-tinted field colors, because
+  `DsTextFieldDefaults` has no error variant. Add the variant rather than a third copy.
 - `SummaryItem` exists as three private overloads in `InstallationSummaryScreen.kt`. Promote
   it to `ui/component/` before a second screen wants it.
 - Several installer and checker classes still interpolate paths into shell strings with

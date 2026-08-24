@@ -91,8 +91,11 @@ A tinted button takes its fill from the matching container role at alpha `0.4f`,
 `primaryContainer.copy(alpha = 0.4f)` for start and `errorContainer.copy(alpha = 0.4f)` for stop,
 with a 1dp border of the accent at `0.2f`.
 
-The init system screens currently ignore this and hardcode a traffic light palette. That is drift,
-not a second convention. See [DESIGN-TODO.md](./DESIGN-TODO.md).
+The init system screens are the one documented exception. Their status hues live in
+`statusColorFor()` in `ui/screen/InitServiceScreen.kt` and are a hand picked traffic light, not
+theme roles, because six of those states can sit in the legend row at once and `primary` and
+`tertiary` move with dynamic colour and the palette picker. Take a status colour from that
+function, never from a literal.
 
 ## Typography
 
