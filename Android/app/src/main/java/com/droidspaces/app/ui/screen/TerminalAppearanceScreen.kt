@@ -25,6 +25,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FontDownload
 import androidx.compose.material.icons.filled.FormatSize
 import androidx.compose.material.icons.filled.Terminal
@@ -85,6 +86,7 @@ fun TerminalAppearanceScreen(onBack: () -> Unit) {
     // SharedPreferences listener, same reasoning as the toggles on SettingsScreen.
     var terminalDarkTheme by remember { mutableStateOf(prefsManager.terminalDarkTheme) }
     var fontSizePx by remember { mutableFloatStateOf(prefsManager.terminalFontSizePx.toFloat()) }
+    var confirmClose by remember { mutableStateOf(prefsManager.terminalConfirmClose) }
 
     var selectedFont by remember { mutableStateOf(prefsManager.terminalFontFile) }
     var showFontDialog by remember { mutableStateOf(false) }
@@ -254,6 +256,20 @@ fun TerminalAppearanceScreen(onBack: () -> Unit) {
                             )
                         },
                         modifier = Modifier.clickable { showFontDialog = true }
+                    )
+
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+
+                    // Opt-in: guards the X on a terminal tab against fat fingers
+                    SwitchItem(
+                        icon = Icons.Default.Close,
+                        title = context.getString(R.string.terminal_confirm_close),
+                        summary = context.getString(R.string.terminal_confirm_close_description),
+                        checked = confirmClose,
+                        onCheckedChange = { checked ->
+                            prefsManager.terminalConfirmClose = checked
+                            confirmClose = checked
+                        }
                     )
                 }
             }

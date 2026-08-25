@@ -92,6 +92,10 @@
     <string name="terminal_font_import">Import a custom font</string>
     <string name="terminal_font_import_error">Not a valid font file: %1$s</string>
     <string name="terminal_font_delete">Remove font</string>
+    <string name="terminal_confirm_close">Confirm Before Closing</string>
+    <string name="terminal_confirm_close_description">Ask for confirmation when closing a terminal tab</string>
+    <string name="terminal_close_tab_title">Close session?</string>
+    <string name="terminal_close_tab_message">The shell running in this tab will end.</string>
     <string name="amoled_mode">AMOLED Mode</string>
     <string name="amoled_mode_description">Pure black background for OLED displays</string>
     <string name="dynamic_color">Apply System\'s Default Color Palette</string>

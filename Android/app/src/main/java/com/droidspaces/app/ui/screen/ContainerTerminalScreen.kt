@@ -73,6 +73,8 @@ fun ContainerTerminalScreen(
     val context = LocalContext.current
     val activity = context as? Activity
     val terminalDarkTheme = remember { PreferencesManager.getInstance(context).terminalDarkTheme }
+    // Read once at entry like the theme above; re-enter to apply
+    val confirmTabClose = remember { PreferencesManager.getInstance(context).terminalConfirmClose }
 
     val keyboardController = LocalSoftwareKeyboardController.current
     var binder by remember { mutableStateOf<TerminalSessionService.SessionBinder?>(null) }
@@ -103,6 +105,8 @@ fun ContainerTerminalScreen(
     val tabs = remember { mutableStateListOf<TerminalTab>() }
     var activeTabId by remember { mutableStateOf("") }
     var showUserPicker by remember { mutableStateOf(false) }
+    // Tab whose X was tapped while Confirm Before Closing is on
+    var tabPendingClose by remember { mutableStateOf<TerminalTab?>(null) }
 
     // Resolve hostname reactively; picker is shown only after binder+hostname are both ready
     var hostname by remember(containerName) {
@@ -183,6 +187,34 @@ fun ContainerTerminalScreen(
     // Physical back leaves sessions alive in the service.
     BackHandler { exitScreen() }
 
+    tabPendingClose?.let { tab ->
+        DsDialog(
+            onDismiss = { tabPendingClose = null },
+            footer = {
+                DialogFooterRow(
+                    dismissLabel = context.getString(R.string.cancel),
+                    confirmLabel = context.getString(R.string.ok),
+                    onDismiss = { tabPendingClose = null },
+                    onConfirm = {
+                        closeTab(tab)
+                        tabPendingClose = null
+                    },
+                )
+            }
+        ) {
+            Text(
+                text = context.getString(R.string.terminal_close_tab_title),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = context.getString(R.string.terminal_close_tab_message),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+
     if (showUserPicker) {
         UserPickerDialog(
             users = availableUsers,
@@ -259,7 +291,9 @@ fun ContainerTerminalScreen(
                                         contentAlignment = Alignment.Center
                                     ) {
                                         IconButton(
-                                            onClick = { closeTab(tab) },
+                                            // Only the X asks for confirmation; a shell that already
+                                            // exited closes through onSessionFinished unasked
+                                            onClick = { if (confirmTabClose) tabPendingClose = tab else closeTab(tab) },
                                             modifier = Modifier.size(16.dp)
                                         ) {
                                             Icon(
