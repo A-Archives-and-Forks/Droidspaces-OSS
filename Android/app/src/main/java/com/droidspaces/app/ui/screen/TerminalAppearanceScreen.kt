@@ -57,6 +57,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.droidspaces.app.R
+import com.droidspaces.app.ui.component.SectionHeader
 import com.droidspaces.app.ui.component.SwitchItem
 import com.droidspaces.app.ui.component.TerminalFontDialog
 import com.droidspaces.app.ui.theme.rememberThemeState
@@ -100,6 +101,9 @@ fun TerminalAppearanceScreen(onBack: () -> Unit) {
             ?: context.getString(R.string.terminal_font_default)
     }
 
+    val cardColor = if (darkTheme) MaterialTheme.colorScheme.surfaceContainerHigh else MaterialTheme.colorScheme.surfaceContainer
+    val cardBorder = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f))
+
     Scaffold(
         containerColor = Color.Transparent,
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -136,23 +140,44 @@ fun TerminalAppearanceScreen(onBack: () -> Unit) {
         ) {
             Spacer(modifier = Modifier.height(12.dp))
 
+            SectionHeader(
+                text = context.getString(R.string.terminal_font),
+                modifier = Modifier.padding(start = 24.dp, bottom = 8.dp)
+            )
+
             Surface(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 shape = RoundedCornerShape(24.dp),
-                color = if (darkTheme) MaterialTheme.colorScheme.surfaceContainerHigh else MaterialTheme.colorScheme.surfaceContainer,
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f))
+                color = cardColor,
+                border = cardBorder
             ) {
                 Column {
-                    // Terminal Dark Mode - independent of the app-wide theme
-                    SwitchItem(
-                        icon = Icons.Default.Terminal,
-                        title = context.getString(R.string.terminal_dark_theme),
-                        summary = context.getString(R.string.terminal_dark_theme_description),
-                        checked = terminalDarkTheme,
-                        onCheckedChange = { checked ->
-                            prefsManager.terminalDarkTheme = checked
-                            terminalDarkTheme = checked
-                        }
+                    // Font family lives in a dialog, like the env vars picker
+                    ListItem(
+                        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                        leadingContent = {
+                            Icon(
+                                imageVector = Icons.Default.FontDownload,
+                                contentDescription = null
+                            )
+                        },
+                        headlineContent = {
+                            Text(
+                                text = context.getString(R.string.terminal_font_family),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        },
+                        supportingContent = {
+                            Text(fontSummary)
+                        },
+                        trailingContent = {
+                            Icon(
+                                imageVector = Icons.Default.ChevronRight,
+                                contentDescription = null
+                            )
+                        },
+                        modifier = Modifier.clickable { showFontDialog = true }
                     )
 
                     HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
@@ -227,51 +252,59 @@ fun TerminalAppearanceScreen(onBack: () -> Unit) {
                             }
                         )
                     }
-
-                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
-
-                    // Font selection lives in a dialog, like the env vars picker
-                    ListItem(
-                        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                        leadingContent = {
-                            Icon(
-                                imageVector = Icons.Default.FontDownload,
-                                contentDescription = null
-                            )
-                        },
-                        headlineContent = {
-                            Text(
-                                text = context.getString(R.string.terminal_font),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        },
-                        supportingContent = {
-                            Text(fontSummary)
-                        },
-                        trailingContent = {
-                            Icon(
-                                imageVector = Icons.Default.ChevronRight,
-                                contentDescription = null
-                            )
-                        },
-                        modifier = Modifier.clickable { showFontDialog = true }
-                    )
-
-                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
-
-                    // Opt-in: guards the X on a terminal tab against fat fingers
-                    SwitchItem(
-                        icon = Icons.Default.Close,
-                        title = context.getString(R.string.terminal_confirm_close),
-                        summary = context.getString(R.string.terminal_confirm_close_description),
-                        checked = confirmClose,
-                        onCheckedChange = { checked ->
-                            prefsManager.terminalConfirmClose = checked
-                            confirmClose = checked
-                        }
-                    )
                 }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            SectionHeader(
+                text = context.getString(R.string.terminal_section_theme),
+                modifier = Modifier.padding(start = 24.dp, bottom = 8.dp, top = 8.dp)
+            )
+
+            Surface(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                shape = RoundedCornerShape(24.dp),
+                color = cardColor,
+                border = cardBorder
+            ) {
+                // Terminal Dark Mode - independent of the app-wide theme
+                SwitchItem(
+                    icon = Icons.Default.Terminal,
+                    title = context.getString(R.string.terminal_dark_theme),
+                    summary = context.getString(R.string.terminal_dark_theme_description),
+                    checked = terminalDarkTheme,
+                    onCheckedChange = { checked ->
+                        prefsManager.terminalDarkTheme = checked
+                        terminalDarkTheme = checked
+                    }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            SectionHeader(
+                text = context.getString(R.string.terminal_section_misc),
+                modifier = Modifier.padding(start = 24.dp, bottom = 8.dp, top = 8.dp)
+            )
+
+            Surface(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                shape = RoundedCornerShape(24.dp),
+                color = cardColor,
+                border = cardBorder
+            ) {
+                // Opt-in: guards the X on a terminal tab against fat fingers
+                SwitchItem(
+                    icon = Icons.Default.Close,
+                    title = context.getString(R.string.terminal_confirm_close),
+                    summary = context.getString(R.string.terminal_confirm_close_description),
+                    checked = confirmClose,
+                    onCheckedChange = { checked ->
+                        prefsManager.terminalConfirmClose = checked
+                        confirmClose = checked
+                    }
+                )
             }
 
             Spacer(modifier = Modifier.height(12.dp))

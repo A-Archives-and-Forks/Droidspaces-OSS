@@ -120,7 +120,7 @@ fun TerminalFontDialog(
     ) {
         Column {
             Text(
-                context.getString(R.string.terminal_font),
+                context.getString(R.string.terminal_font_family),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
