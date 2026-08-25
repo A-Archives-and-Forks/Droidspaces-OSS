@@ -28,7 +28,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.material3.SnackbarHost
+import com.droidspaces.app.ui.component.DsSnackbarHost
 import com.droidspaces.app.ui.util.ProgressDialog
 import com.droidspaces.app.ui.util.ErrorLogsDialog
 import com.droidspaces.app.ui.util.LoadingIndicator
@@ -317,7 +317,7 @@ fun ContainersScreen(
         }
 
         // SNACKBAR LAYER (Highest Z-index in the root Box)
-        SnackbarHost(
+        DsSnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 100.dp)
         )

@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import com.droidspaces.app.ui.component.DsSnackbarHost
 import com.droidspaces.app.ui.theme.JetBrainsMono
 import com.droidspaces.app.R
 import com.droidspaces.app.ui.util.FullScreenLoading
@@ -117,7 +118,7 @@ fun OverrideEditorScreen(
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Transparent)
                 )
             },
-            snackbarHost = { SnackbarHost(snackbarHostState) },
+            snackbarHost = { DsSnackbarHost(snackbarHostState) },
             containerColor = Color.Transparent
         ) { padding ->
             Box(modifier = Modifier.padding(padding).fillMaxSize().padding(16.dp)) {

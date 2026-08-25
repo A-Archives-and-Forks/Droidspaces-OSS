@@ -48,6 +48,7 @@ import com.droidspaces.app.ui.component.CardContentPadding
 import com.droidspaces.app.ui.component.CardHeaderHeight
 import com.droidspaces.app.ui.theme.JetBrainsMono
 import com.droidspaces.app.R
+import com.droidspaces.app.ui.component.DsSnackbarHost
 import com.droidspaces.app.ui.component.dsMenuBorder
 import com.droidspaces.app.ui.component.DsMenuTheme
 import com.droidspaces.app.ui.component.StatusPill
@@ -218,7 +219,7 @@ fun InitServiceScreen(
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Transparent, scrolledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f))
                 )
             },
-            snackbarHost = { SnackbarHost(snackbarHostState) },
+            snackbarHost = { DsSnackbarHost(snackbarHostState) },
             containerColor = Color.Transparent
         ) { padding ->
             ClearFocusOnClickOutside(modifier = Modifier.padding(padding).fillMaxSize()) {

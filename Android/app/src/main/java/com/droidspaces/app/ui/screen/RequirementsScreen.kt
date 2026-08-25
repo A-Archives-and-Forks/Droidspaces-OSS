@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.BorderStroke
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.droidspaces.app.R
+import com.droidspaces.app.ui.component.DsSnackbarHost
 import com.droidspaces.app.ui.component.TerminalDialog
 import com.droidspaces.app.ui.viewmodel.AppStateViewModel
 import com.droidspaces.app.util.Constants
@@ -293,7 +294,7 @@ CONFIG_TMPFS_XATTR=y""",
             }
 
             // Snackbar host
-            SnackbarHost(
+            DsSnackbarHost(
                 hostState = snackbarHostState,
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
