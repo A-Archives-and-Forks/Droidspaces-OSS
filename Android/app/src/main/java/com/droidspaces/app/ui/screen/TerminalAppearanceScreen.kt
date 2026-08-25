@@ -2,6 +2,7 @@ package com.droidspaces.app.ui.screen
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,12 +24,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.FontDownload
 import androidx.compose.material.icons.filled.FormatSize
 import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
@@ -52,8 +57,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.droidspaces.app.R
 import com.droidspaces.app.ui.component.SwitchItem
+import com.droidspaces.app.ui.component.TerminalFontDialog
 import com.droidspaces.app.ui.theme.rememberThemeState
+import com.droidspaces.app.util.FontInfo
 import com.droidspaces.app.util.PreferencesManager
+import java.io.File
 import kotlin.math.roundToInt
 
 // Same bounds pinch-to-zoom enforces in TerminalBackEnd
@@ -77,6 +85,18 @@ fun TerminalAppearanceScreen(onBack: () -> Unit) {
     // SharedPreferences listener, same reasoning as the toggles on SettingsScreen.
     var terminalDarkTheme by remember { mutableStateOf(prefsManager.terminalDarkTheme) }
     var fontSizePx by remember { mutableFloatStateOf(prefsManager.terminalFontSizePx.toFloat()) }
+
+    var selectedFont by remember { mutableStateOf(prefsManager.terminalFontFile) }
+    var showFontDialog by remember { mutableStateOf(false) }
+    // Re-resolved when the dialog closes too, since a delete inside it can
+    // remove the file the selection points at
+    val fontSummary = remember(selectedFont, showFontDialog) {
+        selectedFont.takeIf { it.isNotEmpty() }
+            ?.let { File(FontInfo.fontsDir(context), it) }
+            ?.takeIf { it.isFile }
+            ?.let { FontInfo.displayName(it) }
+            ?: context.getString(R.string.terminal_font_default)
+    }
 
     Scaffold(
         containerColor = Color.Transparent,
@@ -205,8 +225,52 @@ fun TerminalAppearanceScreen(onBack: () -> Unit) {
                             }
                         )
                     }
+
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+
+                    // Font selection lives in a dialog, like the env vars picker
+                    ListItem(
+                        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                        leadingContent = {
+                            Icon(
+                                imageVector = Icons.Default.FontDownload,
+                                contentDescription = null
+                            )
+                        },
+                        headlineContent = {
+                            Text(
+                                text = context.getString(R.string.terminal_font),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        },
+                        supportingContent = {
+                            Text(fontSummary)
+                        },
+                        trailingContent = {
+                            Icon(
+                                imageVector = Icons.Default.ChevronRight,
+                                contentDescription = null
+                            )
+                        },
+                        modifier = Modifier.clickable { showFontDialog = true }
+                    )
                 }
             }
+
+            Spacer(modifier = Modifier.height(12.dp))
         }
+    }
+
+    if (showFontDialog) {
+        TerminalFontDialog(
+            initialSelection = selectedFont,
+            onConfirm = { fileName ->
+                prefsManager.terminalFontFile = fileName
+                selectedFont = fileName
+                showFontDialog = false
+            },
+            onDismiss = { showFontDialog = false }
+        )
     }
 }

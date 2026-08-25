@@ -152,6 +152,14 @@ class PreferencesManager private constructor(context: Context) {
             prefs.edit().putInt(KEY_TERMINAL_FONT_SIZE, value).apply()
         }
 
+    // Filename inside filesDir/fonts/; "" = the bundled JetBrains Mono. Like the
+    // size above, sessions read it once at creation.
+    var terminalFontFile: String
+        get() = prefs.getString(KEY_TERMINAL_FONT_FILE, "") ?: ""
+        set(value) {
+            prefs.edit().putString(KEY_TERMINAL_FONT_FILE, value).apply()
+        }
+
     var isDaemonModeEnabled: Boolean
         get() = prefs.getBoolean(KEY_DAEMON_MODE_ENABLED, false)
         set(value) {
@@ -395,6 +403,7 @@ class PreferencesManager private constructor(context: Context) {
         private const val KEY_USE_DYNAMIC_COLOR = Constants.KEY_USE_DYNAMIC_COLOR
         private const val KEY_TERMINAL_DARK_THEME = Constants.KEY_TERMINAL_DARK_THEME
         private const val KEY_TERMINAL_FONT_SIZE = Constants.KEY_TERMINAL_FONT_SIZE
+        private const val KEY_TERMINAL_FONT_FILE = Constants.KEY_TERMINAL_FONT_FILE
         const val KEY_THEME_PALETTE = Constants.KEY_THEME_PALETTE
         const val KEY_DAEMON_MODE_ENABLED = Constants.KEY_DAEMON_MODE_ENABLED
         const val KEY_SYMLINK_ENABLED = Constants.KEY_SYMLINK_ENABLED

@@ -41,9 +41,12 @@ import com.droidspaces.app.ui.terminal.virtualkeys.VirtualKeysConstants
 import com.droidspaces.app.ui.terminal.virtualkeys.VirtualKeysInfo
 import com.droidspaces.app.ui.terminal.virtualkeys.VirtualKeysListener
 import com.droidspaces.app.ui.terminal.virtualkeys.VirtualKeysView
+import android.graphics.Typeface
 import com.droidspaces.app.util.AnimationUtils
 import com.droidspaces.app.util.ContainerOSInfoManager
+import com.droidspaces.app.util.FontInfo
 import com.droidspaces.app.util.PreferencesManager
+import java.io.File
 import com.droidspaces.app.ui.util.LoadingIndicator
 import com.droidspaces.app.ui.util.LoadingSize
 import com.termux.terminal.TerminalSession
@@ -319,8 +322,17 @@ private fun TerminalTabView(
     val context = androidx.compose.ui.platform.LocalContext.current
     val prefsManager = remember { PreferencesManager.getInstance(context) }
     val fontSizePx = TerminalSessionService.globalSessionList[tab.id]?.fontSizePx ?: prefsManager.terminalFontSizePx
-    // Loaded once per composition - null = bundled font missing, fallback to system default
-    val terminalTypeface = remember { ResourcesCompat.getFont(context, R.font.jetbrains_mono) }
+    // Read once at entry, re-enter to apply, same contract as terminalDarkTheme below.
+    // A missing or corrupt custom font falls back to bundled JetBrains Mono, and a
+    // null bundled font falls back to the system default.
+    val terminalTypeface = remember {
+        prefsManager.terminalFontFile
+            .takeIf { it.isNotEmpty() }
+            ?.let { File(FontInfo.fontsDir(context), it) }
+            ?.takeIf { it.isFile }
+            ?.let { runCatching { Typeface.createFromFile(it) }.getOrNull() }
+            ?: ResourcesCompat.getFont(context, R.font.jetbrains_mono)
+    }
 
     // Terminal-only dark mode: renders the terminal page dark even when the rest
     // of the app follows the light theme. Read once at entry; re-enter to apply.
