@@ -83,6 +83,9 @@
     <string name="dark_theme_description">Enable dark theme</string>
     <string name="terminal_dark_theme">Terminal Dark Mode</string>
     <string name="terminal_dark_theme_description">Use dark colors for the terminal page only</string>
+    <string name="terminal_appearance_summary">Dark mode and font size</string>
+    <string name="terminal_font_size">Font size</string>
+    <string name="terminal_font_size_description">Initial text size for new terminal sessions. Pinch to zoom adjusts each session separately.</string>
     <string name="amoled_mode">AMOLED Mode</string>
     <string name="amoled_mode_description">Pure black background for OLED displays</string>
     <string name="dynamic_color">Apply System\'s Default Color Palette</string>

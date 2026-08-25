@@ -71,7 +71,8 @@ fun SettingsScreen(
     onBack: () -> Unit,
     onNavigateToInstallation: () -> Unit = {},
     onNavigateToRequirements: () -> Unit = {},
-    onNavigateToAutoBootPriority: () -> Unit = {}
+    onNavigateToAutoBootPriority: () -> Unit = {},
+    onNavigateToTerminalAppearance: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -90,10 +91,6 @@ fun SettingsScreen(
     val darkTheme = themeState.darkTheme
     val amoledMode = themeState.amoledMode
     val useDynamicColor = themeState.useDynamicColor
-
-    // Terminal-only dark mode - local state mirrors the preference so the switch
-    // updates immediately without waiting for a SharedPreferences listener.
-    var terminalDarkTheme by remember { mutableStateOf(prefsManager.terminalDarkTheme) }
 
     // About dialog state
     var showAboutDialog by remember { mutableStateOf(false) }
@@ -364,19 +361,6 @@ fun SettingsScreen(
                 )
             }
 
-            // Terminal Dark Mode - independent of the app-wide theme
-            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
-            SwitchItem(
-                icon = Icons.Default.Terminal,
-                title = context.getString(R.string.terminal_dark_theme),
-                summary = context.getString(R.string.terminal_dark_theme_description),
-                checked = terminalDarkTheme,
-                onCheckedChange = { checked ->
-                    prefsManager.terminalDarkTheme = checked
-                    terminalDarkTheme = checked
-                }
-            )
-
             // AMOLED Mode (shown when followSystemTheme is true OR manual darkTheme is true)
             if (followSystemTheme || darkTheme) {
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
@@ -420,6 +404,34 @@ fun SettingsScreen(
                     }
                 )
             }
+
+            // Terminal customization lives on its own page (dark mode, font size, ...)
+            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+            ListItem(colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                leadingContent = {
+                    Icon(
+                        imageVector = Icons.Default.Terminal,
+                        contentDescription = null
+                    )
+                },
+                headlineContent = {
+                    Text(
+                        text = context.getString(R.string.terminal),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                },
+                supportingContent = {
+                    Text(context.getString(R.string.terminal_appearance_summary))
+                },
+                trailingContent = {
+                    Icon(
+                        imageVector = Icons.Default.ChevronRight,
+                        contentDescription = null
+                    )
+                },
+                modifier = Modifier.clickable { onNavigateToTerminalAppearance() }
+            )
                 }
             }
 

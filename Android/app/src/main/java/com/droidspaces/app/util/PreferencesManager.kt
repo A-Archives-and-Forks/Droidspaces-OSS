@@ -144,6 +144,14 @@ class PreferencesManager private constructor(context: Context) {
             prefs.edit().putBoolean(KEY_TERMINAL_DARK_THEME, value).apply()
         }
 
+    // Terminal text size in px, the unit Termux's TerminalView uses. Read once when
+    // a session is created; pinch-to-zoom then adjusts that session in memory only.
+    var terminalFontSizePx: Int
+        get() = prefs.getInt(KEY_TERMINAL_FONT_SIZE, 30)
+        set(value) {
+            prefs.edit().putInt(KEY_TERMINAL_FONT_SIZE, value).apply()
+        }
+
     var isDaemonModeEnabled: Boolean
         get() = prefs.getBoolean(KEY_DAEMON_MODE_ENABLED, false)
         set(value) {
@@ -386,6 +394,7 @@ class PreferencesManager private constructor(context: Context) {
         private const val KEY_AMOLED_MODE = Constants.KEY_AMOLED_MODE
         private const val KEY_USE_DYNAMIC_COLOR = Constants.KEY_USE_DYNAMIC_COLOR
         private const val KEY_TERMINAL_DARK_THEME = Constants.KEY_TERMINAL_DARK_THEME
+        private const val KEY_TERMINAL_FONT_SIZE = Constants.KEY_TERMINAL_FONT_SIZE
         const val KEY_THEME_PALETTE = Constants.KEY_THEME_PALETTE
         const val KEY_DAEMON_MODE_ENABLED = Constants.KEY_DAEMON_MODE_ENABLED
         const val KEY_SYMLINK_ENABLED = Constants.KEY_SYMLINK_ENABLED

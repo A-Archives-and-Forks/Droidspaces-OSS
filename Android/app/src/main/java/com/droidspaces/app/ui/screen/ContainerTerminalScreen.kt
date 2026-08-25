@@ -28,7 +28,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -317,18 +316,15 @@ private fun TerminalTabView(
     onSessionFinished: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val density = LocalDensity.current
-    val defaultFontSizePx = remember { with(density) { 10.dp.roundToPx() } }
-    val fontSizePx = TerminalSessionService.globalSessionList[tab.id]?.fontSizePx ?: defaultFontSizePx
-    // Loaded once per composition - null = bundled font missing, fallback to system default
     val context = androidx.compose.ui.platform.LocalContext.current
+    val prefsManager = remember { PreferencesManager.getInstance(context) }
+    val fontSizePx = TerminalSessionService.globalSessionList[tab.id]?.fontSizePx ?: prefsManager.terminalFontSizePx
+    // Loaded once per composition - null = bundled font missing, fallback to system default
     val terminalTypeface = remember { ResourcesCompat.getFont(context, R.font.jetbrains_mono) }
 
     // Terminal-only dark mode: renders the terminal page dark even when the rest
     // of the app follows the light theme. Read once at entry; re-enter to apply.
-    val terminalDarkTheme = remember {
-        PreferencesManager.getInstance(context).terminalDarkTheme
-    }
+    val terminalDarkTheme = remember { prefsManager.terminalDarkTheme }
     // Termux TerminalColors indices: 256 = default foreground, 257 = background,
     // 258 = cursor. Dark mode uses the classic termux white-on-black scheme:
     // pure white foreground on pure black background.
