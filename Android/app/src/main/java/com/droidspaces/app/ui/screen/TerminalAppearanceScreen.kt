@@ -1,5 +1,6 @@
 package com.droidspaces.app.ui.screen
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,7 +27,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.automirrored.filled.KeyboardBackspace
 import androidx.compose.material.icons.filled.FontDownload
+import androidx.compose.material.icons.filled.Keyboard
 import androidx.compose.material.icons.filled.FormatSize
 import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -89,6 +92,8 @@ fun TerminalAppearanceScreen(onBack: () -> Unit) {
     var terminalDarkTheme by remember { mutableStateOf(prefsManager.terminalDarkTheme) }
     var fontSizePx by remember { mutableFloatStateOf(prefsManager.terminalFontSizePx.toFloat()) }
     var confirmClose by remember { mutableStateOf(prefsManager.terminalConfirmClose) }
+    var tapKeyboard by remember { mutableStateOf(prefsManager.terminalTapKeyboard) }
+    var keyboardLeft by remember { mutableStateOf(prefsManager.terminalKeyboardLeft) }
 
     var selectedFont by remember { mutableStateOf(prefsManager.terminalFontFile) }
     var showFontDialog by remember { mutableStateOf(false) }
@@ -296,17 +301,46 @@ fun TerminalAppearanceScreen(onBack: () -> Unit) {
                 color = cardColor,
                 border = cardBorder
             ) {
-                // Opt-in: guards the X on a terminal tab against fat fingers
-                SwitchItem(
-                    icon = Icons.Default.Close,
-                    title = context.getString(R.string.terminal_confirm_close),
-                    summary = context.getString(R.string.terminal_confirm_close_description),
-                    checked = confirmClose,
-                    onCheckedChange = { checked ->
-                        prefsManager.terminalConfirmClose = checked
-                        confirmClose = checked
+                Column {
+                    // Opt-in: guards the X on a terminal tab against fat fingers
+                    SwitchItem(
+                        icon = Icons.Default.Close,
+                        title = context.getString(R.string.terminal_confirm_close),
+                        summary = context.getString(R.string.terminal_confirm_close_description),
+                        checked = confirmClose,
+                        onCheckedChange = { checked ->
+                            prefsManager.terminalConfirmClose = checked
+                            confirmClose = checked
+                        }
+                    )
+
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+
+                    SwitchItem(
+                        icon = Icons.Default.Keyboard,
+                        title = context.getString(R.string.terminal_tap_keyboard),
+                        summary = context.getString(R.string.terminal_tap_keyboard_description),
+                        checked = tapKeyboard,
+                        onCheckedChange = { checked ->
+                            prefsManager.terminalTapKeyboard = checked
+                            tapKeyboard = checked
+                        }
+                    )
+
+                    // Nothing to place while taps still open the keyboard
+                    AnimatedVisibility(visible = !tapKeyboard) {
+                        SwitchItem(
+                            icon = Icons.AutoMirrored.Filled.KeyboardBackspace,
+                            title = context.getString(R.string.terminal_keyboard_left),
+                            summary = context.getString(R.string.terminal_keyboard_left_description),
+                            checked = keyboardLeft,
+                            onCheckedChange = { checked ->
+                                prefsManager.terminalKeyboardLeft = checked
+                                keyboardLeft = checked
+                            }
+                        )
                     }
-                )
+                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
