@@ -60,6 +60,7 @@ import com.droidspaces.app.R
 import com.droidspaces.app.ui.component.SectionHeader
 import com.droidspaces.app.ui.component.SwitchItem
 import com.droidspaces.app.ui.component.TerminalFontDialog
+import com.droidspaces.app.ui.theme.JetBrainsMono
 import com.droidspaces.app.ui.theme.rememberThemeState
 import com.droidspaces.app.util.FontInfo
 import com.droidspaces.app.util.PreferencesManager
@@ -93,12 +94,13 @@ fun TerminalAppearanceScreen(onBack: () -> Unit) {
     var showFontDialog by remember { mutableStateOf(false) }
     // Re-resolved when the dialog closes too, since a delete inside it can
     // remove the file the selection points at
-    val fontSummary = remember(selectedFont, showFontDialog) {
-        selectedFont.takeIf { it.isNotEmpty() }
+    // The card previews the selection in its own face, same as the picker rows
+    val (fontSummary, fontFamily) = remember(selectedFont, showFontDialog) {
+        val file = selectedFont.takeIf { it.isNotEmpty() }
             ?.let { File(FontInfo.fontsDir(context), it) }
             ?.takeIf { it.isFile }
-            ?.let { FontInfo.displayName(it) }
-            ?: context.getString(R.string.terminal_font_default)
+        if (file == null) context.getString(R.string.terminal_font_default) to JetBrainsMono
+        else FontInfo.displayName(file) to (FontInfo.family(file) ?: JetBrainsMono)
     }
 
     val cardColor = if (darkTheme) MaterialTheme.colorScheme.surfaceContainerHigh else MaterialTheme.colorScheme.surfaceContainer
@@ -169,7 +171,7 @@ fun TerminalAppearanceScreen(onBack: () -> Unit) {
                             )
                         },
                         supportingContent = {
-                            Text(fontSummary)
+                            Text(fontSummary, fontFamily = fontFamily)
                         },
                         trailingContent = {
                             Icon(
