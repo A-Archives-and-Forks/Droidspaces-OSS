@@ -1142,9 +1142,7 @@ int enter_rootfs(struct ds_config *cfg, const char *user) {
      * and the seccomp filter below denies that very magic reboot. */
     ds_ksu_neutralize_root_escape();
     ds_seccomp_apply_minimal(cfg->privileged_mask, cfg->userns_allowed);
-    android_seccomp_setup(
-        0, cfg->block_nested_ns && !(cfg->privileged_mask & DS_PRIV_NOSEC),
-        cfg->privileged_mask);
+    android_seccomp_setup(cfg->privileged_mask);
     ds_apply_capability_hardening(cfg->hw_access, cfg->privileged_mask);
     ds_log_silent = 0;
 
@@ -1363,9 +1361,7 @@ int run_in_rootfs(struct ds_config *cfg, int argc, char **argv,
      * and the seccomp filter below denies that very magic reboot. */
     ds_ksu_neutralize_root_escape();
     ds_seccomp_apply_minimal(cfg->privileged_mask, cfg->userns_allowed);
-    android_seccomp_setup(
-        0, cfg->block_nested_ns && !(cfg->privileged_mask & DS_PRIV_NOSEC),
-        cfg->privileged_mask);
+    android_seccomp_setup(cfg->privileged_mask);
     ds_apply_capability_hardening(cfg->hw_access, cfg->privileged_mask);
     ds_log_silent = 0;
 
@@ -1610,7 +1606,6 @@ int show_info(struct ds_config *cfg, int trust_cfg_pid) {
 
     ds_json_int("volatile_mode", cfg->volatile_mode, &first);
     ds_json_int("force_cgroup_v1", cfg->force_cgroupv1, &first);
-    ds_json_int("deadlock_shield", cfg->block_nested_ns, &first);
     ds_json_int("userns_allowed", cfg->userns_allowed, &first);
     ds_json_int("vts_allowed", cfg->allow_vts, &first);
     ds_json_int("foreground_mode", cfg->foreground, &first);
@@ -1813,12 +1808,6 @@ int show_info(struct ds_config *cfg, int trust_cfg_pid) {
     /* 12. Cgroup v1 */
     if (cfg->force_cgroupv1) {
       printf("  " C_RED "Force Cgroup V1:" C_RESET " yes\n");
-      feat_count++;
-    }
-
-    /* 13. Deadlock Shield (block_nested_ns) */
-    if (cfg->block_nested_ns) {
-      printf("  " C_RED "Deadlock Shield:" C_RESET " enabled\n");
       feat_count++;
     }
 

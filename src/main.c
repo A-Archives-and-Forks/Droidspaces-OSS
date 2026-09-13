@@ -94,9 +94,6 @@ void print_usage(void) {
       "  -P, --selinux-permissive  Set host SELinux to permissive mode\n"
       "  -V, --volatile            Discard changes on exit (OverlayFS)\n"
       "      --force-cgroupv1      Force legacy cgroup v1 hierarchy\n"
-      "      --block-nested-namespaces\n"
-      "                            Manual Deadlock Shield (no nested "
-      "namespaces)\n"
       "      --memory=LIMIT        Memory limit (e.g. 512M, 2G)\n"
       "      --cpus=COUNT          CPU limit (e.g. 1.5, 2)\n"
       "      --pids-limit=N        Max number of PIDs\n"
@@ -390,7 +387,6 @@ static struct option long_options[] = {
     {"port", required_argument, 0, 258},
     {"upstream", required_argument, 0, 259},
     {"force-cgroupv1", no_argument, 0, 260},
-    {"block-nested-namespaces", no_argument, 0, 261},
     {"privileged", required_argument, 0, 264},
     {"nat-ip", required_argument, 0, 262},
     {"gpu", no_argument, 0, 263},
@@ -794,10 +790,6 @@ int ds_apply_cli_overrides(int argc, char **argv, struct ds_config *cfg,
       /* --force-cgroupv1: escape hatch to legacy hierarchy */
       cfg->force_cgroupv1 = 1;
       break;
-    case 261:
-      /* --block-nested-namespaces: fix VFS deadlock manually */
-      cfg->block_nested_ns = 1;
-      break;
 
     case 262: {
       /* --nat-ip: static container IP inside the NAT subnet.
@@ -1164,9 +1156,6 @@ int main(int argc, char **argv) {
     }
     enforce_nat_safety(&cfg, argc, argv);
     print_ds_banner();
-    if ((cfg.privileged_mask & DS_PRIV_NOSEC) && cfg.block_nested_ns)
-      ds_warn("--privileged=noseccomp is active: --block-nested-namespaces "
-              "is now a NO-OP.");
     ds_cgroup_host_bootstrap(cfg.force_cgroupv1);
     if (cfg.container_name[0] == '\0' && cfg.rootfs_path[0])
       generate_container_name(cfg.rootfs_path, cfg.container_name,
@@ -1192,9 +1181,6 @@ int main(int argc, char **argv) {
       goto cleanup;
     }
     enforce_nat_safety(&cfg, argc, argv);
-    if ((cfg.privileged_mask & DS_PRIV_NOSEC) && cfg.block_nested_ns)
-      ds_warn("--privileged=noseccomp is active: --block-nested-namespaces "
-              "is now a NO-OP.");
     ds_cgroup_host_bootstrap(cfg.force_cgroupv1);
     ret = restart_rootfs(&cfg, argc, argv);
     goto cleanup;

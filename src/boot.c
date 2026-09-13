@@ -534,10 +534,7 @@ int internal_boot(struct ds_config *cfg) {
    * Best-effort, silent no-op on non-KSU kernels. */
   ds_ksu_neutralize_root_escape();
   ds_seccomp_apply_minimal(cfg->privileged_mask, cfg->userns_allowed);
-  android_seccomp_setup(is_systemd,
-                        cfg->block_nested_ns &&
-                            !(cfg->privileged_mask & DS_PRIV_NOSEC),
-                        cfg->privileged_mask);
+  android_seccomp_setup(cfg->privileged_mask);
 
   ds_apply_capability_hardening(cfg->hw_access, cfg->privileged_mask);
 

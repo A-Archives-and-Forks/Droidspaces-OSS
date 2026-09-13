@@ -375,7 +375,6 @@ static void print_page(int page, const char *bin) {
     p_printf("%sSystem Integration:%s\n", bold, reset);
     p_printf("  --selinux-permissive      Set host SELinux to permissive\n");
     p_printf("  --force-cgroupv1          Force legacy cgroup hierarchy\n");
-    p_printf("  --block-nested-namespaces  Shield against VFS deadlocks\n");
     break;
 
   case 5: /* Advanced Features */
