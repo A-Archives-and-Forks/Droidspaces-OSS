@@ -403,7 +403,7 @@ When entering a container with `enter` or `run`, the process must be in the cont
 
 ---
 
-## Adaptive Security & Deadlock Shield
+## Adaptive Security
 
 Droidspaces includes sophisticated BPF-based seccomp filters to resolve critical Android kernel conflicts:
 
@@ -411,19 +411,6 @@ Droidspaces includes sophisticated BPF-based seccomp filters to resolve critical
 Android's File-Based Encryption stores filesystem keys in the kernel's session keyring. When systemd attempts to create new session keyrings, the process loses access to the host's encryption keys, causing `ENOKEY` errors.
 
 **Solution:** On legacy kernels (< 5.0), Droidspaces *automatically* intercepts keyring syscalls (`keyctl`, `add_key`, `request_key`) returning `ENOSYS`, forcing systemd to use the existing keyring.
-
-<a id="vfs-deadlock"></a>
-
-### 2. VFS Namespace Deadlock (Manual Opt-in)
-On certain devices with legacy kernels (notably 4.14.113, common on 2019-2020 Android devices), systemd's service sandboxing triggers a race condition in the kernel's VFS layer (`grab_super()` bug). This causes systemd to hang, `systemctl` to freeze, and potential device lockups. 4.9 and 4.19 kernels are largely unaffected.
-
-**The Fix:** You can manually enable the **Deadlock Shield** (in the Android App config or via `--block-nested-namespaces` CLI). This intercepts `unshare` and `clone` namespace requests with `EPERM`, preventing systemd from triggering the deadlock.
-
-### Nested Containers (Docker, Podman, LXC)
-
-Because the Deadlock Shield is now strictly an **opt-in toggle** rather than a hard-coded blanket ban:
-- **Native Support:** Users on all kernels can now run Docker, Podman, and LXC natively out-of-the-box.
-- **The Trade-off:** If your device requires the Deadlock Shield to boot systemd, enabling it will intentionally block the namespace creations required by Docker/Podman.
 
 > [!TIP]
 >
