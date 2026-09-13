@@ -490,8 +490,8 @@ fun ContainerConfigForm(
 
         LaunchedEffect(isSeccompDisabled, usernsSupported) {
             var s = state
-            if (isSeccompDisabled && usernsSupported) s = s.copy(allowUserns = true)
-            if (!usernsSupported) s = s.copy(allowUserns = false)
+            if (isSeccompDisabled && usernsSupported) s = s.copy(allowSandboxing = true)
+            if (!usernsSupported) s = s.copy(allowSandboxing = false)
             if (s != state) onStateChange(s)
         }
 
@@ -499,8 +499,8 @@ fun ContainerConfigForm(
             icon = Icons.Default.Groups,
             title = context.getString(R.string.allow_userns),
             description = if (usernsSupported) context.getString(R.string.allow_userns_description) else context.getString(R.string.allow_userns_description_not_supported),
-            checked = state.allowUserns,
-            onCheckedChange = { clearFocus(); onStateChange(state.copy(allowUserns = it)) },
+            checked = state.allowSandboxing,
+            onCheckedChange = { clearFocus(); onStateChange(state.copy(allowSandboxing = it)) },
             enabled = !isSeccompDisabled && usernsSupported
         )
 

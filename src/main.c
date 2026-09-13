@@ -99,7 +99,8 @@ void print_usage(void) {
       "      --pids-limit=N        Max number of PIDs\n"
       "      --privileged=TAGS     Relax security: nomask, nocaps, noseccomp, "
       "shared, full\n"
-      "      --allow-userns        Allow user namespaces\n"
+      "      --allow-sandboxing    Allow user namespaces for unprivileged "
+      "Docker, Podman, bwrap\n"
       "      --allow-vts           Leave host VTs (tty1-6) visible with "
       "--hw-access\n\n");
 
@@ -374,7 +375,8 @@ static struct option long_options[] = {
     {"disable-ipv6", no_argument, 0, 'I'},
     {"enable-android-storage", no_argument, 0, 'S'},
     {"selinux-permissive", no_argument, 0, 'P'},
-    {"allow-userns", no_argument, 0, 279},
+    {"allow-sandboxing", no_argument, 0, 279},
+    {"allow-userns", no_argument, 0, 279}, /* old name, kept for scripts */
     {"allow-vts", no_argument, 0, 278},
     {"volatile", no_argument, 0, 'V'},
     {"bind-mount", required_argument, 0, 'B'},
@@ -515,7 +517,7 @@ int ds_apply_cli_overrides(int argc, char **argv, struct ds_config *cfg,
       cfg->selinux_permissive = 1;
       break;
     case 279:
-      cfg->userns_allowed = 1;
+      cfg->sandboxing_allowed = 1;
       break;
     case 278:
       cfg->allow_vts = 1;

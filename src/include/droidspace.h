@@ -356,7 +356,7 @@ struct ds_config {
   int disable_ipv6;        /* --disable-ipv6 */
   int android_storage;     /* --enable-android-storage */
   int selinux_permissive;  /* --selinux-permissive */
-  int userns_allowed;      /* --allow-userns */
+  int sandboxing_allowed;  /* --allow-sandboxing */
   int allow_vts;           /* --allow-vts: leave host VTs unmasked in hw mode */
   int net_bridgeless;      /* Probe result: no CONFIG_BRIDGE, use PTP NAT */
   int reboot_cycle;        /* 1 if we are in a reboot loop */
@@ -589,7 +589,7 @@ int ds_get_selinux_status(void);
 void android_remount_data_suid(void);
 int android_setup_storage(const char *rootfs_path);
 int android_seccomp_setup(int privileged_mask);
-int ds_seccomp_apply_minimal(int privileged_mask, int userns_allowed);
+int ds_seccomp_apply_minimal(int privileged_mask, int sandboxing_allowed);
 
 /* KernelSU container-escape hardening: ask KSU to mark the current thread
  * (TIF_KSU_DISABLE_ESCAPE_WITH_ROOT via KSU_IOCTL_DISABLE_ESCAPE_TO_ROOT)
@@ -862,7 +862,8 @@ void write_plain_env_file(const char *src, const char *dst);
 
 /* boot.c */
 
-void ds_apply_capability_hardening(int hw_access, int privileged_mask);
+void ds_apply_capability_hardening(int hw_access, int privileged_mask,
+                                   int sandboxing);
 int internal_boot(struct ds_config *cfg);
 
 /* environment.c */
