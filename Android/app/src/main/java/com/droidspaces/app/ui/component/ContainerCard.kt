@@ -191,7 +191,6 @@ fun ContainerCard(
                     if (container.allowUserns) add(context.getString(R.string.userns_option))
                     if (container.volatileMode) add(context.getString(R.string.volatile_option))
                     if (container.forceCgroupv1) add(context.getString(R.string.cgroup_v1_option))
-                    if (container.blockNestedNs) add(context.getString(R.string.deadlock_shield_option))
                     if (container.privileged.isNotEmpty()) add(context.getString(R.string.privileged_option))
                     if (container.customInit.isNotEmpty()) add(context.getString(R.string.custom_init_option))
                     if (container.runAtBoot) add(context.getString(R.string.run_at_boot))

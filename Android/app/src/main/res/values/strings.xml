@@ -173,7 +173,6 @@
     <string name="selinux_permissive_option">SELinux Permissive</string>
     <string name="volatile_option">Volatile</string>
     <string name="cgroup_v1_option">Cgroup V1</string>
-    <string name="deadlock_shield_option">Deadlock Shield</string>
     <string name="privileged_option">Privileged</string>
     <string name="userns_option">User Namespaces</string>
     <string name="installation_setup_summary">Installation Summary</string>
@@ -241,9 +240,6 @@
     <string name="reorder_handle">Drag to reorder</string>
     <string name="force_cgroupv1">Force Cgroup V1</string>
     <string name="force_cgroupv1_description">Force use of legacy Cgroup V1 hierarchy</string>
-    <string name="manual_deadlock_shield">Manual Deadlock Shield</string>
-    <string name="manual_deadlock_shield_description">Prevents kernel-level VFS deadlocks on legacy kernels (e.g., 4.14.x) by blocking nested namespace creation.
-\n\nWARNING: Enabling this will block Docker, Podman, LXC, and Systemd sandboxing support inside the container.</string>
 
     <!-- Config Categories and Network Mode -->
     <string name="cat_networking">Networking</string>

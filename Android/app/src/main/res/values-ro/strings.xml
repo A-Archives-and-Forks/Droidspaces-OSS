@@ -114,8 +114,6 @@
     <string name="run_at_boot_description">Pornește container-ul odată cu telefonul</string>
     <string name="force_cgroupv1">Forțează Cgroup V1</string>
     <string name="force_cgroupv1_description">Forțează utlizarea ierarhiei Cgroup V1 învechite</string>
-    <string name="manual_deadlock_shield">Scut deadlock manual</string>
-    <string name="manual_deadlock_shield_description">Previne deadlock-uri la nivel de kernel pe versiuni învechite ale acestuia (de exemplu, 4.14.x) prin blocarea creării unui namespace aflat în altul.\n\nATENȚIE: Activarea acestei opțiuni va bloca capacitatea de izolare a Docker, Podman, LXC, și Systemd în container.</string>
     <string name="cat_integration">Integrare &amp; Hardware</string>
     <string name="cat_security">Securitate &amp; execuție</string>
     <string name="cat_advanced">Opțiuni avansate</string>
@@ -324,7 +322,6 @@
     <string name="failure_in_operation">Eroare în %1$s la containerul %2$s</string>
     <string name="selinux_permissive_option">SELinux Permisiv</string>
     <string name="volatile_option">Volatil</string>
-    <string name="deadlock_shield_option">Scut Deadlock</string>
     <string name="privileged_option">Privilegiat</string>
     <string name="options">Opțiuni</string>
     <string name="gpu_access">Acces la GPU</string>

@@ -134,7 +134,6 @@ fun InstallationSummaryScreen(
                     if (config.volatileMode) SummaryItem(stringResource(R.string.volatile_mode), stringResource(R.string.enabled_legend), Icons.Default.AutoDelete)
                     if (config.runAtBoot) SummaryItem(stringResource(R.string.run_at_boot), stringResource(R.string.enabled_legend), Icons.Default.PowerSettingsNew)
                     if (config.forceCgroupv1) SummaryItem(stringResource(R.string.force_cgroupv1), stringResource(R.string.enabled_legend), Icons.Default.Layers)
-                    if (config.blockNestedNs) SummaryItem(stringResource(R.string.manual_deadlock_shield), stringResource(R.string.enabled_legend), Icons.Default.GppBad)
                     if (config.privileged.isNotEmpty()) SummaryItem(stringResource(R.string.privileged_mode), config.privileged, Icons.Default.GppMaybe)
 
                     val envCount = com.droidspaces.app.util.ValidationUtils.countEnvVars(config.envFileContent)
@@ -163,7 +162,7 @@ fun InstallationSummaryScreen(
                         !config.allowUserns && !config.volatileMode && config.bindMounts.isEmpty() &&
                         !config.runAtBoot && !config.disableIPv6 &&
                         !config.enableTermuxX11 && !config.enableVirgl && !config.enablePulseaudio &&
-                        !config.forceCgroupv1 && !config.blockNestedNs &&
+                        !config.forceCgroupv1 &&
                         config.upstreamInterfaces.isEmpty() && config.portForwards.isEmpty() &&
                         config.envFileContent.isNullOrBlank()) {
                         Text(

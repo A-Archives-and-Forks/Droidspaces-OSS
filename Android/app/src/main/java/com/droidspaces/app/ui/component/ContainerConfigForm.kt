@@ -35,7 +35,6 @@ import androidx.compose.material.icons.filled.Cyclone
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Devices
 import androidx.compose.material.icons.filled.Dns
-import androidx.compose.material.icons.filled.GppBad
 import androidx.compose.material.icons.filled.GppMaybe
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Layers
@@ -491,7 +490,6 @@ fun ContainerConfigForm(
 
         LaunchedEffect(isSeccompDisabled, usernsSupported) {
             var s = state
-            if (isSeccompDisabled) s = s.copy(blockNestedNs = false)
             if (isSeccompDisabled && usernsSupported) s = s.copy(allowUserns = true)
             if (!usernsSupported) s = s.copy(allowUserns = false)
             if (s != state) onStateChange(s)
@@ -520,15 +518,6 @@ fun ContainerConfigForm(
             description = context.getString(R.string.force_cgroupv1_description),
             checked = state.forceCgroupv1,
             onCheckedChange = { clearFocus(); onStateChange(state.copy(forceCgroupv1 = it)) }
-        )
-
-        ToggleCard(
-            icon = Icons.Default.GppBad,
-            title = context.getString(R.string.manual_deadlock_shield),
-            description = context.getString(R.string.manual_deadlock_shield_description),
-            checked = if (isSeccompDisabled) false else state.blockNestedNs,
-            onCheckedChange = { clearFocus(); onStateChange(state.copy(blockNestedNs = it)) },
-            enabled = !isSeccompDisabled
         )
 
         SettingsRowCard(

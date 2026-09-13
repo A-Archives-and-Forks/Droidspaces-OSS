@@ -23,7 +23,6 @@
     <string name="migrate_dialog_message">\"%1$s\" ஐ ஒரு சிறிய படத்திற்கு மாற்றுவது ஒரு பிரத்யேக ext4 கோப்பு முறைமையை உருவாக்கும். இந்த செயல்பாடு குறுக்கிடப்பட்டால் அழிவுகரமானது. உங்கள் தரவை காப்புப் பிரதி எடுக்கவும்.</string>
     <string name="add_variable">மாறியைச் சேர்க்கவும்</string>
     <string name="help_card_title">Droidspacesக்கு புதியதா?</string>
-    <string name="manual_deadlock_shield_description">உள்ளமை பெயர்வெளி உருவாக்கத்தைத் தடுப்பதன் மூலம் மரபு கர்னல்களில் (எ.கா., 4.14.x) கர்னல்-நிலை VFS முட்டுக்கட்டைகளைத் தடுக்கிறது. \n\nஎச்சரிக்கை: இதை இயக்குவது கொள்கலனுக்குள் Docker, Podman, LXC மற்றும் Systemd சாண்ட்பாக்சிங் ஆதரவைத் தடுக்கும்.</string>
     <string name="repo_custom_remove">அகற்று</string>
     <string name="backend_attention_required">பின்தளம்: நடவடிக்கை தேவை</string>
     <string name="unknown_legend">தெரியவில்லை</string>
@@ -217,7 +216,6 @@
     <string name="operation_completed_success">அறுவை மருத்தீடு வெற்றிகரமாக முடிந்தது!</string>
     <string name="status_stopped">நிறுத்தப்பட்டது</string>
     <string name="reinstall_backend_description">பைனரிகள் மற்றும் துவக்க தொகுதியை மீண்டும் நிறுவவும்</string>
-    <string name="deadlock_shield_option">டெட்லாக் சீல்ட்</string>
     <string name="gpu_option">GPU</string>
     <string name="resize_dialog_title">ச்பார்ச் படத்தின் அளவை மாற்றவும்</string>
     <string name="stop">நிறுத்து</string>
@@ -304,7 +302,6 @@
     <string name="terminal_logs">டெர்மினல் பதிவுகள்</string>
     <string name="feat_isolation_title">முழுமையான தனிமைப்படுத்தல்</string>
     <string name="repo_title">ரூட்ஃப்ச் களஞ்சியம்</string>
-    <string name="manual_deadlock_shield">மேனுவல் டெட்லாக் சீல்டு</string>
     <string name="privileged_mode">சலுகை பெற்ற பயன்முறை</string>
     <string name="repo_dl_error_too_many_redirects">பல வழிமாற்றுகள்</string>
     <string name="dns_servers_placeholder">எ.கா. 1.1.1.1,8.8.8.8 (விரும்பினால்)</string>
