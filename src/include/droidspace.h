@@ -500,7 +500,6 @@ int set_selinux_context(const char *path, const char *context);
 int ds_send_fd(int sock, int fd);
 int ds_recv_fd(int sock);
 void print_ds_banner(void);
-void print_privileged_warning(int privileged_mask);
 int is_systemd_rootfs(const char *path);
 
 ds_init_type_t detect_container_init(const char *path);
