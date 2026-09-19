@@ -117,13 +117,9 @@ private fun JournaldContent(logs: List<String>) {
         color = MaterialTheme.colorScheme.surfaceContainerHighest,
         shape = RoundedCornerShape(12.dp)
     ) {
-        val listState = rememberLazyListState()
-
-        LaunchedEffect(logs) {
-            if (logs.isNotEmpty()) {
-                listState.scrollToItem(logs.size - 1)
-            }
-        }
+        // Every reload passes through Loading, so this composable is fresh per log
+        // set. Start at the tail instead of scrolling there after the first frame.
+        val listState = rememberLazyListState(initialFirstVisibleItemIndex = logs.lastIndex.coerceAtLeast(0))
 
         SelectionContainer {
             LazyColumn(
