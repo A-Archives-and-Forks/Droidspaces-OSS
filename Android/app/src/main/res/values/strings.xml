@@ -328,10 +328,8 @@
     <string name="environment_variables">Environment Variables</string>
     <string name="environment_variables_configured">%1$d variable(s) configured</string>
     <string name="not_configured">Not configured</string>
-    <string name="env_hint_row">Each row is one KEY=VALUE pair</string>
-    <string name="key_label">KEY</string>
-    <string name="value_label">VALUE</string>
-    <string name="add_variable">Add variable</string>
+    <string name="env_placeholder">KEY=VALUE, one per line. Lines starting with # are ignored.</string>
+    <string name="env_lines_skipped">%1$d line(s) are not in KEY=VALUE form</string>
 
     <!-- Custom Init -->
     <string name="custom_init_label">Custom Init Binary</string>

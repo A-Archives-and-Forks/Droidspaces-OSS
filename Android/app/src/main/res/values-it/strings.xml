@@ -367,10 +367,6 @@
     <string name="install">Installa</string>
     <string name="uptime_label">%1$s: %2$s</string>
     <string name="ip_address_label">%1$s: %2$s</string>
-    <string name="env_hint_row">Ogni riga è una coppia CHIAVE=VALORE</string>
-    <string name="key_label">KEY</string>
-    <string name="value_label">VALUE</string>
-    <string name="add_variable">Aggiungi variabile</string>
     <string name="installing_container">Installazione Contenitore</string>
     <string name="done">Fatto</string>
     <string name="filter_absolute_path_hint">Filtra o digita il percorso assoluto…</string>

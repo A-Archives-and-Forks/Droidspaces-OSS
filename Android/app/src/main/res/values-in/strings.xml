@@ -350,10 +350,6 @@
     <string name="systemd">Systemd</string>
     <string name="selinux_permissive">SELinux Permisif</string>
     <string name="octet_label">Oktet %1$d</string>
-    <string name="env_hint_row">Setiap baris adalah satu pasangan KEY=VALUE</string>
-    <string name="key_label">KEY</string>
-    <string name="value_label">VALUE</string>
-    <string name="add_variable">Tambah variabel</string>
     <string name="installing_container">Memasang Container</string>
     <string name="done">Selesai</string>
     <string name="filter_absolute_path_hint">Saring atau ketik jalur absolut…</string>

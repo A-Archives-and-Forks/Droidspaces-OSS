@@ -360,10 +360,6 @@
     <string name="privileged_option">特权</string>
     <string name="uptime_label">%1$s: %2$s</string>
     <string name="ip_address_label">%1$s: %2$s</string>
-    <string name="env_hint_row">每行代表一组“KEY=VALUE”对</string>
-    <string name="key_label">KEY</string>
-    <string name="value_label">VALUE</string>
-    <string name="add_variable">添加变量</string>
     <string name="installing_container">正在安装容器</string>
     <string name="done">完成</string>
     <string name="filter_absolute_path_hint">筛选或输入绝对路径…</string>

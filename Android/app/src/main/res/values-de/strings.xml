@@ -360,10 +360,6 @@
     <string name="environment_variables">Umgebungsvariablen</string>
     <string name="environment_variables_configured">%1$d Variable(n) konfiguriert</string>
     <string name="not_configured">Nicht konfiguriert</string>
-    <string name="env_hint_row">Jede Reihe ist ein SCHLÜSSEL=WERT Paar</string>
-    <string name="key_label">SCHLÜSSEL</string>
-    <string name="value_label">WERT</string>
-    <string name="add_variable">Variable hinzufügen</string>
     <string name="custom_init_label">Benutzerdefinierte Init-Binärdatei</string>
     <string name="custom_init_placeholder">/sbin/init (Standard)</string>
     <string name="custom_init_hint">Leer lassen, um Standard-Init (/sbin/init) zu verwenden</string>

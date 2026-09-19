@@ -224,10 +224,6 @@
     <string name="environment_variables">អថេរបរិស្ថាន</string>
     <string name="environment_variables_configured">អថេរ %1$d ត្រូវបានកំណត់រចនាសម្ព័ន្ធ</string>
     <string name="not_configured">មិនត្រូវបានកំណត់រចនាសម្ព័ន្ធទេ</string>
-    <string name="env_hint_row">ជួរនីមួយៗមានគូ KEY=VALUE មួយគូ</string>
-    <string name="key_label">លេខសម្ងាត់</string>
-    <string name="value_label">តម្លៃ</string>
-    <string name="add_variable">បន្ថែមអថេរ</string>
     <string name="custom_init_label">គោលពីរ Init ផ្ទាល់ខ្លួន</string>
     <string name="custom_init_placeholder">/sbin/init (default)</string>
     <string name="custom_init_hint">ទុក​ឲ្យ​ទទេ​ដើម្បី​ប្រើ init លំនាំដើម (/sbin/init)</string>

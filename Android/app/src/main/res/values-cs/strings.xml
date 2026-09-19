@@ -273,10 +273,6 @@
     <string name="environment_variables">Proměnné prostředí</string>
     <string name="environment_variables_configured">Nastavené proměnné: %1$d</string>
     <string name="not_configured">Nenastaveno</string>
-    <string name="env_hint_row">Každý řádek obsahuje jednu dvojici KLÍČ=HODNOTA</string>
-    <string name="key_label">KLÍČ</string>
-    <string name="value_label">HODNOTA</string>
-    <string name="add_variable">Přidat proměnnou</string>
     <string name="custom_init_label">Vlastní binární soubor init</string>
     <string name="custom_init_placeholder">/sbin/init (výchozí)</string>
     <string name="custom_init_hint">Chcete-li použít výchozí init (/sbin/init), ponechte pole prázdné</string>

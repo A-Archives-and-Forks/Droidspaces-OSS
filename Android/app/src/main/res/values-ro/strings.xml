@@ -329,10 +329,6 @@
     <string name="network_mode_host_short">Gazda</string>
     <string name="network_mode_none_short">Niciunul</string>
     <string name="bind_mounts">Mount-uri de tip bind</string>
-    <string name="env_hint_row">Fiecare rând este o pereche CHEIE=VALOARE</string>
-    <string name="key_label">CHEIE</string>
-    <string name="value_label">VALOARE</string>
-    <string name="add_variable">Adaugă o variabilă</string>
     <string name="custom_init_label">Executabil Init customizat</string>
     <string name="custom_init_placeholder">/sbin/init (implicit)</string>
     <string name="custom_init_hint">Lasă gol dacă vrei să folosești init-ul implicit (/sbin/init)</string>
