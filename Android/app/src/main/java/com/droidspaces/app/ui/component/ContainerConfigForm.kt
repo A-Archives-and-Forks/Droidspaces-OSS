@@ -127,7 +127,9 @@ fun ContainerConfigForm(
                 tempSrcPath = path
                 showFilePicker = false
                 showDestDialog = true
-            }
+            },
+            // Bind mounting the host root hands the container the whole host filesystem.
+            allowRoot = false
         )
     }
 
